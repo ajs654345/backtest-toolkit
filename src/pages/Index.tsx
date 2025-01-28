@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import DateSelector from "@/components/DateSelector";
 import ExcelConfig from "@/components/ExcelConfig";
 import CurrencyPairList from "@/components/CurrencyPairList";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 
 const Index = () => {
   const { toast } = useToast();
@@ -47,7 +47,6 @@ const Index = () => {
   };
 
   const executeBacktest = async () => {
-    // Validaciones
     if (!dateFrom || !dateTo) {
       toast({
         title: "Error",
