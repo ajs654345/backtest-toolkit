@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import DateSelector from "@/components/DateSelector";
 import ExcelConfig from "@/components/ExcelConfig";
@@ -22,8 +21,6 @@ const Index = () => {
   const [existingExcelFile, setExistingExcelFile] = useState<File | null>(null);
   const [useDefaultNaming, setUseDefaultNaming] = useState(true);
   const [testingMode, setTestingMode] = useState('control');
-  const [selectedPairsForRobot, setSelectedPairsForRobot] = useState<{[key: string]: string[]}>({});
-
   const [currencyPairs] = useState([
     "USDJPY", "GBPNZD", "AUDUSD", "EURJPY", "CHFJPY", "GBPCAD", "CADJPY", "EURUSD",
     "USDCHF", "USDCAD", "EURCAD", "GBPUSD", "GBPAUD", "EURAUD", "AUDJPY", "EURCHF",
@@ -35,12 +32,6 @@ const Index = () => {
     const files = Array.from(e.target.files || []);
     const setFiles = files.filter(file => file.name.endsWith('.set'));
     setSelectedRobots(setFiles);
-    
-    const newSelectedPairs: {[key: string]: string[]} = {};
-    setFiles.forEach(file => {
-      newSelectedPairs[file.name] = [...currencyPairs];
-    });
-    setSelectedPairsForRobot(newSelectedPairs);
   };
 
   const handleExistingExcelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -73,7 +64,7 @@ const Index = () => {
       const command = {
         robots: selectedRobots.map(robot => ({
           name: robot.name,
-          pairs: selectedPairsForRobot[robot.name] || []
+          pairs: currencyPairs
         })),
         dateFrom,
         dateTo,
@@ -117,15 +108,10 @@ const Index = () => {
         {/* Panel lateral fijo de pares de divisas */}
         <Card className="p-4 h-[calc(100vh-3rem)] sticky top-4">
           <h2 className="text-lg font-semibold mb-4">Pares de Divisas</h2>
-          <ScrollArea className="h-[calc(100%-6rem)]">
-            <div className="space-y-2">
-              {currencyPairs.map((pair) => (
-                <div key={pair} className="p-2 bg-secondary rounded-md">
-                  {pair}
-                </div>
-              ))}
-            </div>
-          </ScrollArea>
+          <CurrencyPairList
+            pairs={currencyPairs}
+            onPairsChange={() => {}}
+          />
         </Card>
 
         {/* Contenido principal */}
@@ -173,26 +159,6 @@ const Index = () => {
                 className="mt-1"
               />
             </div>
-
-            {selectedRobots.length > 0 && (
-              <div className="space-y-4">
-                {selectedRobots.map((robot, index) => (
-                  <Card key={index} className="p-4">
-                    <h3 className="font-semibold mb-2">{robot.name}</h3>
-                    <CurrencyPairList
-                      pairs={selectedPairsForRobot[robot.name] || []}
-                      onPairsChange={(newPairs) => {
-                        setSelectedPairsForRobot(prev => ({
-                          ...prev,
-                          [robot.name]: newPairs
-                        }));
-                      }}
-                      robotName={robot.name}
-                    />
-                  </Card>
-                ))}
-              </div>
-            )}
 
             <ExcelConfig
               useExistingExcel={useExistingExcel}
