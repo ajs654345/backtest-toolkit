@@ -19,6 +19,7 @@ const Index = () => {
   const [existingExcelFile, setExistingExcelFile] = useState<File | null>(null);
   const [useDefaultNaming, setUseDefaultNaming] = useState(true);
   const [testingMode, setTestingMode] = useState('control');
+  const [saveConfig, setSaveConfig] = useState(false);
   const [currencyPairs, setCurrencyPairs] = useState([
     "USDJPY", "GBPNZD", "AUDUSD", "EURJPY", "CHFJPY", "GBPCAD", "CADJPY", "EURUSD",
     "USDCHF", "USDCAD", "EURCAD", "GBPUSD", "GBPAUD", "EURAUD", "AUDJPY", "EURCHF",
@@ -104,7 +105,6 @@ const Index = () => {
         <h1 className="text-2xl font-bold mb-6 text-center">Herramienta de Backtesting MT4</h1>
         
         <div className="space-y-6">
-          {/* Primera sección: Fechas y Robots */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Selección de Fechas */}
             <div className="space-y-4">
@@ -150,7 +150,6 @@ const Index = () => {
             </div>
           </div>
 
-          {/* Modo de Prueba */}
           <div className="mb-6">
             <Label>Modo de Prueba</Label>
             <RadioGroup defaultValue="control" value={testingMode} onValueChange={setTestingMode} className="mt-2">
@@ -169,7 +168,6 @@ const Index = () => {
             </RadioGroup>
           </div>
 
-          {/* Pares de Divisas - Ahora centrado y con 4 columnas */}
           <div>
             <Label className="text-center block mb-4">Pares de Divisas (Arrastrar para reordenar)</Label>
             <CurrencyPairsList 
@@ -178,7 +176,6 @@ const Index = () => {
             />
           </div>
 
-          {/* Configuración de Excel */}
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
               <Checkbox
@@ -224,7 +221,7 @@ const Index = () => {
             )}
           </div>
 
-          {/* Guardar Configuración */}
+          {/* Save Configuration */}
           <div className="flex items-center space-x-2">
             <Checkbox
               id="saveConfig"
@@ -234,7 +231,7 @@ const Index = () => {
             <Label htmlFor="saveConfig">Guardar configuración actual</Label>
           </div>
 
-          {/* Botón Ejecutar */}
+          {/* Execute Button */}
           <Button 
             className="w-full"
             onClick={executeBacktest}
