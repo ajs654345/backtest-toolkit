@@ -8,12 +8,14 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false
-    }
+    },
+    icon: path.join(__dirname, '../public/favicon.ico')
   });
 
   // En desarrollo, carga la URL del servidor de desarrollo
   if (process.env.NODE_ENV === 'development') {
     win.loadURL('http://localhost:8080');
+    win.webContents.openDevTools();
   } else {
     // En producción, carga el archivo index.html compilado
     win.loadFile(path.join(__dirname, '../dist/index.html'));

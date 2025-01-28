@@ -1,5 +1,6 @@
 {
-  "appId": "com.lovable.app",
+  "appId": "com.backtesting.app",
+  "productName": "Backtesting Toolkit",
   "directories": {
     "output": "release/"
   },
@@ -10,16 +11,19 @@
   "win": {
     "target": [
       "nsis"
-    ]
+    ],
+    "icon": "public/favicon.ico"
   },
   "mac": {
     "target": [
       "dmg"
-    ]
+    ],
+    "icon": "public/favicon.ico"
   },
   "linux": {
     "target": [
       "AppImage"
-    ]
+    ],
+    "icon": "public/favicon.ico"
   }
 }
