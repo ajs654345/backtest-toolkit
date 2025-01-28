@@ -3,12 +3,10 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/components/ui/use-toast";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { ThemeToggle } from "@/components/ThemeToggle";
-import DateSelector from "@/components/DateSelector";
-import ExcelConfig from "@/components/ExcelConfig";
-import CurrencyPairList from "@/components/CurrencyPairList";
+import CurrencyPairsList from '@/components/CurrencyPairsList';
 
 const Index = () => {
   const { toast } = useToast();
@@ -21,7 +19,7 @@ const Index = () => {
   const [existingExcelFile, setExistingExcelFile] = useState<File | null>(null);
   const [useDefaultNaming, setUseDefaultNaming] = useState(true);
   const [testingMode, setTestingMode] = useState('control');
-  const [currencyPairs] = useState([
+  const [currencyPairs, setCurrencyPairs] = useState([
     "USDJPY", "GBPNZD", "AUDUSD", "EURJPY", "CHFJPY", "GBPCAD", "CADJPY", "EURUSD",
     "USDCHF", "USDCAD", "EURCAD", "GBPUSD", "GBPAUD", "EURAUD", "AUDJPY", "EURCHF",
     "GBPAUD", "GBPJPY", "NZDJPY", "EURGBP", "USDCAD", "EURNZD", "CADCHF", "AUDCAD",
@@ -102,28 +100,36 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background p-6">
-      <ThemeToggle />
-      
-      <div className="grid grid-cols-[400px,1fr] gap-6">
-        {/* Panel lateral fijo de pares de divisas */}
-        <Card className="p-4 h-[calc(100vh-3rem)] overflow-hidden">
-          <div className="h-full flex flex-col">
-            <h2 className="text-lg font-semibold mb-4">Pares de Divisas</h2>
-            <div className="flex-1 overflow-auto">
-              <CurrencyPairList
-                pairs={currencyPairs}
-                onPairsChange={() => {}}
-              />
+      <Card className="max-w-5xl mx-auto p-6">
+        <h1 className="text-2xl font-bold mb-6 text-center">Herramienta de Backtesting MT4</h1>
+        
+        <div className="space-y-6">
+          {/* Primera sección: Fechas y Robots */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Selección de Fechas */}
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="dateFrom">Fecha Inicio</Label>
+                <Input
+                  type="date"
+                  id="dateFrom"
+                  value={dateFrom}
+                  onChange={(e) => setDateFrom(e.target.value)}
+                />
+              </div>
+              <div>
+                <Label htmlFor="dateTo">Fecha Fin</Label>
+                <Input
+                  type="date"
+                  id="dateTo"
+                  value={dateTo}
+                  onChange={(e) => setDateTo(e.target.value)}
+                />
+              </div>
             </div>
-          </div>
-        </Card>
 
-        {/* Contenido principal */}
-        <Card className="p-6">
-          <h1 className="text-2xl font-bold mb-6">Herramienta de Backtesting MT4</h1>
-          
-          <div className="space-y-6">
-            <div className="mb-6">
+            {/* Selección de Robots */}
+            <div>
               <Label htmlFor="robots">Seleccionar Robots (archivos .set)</Label>
               <Input
                 type="file"
@@ -133,60 +139,110 @@ const Index = () => {
                 onChange={handleFileChange}
                 className="mt-1"
               />
+              {selectedRobots.length > 0 && (
+                <div className="mt-2 p-2 border rounded-md">
+                  <p className="font-medium mb-2">Robots seleccionados:</p>
+                  {selectedRobots.map((robot, index) => (
+                    <div key={index} className="py-1">{robot.name}</div>
+                  ))}
+                </div>
+              )}
             </div>
-
-            <DateSelector
-              dateFrom={dateFrom}
-              dateTo={dateTo}
-              setDateFrom={setDateFrom}
-              setDateTo={setDateTo}
-            />
-
-            <div className="space-y-4">
-              <Label>Modo de Testing</Label>
-              <RadioGroup
-                value={testingMode}
-                onValueChange={setTestingMode}
-                className="flex space-x-4"
-              >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="tick" id="tick" />
-                  <Label htmlFor="tick">On Tick</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="control" id="control" />
-                  <Label htmlFor="control">Puntos de Control</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="price" id="price" />
-                  <Label htmlFor="price">Último Precio</Label>
-                </div>
-              </RadioGroup>
-            </div>
-
-            <ExcelConfig
-              useExistingExcel={useExistingExcel}
-              setUseExistingExcel={setUseExistingExcel}
-              existingExcelFile={existingExcelFile}
-              handleExistingExcelChange={handleExistingExcelChange}
-              useDefaultNaming={useDefaultNaming}
-              setUseDefaultNaming={setUseDefaultNaming}
-              excelName={excelName}
-              setExcelName={setExcelName}
-              outputPath={outputPath}
-              setOutputPath={setOutputPath}
-            />
-
-            <Button 
-              className="w-full"
-              onClick={executeBacktest}
-              disabled={selectedRobots.length === 0 || !dateFrom || !dateTo}
-            >
-              Ejecutar Backtesting
-            </Button>
           </div>
-        </Card>
-      </div>
+
+          {/* Modo de Prueba */}
+          <div className="mb-6">
+            <Label>Modo de Prueba</Label>
+            <RadioGroup defaultValue="control" value={testingMode} onValueChange={setTestingMode} className="mt-2">
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="control" id="control" />
+                <Label htmlFor="control">Puntos de Control</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="tick" id="tick" />
+                <Label htmlFor="tick">Tick</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="price" id="price" />
+                <Label htmlFor="price">Último Precio</Label>
+              </div>
+            </RadioGroup>
+          </div>
+
+          {/* Pares de Divisas - Ahora centrado y con 4 columnas */}
+          <div>
+            <Label className="text-center block mb-4">Pares de Divisas (Arrastrar para reordenar)</Label>
+            <CurrencyPairsList 
+              currencyPairs={currencyPairs}
+              onReorder={setCurrencyPairs}
+            />
+          </div>
+
+          {/* Configuración de Excel */}
+          <div className="space-y-4">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="useExisting"
+                checked={useExistingExcel}
+                onCheckedChange={(checked) => setUseExistingExcel(checked === true)}
+              />
+              <Label htmlFor="useExisting">Usar archivo Excel existente</Label>
+            </div>
+
+            {useExistingExcel ? (
+              <div>
+                <Input
+                  type="file"
+                  accept=".xlsx"
+                  onChange={handleExistingExcelChange}
+                  className="mt-2"
+                />
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="useDefaultNaming"
+                    checked={useDefaultNaming}
+                    onCheckedChange={(checked) => setUseDefaultNaming(checked === true)}
+                  />
+                  <Label htmlFor="useDefaultNaming">Usar nombre por defecto (Nombre del robot + Fecha)</Label>
+                </div>
+                {!useDefaultNaming && (
+                  <div>
+                    <Label htmlFor="excelName">Nombre personalizado del archivo Excel</Label>
+                    <Input
+                      type="text"
+                      id="excelName"
+                      value={excelName}
+                      onChange={(e) => setExcelName(e.target.value)}
+                      placeholder="Nombre del archivo Excel"
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Guardar Configuración */}
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="saveConfig"
+              checked={saveConfig}
+              onCheckedChange={(checked) => setSaveConfig(checked === true)}
+            />
+            <Label htmlFor="saveConfig">Guardar configuración actual</Label>
+          </div>
+
+          {/* Botón Ejecutar */}
+          <Button 
+            className="w-full"
+            onClick={executeBacktest}
+          >
+            Ejecutar Backtesting
+          </Button>
+        </div>
+      </Card>
     </div>
   );
 };

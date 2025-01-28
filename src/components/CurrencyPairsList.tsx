@@ -22,11 +22,11 @@ const CurrencyPairsList = ({ currencyPairs, onReorder }: CurrencyPairsListProps)
     <DragDropContext onDragEnd={handleDragEnd}>
       <Droppable droppableId="currencyPairs">
         {(provided) => (
-          <ScrollArea className="h-[calc(2.5rem*8)] border rounded-md p-4">
+          <ScrollArea className="h-[320px] border rounded-md p-4 mx-auto max-w-4xl">
             <div 
               {...provided.droppableProps} 
               ref={provided.innerRef}
-              className="grid grid-cols-2 gap-2"
+              className="grid grid-cols-4 gap-3"
             >
               {currencyPairs.map((pair, index) => (
                 <Draggable key={`${pair}-${index}`} draggableId={`${pair}-${index}`} index={index}>
@@ -35,7 +35,7 @@ const CurrencyPairsList = ({ currencyPairs, onReorder }: CurrencyPairsListProps)
                       ref={provided.innerRef}
                       {...provided.draggableProps}
                       {...provided.dragHandleProps}
-                      className="p-2 bg-secondary rounded-md cursor-move text-center h-10 flex items-center justify-center"
+                      className="p-2 bg-secondary hover:bg-secondary/80 rounded-md cursor-move text-center h-10 flex items-center justify-center transition-colors"
                     >
                       {pair}
                     </div>
