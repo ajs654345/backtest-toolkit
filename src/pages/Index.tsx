@@ -83,7 +83,6 @@ const Index = () => {
         description: "Se ha iniciado el proceso de backtesting. Por favor espere...",
       });
 
-      // Simular la ejecución
       await new Promise(resolve => setTimeout(resolve, 2000));
 
       toast({
@@ -106,7 +105,6 @@ const Index = () => {
         
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Selección de Fechas */}
             <div className="space-y-4">
               <div>
                 <Label htmlFor="dateFrom">Fecha Inicio</Label>
@@ -128,7 +126,6 @@ const Index = () => {
               </div>
             </div>
 
-            {/* Selección de Robots */}
             <div>
               <Label htmlFor="robots">Seleccionar Robots (archivos .set)</Label>
               <Input
@@ -221,7 +218,6 @@ const Index = () => {
             )}
           </div>
 
-          {/* Save Configuration */}
           <div className="flex items-center space-x-2">
             <Checkbox
               id="saveConfig"
@@ -231,7 +227,6 @@ const Index = () => {
             <Label htmlFor="saveConfig">Guardar configuración actual</Label>
           </div>
 
-          {/* Execute Button */}
           <Button 
             className="w-full"
             onClick={executeBacktest}
