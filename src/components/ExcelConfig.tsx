@@ -2,6 +2,8 @@ import React from 'react';
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { InfoIcon } from "lucide-react";
 
 interface ExcelConfigProps {
   useExistingExcel: boolean;
@@ -40,16 +42,24 @@ const ExcelConfig = ({
       </div>
 
       {useExistingExcel && (
-        <div>
-          <Label htmlFor="existingExcel">Seleccionar Excel existente</Label>
-          <Input
-            type="file"
-            id="existingExcel"
-            accept=".xlsx"
-            onChange={handleExistingExcelChange}
-            className="mt-1"
-          />
-        </div>
+        <>
+          <Alert>
+            <InfoIcon className="h-4 w-4" />
+            <AlertDescription>
+              Los resultados se añadirán en una nueva hoja del Excel seleccionado
+            </AlertDescription>
+          </Alert>
+          <div>
+            <Label htmlFor="existingExcel">Seleccionar Excel existente</Label>
+            <Input
+              type="file"
+              id="existingExcel"
+              accept=".xlsx"
+              onChange={handleExistingExcelChange}
+              className="mt-1"
+            />
+          </div>
+        </>
       )}
 
       <div className="flex items-center space-x-2">
