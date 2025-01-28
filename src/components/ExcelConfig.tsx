@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { InfoIcon } from "lucide-react";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 interface ExcelConfigProps {
   useExistingExcel: boolean;
@@ -32,13 +33,22 @@ const ExcelConfig = ({
 }: ExcelConfigProps) => {
   return (
     <div className="space-y-4 mb-6">
-      <div className="flex items-center space-x-2">
-        <Checkbox
-          id="useExisting"
-          checked={useExistingExcel}
-          onCheckedChange={(checked) => setUseExistingExcel(checked as boolean)}
-        />
-        <Label htmlFor="useExisting">Usar Excel existente</Label>
+      <div className="space-y-4">
+        <Label>Tipo de Excel</Label>
+        <RadioGroup
+          value={useExistingExcel ? "existing" : "new"}
+          onValueChange={(value) => setUseExistingExcel(value === "existing")}
+          className="flex flex-col space-y-2"
+        >
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="existing" id="existing" />
+            <Label htmlFor="existing">Usar Excel existente</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="new" id="new" />
+            <Label htmlFor="new">Crear nuevo Excel</Label>
+          </div>
+        </RadioGroup>
       </div>
 
       {useExistingExcel && (
@@ -46,7 +56,7 @@ const ExcelConfig = ({
           <Alert>
             <InfoIcon className="h-4 w-4" />
             <AlertDescription>
-              Los resultados se añadirán en una nueva hoja del Excel seleccionado
+              Los resultados se añadirán en una nueva hoja del Excel seleccionado con el nombre del robot y la fecha del backtesting
             </AlertDescription>
           </Alert>
           <div>
@@ -68,7 +78,7 @@ const ExcelConfig = ({
           checked={useDefaultNaming}
           onCheckedChange={(checked) => setUseDefaultNaming(checked as boolean)}
         />
-        <Label htmlFor="defaultNaming">Usar nombre por defecto</Label>
+        <Label htmlFor="defaultNaming">Usar nombre por defecto (Nombre del robot + Fecha)</Label>
       </div>
 
       {!useDefaultNaming && (
@@ -94,6 +104,9 @@ const ExcelConfig = ({
           placeholder="Ruta donde se guardarán los archivos"
           className="mt-1"
         />
+        <p className="text-sm text-muted-foreground mt-1">
+          Los resultados del backtesting, capturas e informes se guardarán en esta ruta, organizados por carpetas (Robot/Par/Fecha)
+        </p>
       </div>
     </div>
   );

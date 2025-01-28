@@ -104,14 +104,18 @@ const Index = () => {
     <div className="min-h-screen bg-background p-6">
       <ThemeToggle />
       
-      <div className="grid grid-cols-[300px,1fr] gap-6">
+      <div className="grid grid-cols-[400px,1fr] gap-6">
         {/* Panel lateral fijo de pares de divisas */}
-        <Card className="p-4 h-[calc(100vh-3rem)] sticky top-4">
-          <h2 className="text-lg font-semibold mb-4">Pares de Divisas</h2>
-          <CurrencyPairList
-            pairs={currencyPairs}
-            onPairsChange={() => {}}
-          />
+        <Card className="p-4 h-[calc(100vh-3rem)] overflow-hidden">
+          <div className="h-full flex flex-col">
+            <h2 className="text-lg font-semibold mb-4">Pares de Divisas</h2>
+            <div className="flex-1 overflow-auto">
+              <CurrencyPairList
+                pairs={currencyPairs}
+                onPairsChange={() => {}}
+              />
+            </div>
+          </div>
         </Card>
 
         {/* Contenido principal */}
@@ -119,6 +123,18 @@ const Index = () => {
           <h1 className="text-2xl font-bold mb-6">Herramienta de Backtesting MT4</h1>
           
           <div className="space-y-6">
+            <div className="mb-6">
+              <Label htmlFor="robots">Seleccionar Robots (archivos .set)</Label>
+              <Input
+                type="file"
+                id="robots"
+                multiple
+                accept=".set"
+                onChange={handleFileChange}
+                className="mt-1"
+              />
+            </div>
+
             <DateSelector
               dateFrom={dateFrom}
               dateTo={dateTo}
@@ -146,18 +162,6 @@ const Index = () => {
                   <Label htmlFor="price">Último Precio</Label>
                 </div>
               </RadioGroup>
-            </div>
-
-            <div className="mb-6">
-              <Label htmlFor="robots">Seleccionar Robots (archivos .set)</Label>
-              <Input
-                type="file"
-                id="robots"
-                multiple
-                accept=".set"
-                onChange={handleFileChange}
-                className="mt-1"
-              />
             </div>
 
             <ExcelConfig
