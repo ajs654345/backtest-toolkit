@@ -7,6 +7,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/components/ui/use-toast";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import CurrencyPairsList from '@/components/CurrencyPairsList';
+import { ThemeToggle } from '@/components/ThemeToggle';
+import ExcelConfig from '@/components/ExcelConfig';
 
 const Index = () => {
   const { toast } = useToast();
@@ -100,6 +102,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background p-6">
+      <ThemeToggle />
       <Card className="max-w-5xl mx-auto p-6">
         <h1 className="text-2xl font-bold mb-6 text-center">Herramienta de Backtesting MT4</h1>
         
@@ -173,50 +176,18 @@ const Index = () => {
             />
           </div>
 
-          <div className="space-y-4">
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="useExisting"
-                checked={useExistingExcel}
-                onCheckedChange={(checked) => setUseExistingExcel(checked === true)}
-              />
-              <Label htmlFor="useExisting">Usar archivo Excel existente</Label>
-            </div>
-
-            {useExistingExcel ? (
-              <div>
-                <Input
-                  type="file"
-                  accept=".xlsx"
-                  onChange={handleExistingExcelChange}
-                  className="mt-2"
-                />
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="useDefaultNaming"
-                    checked={useDefaultNaming}
-                    onCheckedChange={(checked) => setUseDefaultNaming(checked === true)}
-                  />
-                  <Label htmlFor="useDefaultNaming">Usar nombre por defecto (Nombre del robot + Fecha)</Label>
-                </div>
-                {!useDefaultNaming && (
-                  <div>
-                    <Label htmlFor="excelName">Nombre personalizado del archivo Excel</Label>
-                    <Input
-                      type="text"
-                      id="excelName"
-                      value={excelName}
-                      onChange={(e) => setExcelName(e.target.value)}
-                      placeholder="Nombre del archivo Excel"
-                    />
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
+          <ExcelConfig
+            useExistingExcel={useExistingExcel}
+            setUseExistingExcel={setUseExistingExcel}
+            existingExcelFile={existingExcelFile}
+            handleExistingExcelChange={handleExistingExcelChange}
+            useDefaultNaming={useDefaultNaming}
+            setUseDefaultNaming={setUseDefaultNaming}
+            excelName={excelName}
+            setExcelName={setExcelName}
+            outputPath={outputPath}
+            setOutputPath={setOutputPath}
+          />
 
           <div className="flex items-center space-x-2">
             <Checkbox
