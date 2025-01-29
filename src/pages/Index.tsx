@@ -9,6 +9,7 @@ import DateRangeSelector from '@/components/DateRangeSelector';
 import RobotSelector from '@/components/RobotSelector';
 import TestingModeSelector from '@/components/TestingModeSelector';
 import ConfigurationOptions from '@/components/ConfigurationOptions';
+import { Label } from "@/components/ui/label";
 
 const Index = () => {
   const { toast } = useToast();
@@ -114,8 +115,8 @@ const Index = () => {
           <div>
             <Label className="text-center block mb-4">Pares de Divisas (Arrastrar para reordenar)</Label>
             <CurrencyPairsList 
-              pairs={currencyPairs}
-              onPairsChange={setCurrencyPairs}
+              currencyPairs={currencyPairs}
+              onReorder={setCurrencyPairs}
             />
           </div>
 
