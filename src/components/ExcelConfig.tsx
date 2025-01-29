@@ -5,6 +5,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { InfoIcon } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { useToast } from "@/components/ui/use-toast";
 
 interface ExcelConfigProps {
   useExistingExcel: boolean;
@@ -31,13 +32,25 @@ const ExcelConfig = ({
   outputPath,
   setOutputPath
 }: ExcelConfigProps) => {
+  const { toast } = useToast();
+
+  const handleExcelTypeChange = (value: string) => {
+    setUseExistingExcel(value === "existing");
+    if (value === "new") {
+      toast({
+        title: "Nuevo Excel",
+        description: "Se creará un nuevo archivo Excel con los resultados",
+      });
+    }
+  };
+
   return (
     <div className="space-y-4 mb-6">
       <div className="space-y-4">
         <Label>Tipo de Excel</Label>
         <RadioGroup
           value={useExistingExcel ? "existing" : "new"}
-          onValueChange={(value) => setUseExistingExcel(value === "existing")}
+          onValueChange={handleExcelTypeChange}
           className="flex flex-col space-y-2"
         >
           <div className="flex items-center space-x-2">
@@ -51,7 +64,7 @@ const ExcelConfig = ({
         </RadioGroup>
       </div>
 
-      {useExistingExcel && (
+      {useExistingExcel ? (
         <>
           <Alert>
             <InfoIcon className="h-4 w-4" />
@@ -68,30 +81,44 @@ const ExcelConfig = ({
               onChange={handleExistingExcelChange}
               className="mt-1"
             />
+            {existingExcelFile && (
+              <p className="text-sm text-muted-foreground mt-1">
+                Archivo seleccionado: {existingExcelFile.name}
+              </p>
+            )}
           </div>
         </>
-      )}
+      ) : (
+        <>
+          <Alert>
+            <InfoIcon className="h-4 w-4" />
+            <AlertDescription>
+              Se creará un nuevo archivo Excel con los resultados del backtesting
+            </AlertDescription>
+          </Alert>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="defaultNaming"
+              checked={useDefaultNaming}
+              onCheckedChange={(checked) => setUseDefaultNaming(checked as boolean)}
+            />
+            <Label htmlFor="defaultNaming">Usar nombre por defecto (Nombre del robot + Fecha)</Label>
+          </div>
 
-      <div className="flex items-center space-x-2">
-        <Checkbox
-          id="defaultNaming"
-          checked={useDefaultNaming}
-          onCheckedChange={(checked) => setUseDefaultNaming(checked as boolean)}
-        />
-        <Label htmlFor="defaultNaming">Usar nombre por defecto (Nombre del robot + Fecha)</Label>
-      </div>
-
-      {!useDefaultNaming && (
-        <div>
-          <Label htmlFor="excelName">Nombre personalizado del Excel</Label>
-          <Input
-            type="text"
-            id="excelName"
-            value={excelName}
-            onChange={(e) => setExcelName(e.target.value)}
-            className="mt-1"
-          />
-        </div>
+          {!useDefaultNaming && (
+            <div>
+              <Label htmlFor="excelName">Nombre personalizado del Excel</Label>
+              <Input
+                type="text"
+                id="excelName"
+                value={excelName}
+                onChange={(e) => setExcelName(e.target.value)}
+                className="mt-1"
+                placeholder="Nombre del archivo Excel"
+              />
+            </div>
+          )}
+        </>
       )}
 
       <div>
