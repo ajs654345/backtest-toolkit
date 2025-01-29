@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import { useToast } from "@/components/ui/use-toast";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import CurrencyPairsList from '@/components/CurrencyPairsList';
+import { useToast } from "@/hooks/use-toast";
 import { ThemeToggle } from '@/components/ThemeToggle';
+import CurrencyPairsList from '@/components/CurrencyPairsList';
 import ExcelConfig from '@/components/ExcelConfig';
+import DateRangeSelector from '@/components/DateRangeSelector';
+import RobotSelector from '@/components/RobotSelector';
+import TestingModeSelector from '@/components/TestingModeSelector';
+import ConfigurationOptions from '@/components/ConfigurationOptions';
 
 const Index = () => {
   const { toast } = useToast();
@@ -28,19 +28,6 @@ const Index = () => {
     "GBPAUD", "GBPJPY", "NZDJPY", "EURGBP", "USDCAD", "EURNZD", "CADCHF", "AUDCAD",
     "AUDNZD", "GBPCHF", "EURNZD", "AUDCHF", "NZDUSD", "NZDCAD", "NZDCHF"
   ]);
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    const setFiles = files.filter(file => file.name.endsWith('.set'));
-    setSelectedRobots(setFiles);
-  };
-
-  const handleExistingExcelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file && file.name.endsWith('.xlsx')) {
-      setExistingExcelFile(file);
-    }
-  };
 
   const executeBacktest = async () => {
     if (!dateFrom || !dateTo) {
@@ -107,72 +94,28 @@ const Index = () => {
         <h1 className="text-2xl font-bold mb-6 text-center">Herramienta de Backtesting MT4</h1>
         
         <div className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="dateFrom">Fecha Inicio</Label>
-                <Input
-                  type="date"
-                  id="dateFrom"
-                  value={dateFrom}
-                  onChange={(e) => setDateFrom(e.target.value)}
-                />
-              </div>
-              <div>
-                <Label htmlFor="dateTo">Fecha Fin</Label>
-                <Input
-                  type="date"
-                  id="dateTo"
-                  value={dateTo}
-                  onChange={(e) => setDateTo(e.target.value)}
-                />
-              </div>
-            </div>
+          <DateRangeSelector
+            dateFrom={dateFrom}
+            dateTo={dateTo}
+            setDateFrom={setDateFrom}
+            setDateTo={setDateTo}
+          />
 
-            <div>
-              <Label htmlFor="robots">Seleccionar Robots (archivos .set)</Label>
-              <Input
-                type="file"
-                id="robots"
-                multiple
-                accept=".set"
-                onChange={handleFileChange}
-                className="mt-1"
-              />
-              {selectedRobots.length > 0 && (
-                <div className="mt-2 p-2 border rounded-md">
-                  <p className="font-medium mb-2">Robots seleccionados:</p>
-                  {selectedRobots.map((robot, index) => (
-                    <div key={index} className="py-1">{robot.name}</div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
+          <RobotSelector
+            selectedRobots={selectedRobots}
+            setSelectedRobots={setSelectedRobots}
+          />
 
-          <div className="mb-6">
-            <Label>Modo de Prueba</Label>
-            <RadioGroup defaultValue="control" value={testingMode} onValueChange={setTestingMode} className="mt-2">
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="control" id="control" />
-                <Label htmlFor="control">Puntos de Control</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="tick" id="tick" />
-                <Label htmlFor="tick">Tick</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="price" id="price" />
-                <Label htmlFor="price">Último Precio</Label>
-              </div>
-            </RadioGroup>
-          </div>
+          <TestingModeSelector
+            testingMode={testingMode}
+            setTestingMode={setTestingMode}
+          />
 
           <div>
             <Label className="text-center block mb-4">Pares de Divisas (Arrastrar para reordenar)</Label>
             <CurrencyPairsList 
-              currencyPairs={currencyPairs}
-              onReorder={setCurrencyPairs}
+              pairs={currencyPairs}
+              onPairsChange={setCurrencyPairs}
             />
           </div>
 
@@ -180,7 +123,12 @@ const Index = () => {
             useExistingExcel={useExistingExcel}
             setUseExistingExcel={setUseExistingExcel}
             existingExcelFile={existingExcelFile}
-            handleExistingExcelChange={handleExistingExcelChange}
+            handleExistingExcelChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file && file.name.endsWith('.xlsx')) {
+                setExistingExcelFile(file);
+              }
+            }}
             useDefaultNaming={useDefaultNaming}
             setUseDefaultNaming={setUseDefaultNaming}
             excelName={excelName}
@@ -189,14 +137,10 @@ const Index = () => {
             setOutputPath={setOutputPath}
           />
 
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="saveConfig"
-              checked={saveConfig}
-              onCheckedChange={(checked) => setSaveConfig(checked === true)}
-            />
-            <Label htmlFor="saveConfig">Guardar configuración actual</Label>
-          </div>
+          <ConfigurationOptions
+            saveConfig={saveConfig}
+            setSaveConfig={setSaveConfig}
+          />
 
           <Button 
             className="w-full"
