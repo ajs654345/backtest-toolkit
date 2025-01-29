@@ -9,7 +9,9 @@ function createWindow() {
       nodeIntegration: true,
       contextIsolation: false
     },
-    icon: path.join(__dirname, '../public/favicon.ico')
+    icon: path.join(__dirname, '../public/favicon.ico'),
+    autoHideMenuBar: true,
+    title: 'Backtesting Toolkit'
   });
 
   if (process.env.NODE_ENV === 'development') {

@@ -12,7 +12,14 @@
     "target": [
       "nsis"
     ],
-    "icon": "public/favicon.ico"
+    "icon": "public/favicon.ico",
+    "artifactName": "${productName}-Setup-${version}.${ext}"
+  },
+  "nsis": {
+    "oneClick": true,
+    "perMachine": false,
+    "allowToChangeInstallationDirectory": false,
+    "deleteAppDataOnUninstall": true
   },
   "mac": {
     "target": [
