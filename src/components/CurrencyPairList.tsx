@@ -16,7 +16,7 @@ import {
 import { SortablePair } from './SortablePair';
 import { Button } from './ui/button';
 import { ScrollArea } from './ui/scroll-area';
-import { useToast } from './ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 
 interface CurrencyPairListProps {
   pairs: string[];
