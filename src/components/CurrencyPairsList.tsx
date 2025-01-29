@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ interface CurrencyPairsListProps {
 
 const CurrencyPairsList = ({ currencyPairs, onReorder }: CurrencyPairsListProps) => {
   const { toast } = useToast();
+  const [selectedPairs, setSelectedPairs] = useState<Set<string>>(new Set());
   
   const handleDragEnd = (result: any) => {
     if (!result.destination) return;
@@ -24,6 +25,7 @@ const CurrencyPairsList = ({ currencyPairs, onReorder }: CurrencyPairsListProps)
   };
 
   const handleSelectAll = () => {
+    setSelectedPairs(new Set(currencyPairs));
     toast({
       title: "Selección actualizada",
       description: "Todos los pares han sido seleccionados",
@@ -31,10 +33,21 @@ const CurrencyPairsList = ({ currencyPairs, onReorder }: CurrencyPairsListProps)
   };
 
   const handleDeselectAll = () => {
+    setSelectedPairs(new Set());
     toast({
       title: "Selección actualizada",
       description: "Todos los pares han sido deseleccionados",
     });
+  };
+
+  const togglePairSelection = (pair: string) => {
+    const newSelection = new Set(selectedPairs);
+    if (newSelection.has(pair)) {
+      newSelection.delete(pair);
+    } else {
+      newSelection.add(pair);
+    }
+    setSelectedPairs(newSelection);
   };
 
   return (
@@ -76,7 +89,12 @@ const CurrencyPairsList = ({ currencyPairs, onReorder }: CurrencyPairsListProps)
                         ref={provided.innerRef}
                         {...provided.draggableProps}
                         {...provided.dragHandleProps}
-                        className="p-2 bg-secondary hover:bg-secondary/80 rounded-md cursor-move text-center h-10 flex items-center justify-center transition-colors"
+                        onClick={() => togglePairSelection(pair)}
+                        className={`p-2 rounded-md cursor-pointer text-center h-10 flex items-center justify-center transition-colors
+                          ${selectedPairs.has(pair) 
+                            ? 'bg-neutral-500 hover:bg-neutral-600 text-white' 
+                            : 'bg-secondary hover:bg-secondary/80'
+                          }`}
                       >
                         {pair}
                       </div>
