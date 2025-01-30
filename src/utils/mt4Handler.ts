@@ -31,24 +31,24 @@ export const executeBacktest = async (config: MT4Config) => {
   try {
     console.log('Iniciando backtesting para:', config);
     
-    // 1. Configurar robotjs
+    // Configurar robotjs
     robotjs.setMouseDelay(2);
     robotjs.setKeyboardDelay(100);
     
-    // 2. Abrir constructor de estrategias (F7)
+    // Abrir constructor de estrategias (F7)
     robotjs.keyTap('f7');
     await new Promise(resolve => setTimeout(resolve, 1000));
     
-    // 3. Cargar el robot
+    // Cargar el robot
     await loadRobot(config.robotPath);
     
-    // 4. Configurar parámetros
+    // Configurar parámetros
     await configureBacktest(config);
     
-    // 5. Ejecutar backtesting
+    // Ejecutar backtesting
     await runBacktest();
     
-    // 6. Capturar y guardar resultados
+    // Capturar y guardar resultados
     const results = await captureResults();
     await saveReports(config, results);
     

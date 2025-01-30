@@ -1,5 +1,6 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, ipcMain } from 'electron';
 import path from 'path';
+import { executeBacktest } from '../src/utils/mt4Handler';
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -7,7 +8,8 @@ function createWindow() {
     height: 800,
     webPreferences: {
       nodeIntegration: true,
-      contextIsolation: false
+      contextIsolation: false,
+      webSecurity: false,
     },
     icon: path.join(__dirname, '../public/favicon.ico'),
     autoHideMenuBar: true,
@@ -20,6 +22,19 @@ function createWindow() {
   } else {
     win.loadFile(path.join(__dirname, '../dist/index.html'));
   }
+
+  // Configurar manejadores IPC
+  ipcMain.handle('execute-backtest', async (_, config) => {
+    try {
+      const result = await executeBacktest(config);
+      return { success: true, data: result };
+    } catch (error) {
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Error desconocido durante el backtesting' 
+      };
+    }
+  });
 }
 
 app.whenReady().then(() => {
