@@ -55,19 +55,24 @@
   }
 
   body {
-    @apply bg-background text-foreground transition-colors duration-300;
+    @apply bg-background text-foreground;
     background-image: url('/background.svg');
     background-repeat: no-repeat;
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
-  }
-
-  [data-theme='dark'] .rdp-button:hover:not([disabled]):not(.rdp-day_selected) {
-    background-color: rgba(255, 255, 255, 0.1);
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 }
 
 .glass-card {
-  @apply bg-background/80 backdrop-blur-lg border rounded-lg shadow-lg;
+  @apply bg-background/80 backdrop-blur-lg border rounded-lg shadow-lg transition-all duration-300;
+}
+
+input[type="date"] {
+  @apply bg-background text-foreground border-input;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  @apply dark:invert filter;
 }

@@ -19,7 +19,7 @@ const DateRangeSelector = ({ dateFrom, dateTo, setDateFrom, setDateTo }: DateRan
           id="dateFrom"
           value={dateFrom}
           onChange={(e) => setDateFrom(e.target.value)}
-          className="w-full bg-background"
+          className="w-full"
         />
       </div>
       <div className="space-y-2">
@@ -29,7 +29,7 @@ const DateRangeSelector = ({ dateFrom, dateTo, setDateFrom, setDateTo }: DateRan
           id="dateTo"
           value={dateTo}
           onChange={(e) => setDateTo(e.target.value)}
-          className="w-full bg-background"
+          className="w-full"
         />
       </div>
     </div>
