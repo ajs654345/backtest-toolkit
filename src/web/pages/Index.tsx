@@ -10,6 +10,7 @@ import RobotSelector from '@/components/RobotSelector';
 import TestingModeSelector from '@/components/TestingModeSelector';
 import ConfigurationOptions from '@/components/ConfigurationOptions';
 import { Label } from "@/components/ui/label";
+import type { MT4Config } from '@/types/mt4';
 
 const Index = () => {
   const { toast } = useToast();
@@ -21,7 +22,7 @@ const Index = () => {
   const [useExistingExcel, setUseExistingExcel] = useState(false);
   const [existingExcelFile, setExistingExcelFile] = useState<File | null>(null);
   const [useDefaultNaming, setUseDefaultNaming] = useState(true);
-  const [testingMode, setTestingMode] = useState('control');
+  const [testingMode, setTestingMode] = useState<MT4Config['testingMode']>('control');
   const [saveConfig, setSaveConfig] = useState(false);
   const [currencyPairs, setCurrencyPairs] = useState([
     "USDJPY", "GBPNZD", "AUDUSD", "EURJPY", "CHFJPY", "GBPCAD", "CADJPY", "EURUSD",
