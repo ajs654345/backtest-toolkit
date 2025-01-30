@@ -1,6 +1,6 @@
 import * as path from 'path';
 import * as fs from 'fs';
-import { exec } from 'child_process';
+import { exec, spawn } from 'child_process';
 import type { MT4Config } from '../types/mt4';
 
 const DEFAULT_MT4_PATHS = [
@@ -18,6 +18,7 @@ const findMT4Installation = (): string | null => {
   // Then check default paths
   for (const mt4Path of DEFAULT_MT4_PATHS) {
     if (fs.existsSync(path.join(mt4Path, 'terminal.exe'))) {
+      console.log('MT4 encontrado en:', mt4Path);
       return mt4Path;
     }
   }
@@ -50,35 +51,51 @@ export const executeBacktest = async (config: MT4Config): Promise<any> => {
     }
 
     // Construir comando para MT4
-    const command = [
-      `"${terminalPath}"`,
+    const args = [
       `/config:"${config.robotPath}"`,
       `/symbol:${config.pair}`,
       `/fromdate:${config.dateFrom}`,
       `/todate:${config.dateTo}`,
       `/testmodel:${getTestModel(config.testingMode)}`,
       '/shutdown'
-    ].join(' ');
+    ];
 
-    console.log('Ejecutando comando:', command);
+    console.log('Ejecutando MT4 con argumentos:', args);
 
-    // Ejecutar MT4
+    // Usar spawn en lugar de exec para mejor control del proceso
     return new Promise((resolve, reject) => {
-      exec(command, (error, stdout, stderr) => {
-        if (error) {
-          console.error('Error ejecutando MT4:', error);
-          reject(error);
-          return;
+      const mt4Process = spawn(terminalPath, args, {
+        windowsHide: false,
+        stdio: 'pipe'
+      });
+
+      let output = '';
+
+      mt4Process.stdout?.on('data', (data) => {
+        console.log('MT4 output:', data.toString());
+        output += data.toString();
+      });
+
+      mt4Process.stderr?.on('data', (data) => {
+        console.error('MT4 error:', data.toString());
+      });
+
+      mt4Process.on('error', (error) => {
+        console.error('Error al iniciar MT4:', error);
+        reject(error);
+      });
+
+      mt4Process.on('close', (code) => {
+        console.log('MT4 proceso terminado con código:', code);
+        if (code === 0) {
+          resolve({
+            success: true,
+            output: output,
+            reportPath: path.join(config.outputPath, `${config.pair}_backtest_report.htm`)
+          });
+        } else {
+          reject(new Error(`MT4 terminó con código de error: ${code}`));
         }
-        
-        console.log('Salida de MT4:', stdout);
-        if (stderr) console.error('Errores de MT4:', stderr);
-        
-        resolve({
-          success: true,
-          output: stdout,
-          reportPath: path.join(config.outputPath, `${config.pair}_backtest_report.htm`)
-        });
       });
     });
   } catch (error) {
