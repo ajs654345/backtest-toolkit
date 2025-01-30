@@ -10,6 +10,7 @@ import RobotSelector from '@/components/RobotSelector';
 import TestingModeSelector from '@/components/TestingModeSelector';
 import ConfigurationOptions from '@/components/ConfigurationOptions';
 import { Label } from "@/components/ui/label";
+import { executeBacktest } from '@/utils/mt4Handler';
 
 const Index = () => {
   const { toast } = useToast();
@@ -23,6 +24,7 @@ const Index = () => {
   const [useDefaultNaming, setUseDefaultNaming] = useState(true);
   const [testingMode, setTestingMode] = useState('control');
   const [saveConfig, setSaveConfig] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [currencyPairs, setCurrencyPairs] = useState([
     "USDJPY", "GBPNZD", "AUDUSD", "EURJPY", "CHFJPY", "GBPCAD", "CADJPY", "EURUSD",
     "USDCHF", "USDCAD", "EURCAD", "GBPUSD", "GBPAUD", "EURAUD", "AUDJPY", "EURCHF",
@@ -30,7 +32,7 @@ const Index = () => {
     "AUDNZD", "GBPCHF", "EURNZD", "AUDCHF", "NZDUSD", "NZDCAD", "NZDCHF"
   ]);
 
-  const executeBacktest = async () => {
+  const handleBacktest = async () => {
     if (!dateFrom || !dateTo) {
       toast({
         title: "Error",
@@ -49,42 +51,40 @@ const Index = () => {
       return;
     }
 
+    setIsProcessing(true);
     try {
-      const command = {
-        robots: selectedRobots.map(robot => ({
-          name: robot.name,
-          pairs: currencyPairs
-        })),
-        dateFrom,
-        dateTo,
-        testingMode,
-        outputPath,
-        excelConfig: {
-          useExisting: useExistingExcel,
-          fileName: useDefaultNaming ? '' : excelName,
-          existingFile: existingExcelFile?.name
+      for (const robot of selectedRobots) {
+        for (const pair of currencyPairs) {
+          toast({
+            title: "Procesando",
+            description: `Ejecutando backtest para ${robot.name} en ${pair}`,
+          });
+
+          const result = await executeBacktest({
+            robotPath: robot.path,
+            dateFrom,
+            dateTo,
+            pair,
+            outputPath: outputPath || './backtest_results'
+          });
+
+          console.log(`Backtest completed for ${robot.name} - ${pair}:`, result);
         }
-      };
-
-      console.log('Comando de ejecución:', command);
-      
-      toast({
-        title: "Backtesting Iniciado",
-        description: "Se ha iniciado el proceso de backtesting. Por favor espere...",
-      });
-
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      }
 
       toast({
         title: "Backtesting Completado",
-        description: "El proceso de backtesting ha finalizado exitosamente.",
+        description: "Todos los backtests han sido ejecutados exitosamente.",
       });
     } catch (error) {
+      console.error('Error during backtest:', error);
       toast({
         title: "Error",
-        description: "Ocurrió un error durante el backtesting",
+        description: "Ocurrió un error durante el proceso de backtesting",
         variant: "destructive",
       });
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -145,9 +145,10 @@ const Index = () => {
 
           <Button 
             className="w-full"
-            onClick={executeBacktest}
+            onClick={handleBacktest}
+            disabled={isProcessing}
           >
-            Ejecutar Backtesting
+            {isProcessing ? "Procesando..." : "Ejecutar Backtesting"}
           </Button>
         </div>
       </Card>

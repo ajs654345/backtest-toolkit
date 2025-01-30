@@ -11,7 +11,10 @@ const RobotSelector = ({ selectedRobots, setSelectedRobots }: RobotSelectorProps
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     const setFiles = files.filter(file => file.name.endsWith('.set'));
-    setSelectedRobots(setFiles);
+    setSelectedRobots(setFiles.map(file => ({
+      ...file,
+      path: URL.createObjectURL(file)
+    })));
   };
 
   return (
@@ -29,7 +32,12 @@ const RobotSelector = ({ selectedRobots, setSelectedRobots }: RobotSelectorProps
         <div className="mt-2 p-2 border rounded-md">
           <p className="font-medium mb-2">Robots seleccionados:</p>
           {selectedRobots.map((robot, index) => (
-            <div key={index} className="py-1">{robot.name}</div>
+            <div key={index} className="py-1">
+              {robot.name}
+              <span className="text-sm text-muted-foreground ml-2">
+                ({robot.path})
+              </span>
+            </div>
           ))}
         </div>
       )}
