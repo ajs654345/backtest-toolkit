@@ -1,7 +1,6 @@
 import robotjs from 'robotjs';
 import { createWorker } from 'tesseract.js';
 import screenshot from 'screenshot-desktop';
-import * as XLSX from 'xlsx';
 import * as path from 'path';
 import * as fs from 'fs';
 
@@ -15,13 +14,15 @@ interface MT4Config {
 
 export const executeBacktest = async (config: MT4Config) => {
   try {
+    console.log('Iniciando backtesting para:', config);
+    
     // 1. Abrir MT4 y cargar el robot
     await loadRobot(config.robotPath);
     
     // 2. Configurar fechas y par
     await configureBacktest(config);
     
-    // 3. Ejecutar backtest
+    // 3. Ejecutar backtesting
     await runBacktest();
     
     // 4. Capturar resultados
@@ -32,35 +33,47 @@ export const executeBacktest = async (config: MT4Config) => {
     
     return results;
   } catch (error) {
-    console.error('Error during backtest:', error);
+    console.error('Error durante el backtesting:', error);
     throw error;
   }
 };
 
 const loadRobot = async (robotPath: string) => {
-  // Simular click en "Cargar" en MT4
-  robotjs.moveMouse(100, 100);
+  // Configurar resolución
+  robotjs.setMouseDelay(2);
+  robotjs.setKeyboardDelay(2);
+  
+  // Abrir ventana de carga
+  robotjs.moveMouse(100, 100); // Posición del botón "Cargar"
   robotjs.mouseClick();
   
-  // Simular escritura de la ruta
+  // Escribir ruta del robot
   robotjs.typeString(robotPath);
   robotjs.keyTap('enter');
+  
+  // Esperar a que cargue
+  await new Promise(resolve => setTimeout(resolve, 1000));
 };
 
 const configureBacktest = async (config: MT4Config) => {
   // Configurar fechas
-  robotjs.moveMouse(200, 200); // Posición del campo de fecha inicial
+  robotjs.moveMouse(200, 200); // Posición del campo fecha inicial
   robotjs.mouseClick();
   robotjs.typeString(config.dateFrom);
   
-  robotjs.moveMouse(300, 200); // Posición del campo de fecha final
+  robotjs.moveMouse(300, 200); // Posición del campo fecha final
   robotjs.mouseClick();
   robotjs.typeString(config.dateTo);
+  robotjs.typeString(config.dateTo); // También para "saltar a"
   
   // Configurar par de divisas
   robotjs.moveMouse(400, 200);
   robotjs.mouseClick();
   robotjs.typeString(config.pair);
+  
+  // Dar click en "Saltar"
+  robotjs.moveMouse(500, 300);
+  robotjs.mouseClick();
 };
 
 const runBacktest = async () => {
@@ -68,7 +81,7 @@ const runBacktest = async () => {
   robotjs.moveMouse(500, 300);
   robotjs.mouseClick();
   
-  // Esperar a que termine el backtest
+  // Esperar a que termine el backtesting
   await new Promise(resolve => setTimeout(resolve, 5000));
 };
 
@@ -104,15 +117,24 @@ const saveReports = async (config: MT4Config, results: any) => {
   const baseDir = path.join(config.outputPath, config.pair);
   fs.mkdirSync(baseDir, { recursive: true });
   
+  const dateStr = new Date().toISOString().split('T')[0];
+  const robotName = path.basename(config.robotPath, '.set');
+  
   // Guardar captura de pantalla
-  const screenshotPath = path.join(baseDir, `${config.pair}_screenshot.png`);
+  const screenshotPath = path.join(
+    baseDir, 
+    `${robotName}_${config.pair}_${dateStr}_captura.png`
+  );
   fs.writeFileSync(screenshotPath, results.screenshot);
   
-  // Guardar informe en Excel
-  const workbook = XLSX.utils.book_new();
-  const worksheet = XLSX.utils.json_to_sheet([results.parameters]);
-  XLSX.utils.book_append_sheet(workbook, worksheet, config.pair);
+  // Guardar informe
+  robotjs.moveMouse(600, 400); // Posición del botón derecho en el informe
+  robotjs.mouseClick('right');
+  robotjs.moveMouse(620, 420); // Posición de "Guardar como informe"
+  robotjs.mouseClick();
   
-  const excelPath = path.join(baseDir, `${config.pair}_report.xlsx`);
-  XLSX.writeFile(workbook, excelPath);
+  // Escribir nombre del archivo
+  const reportName = `${robotName}_${config.pair}_${dateStr}_informe`;
+  robotjs.typeString(path.join(baseDir, reportName));
+  robotjs.keyTap('enter');
 };

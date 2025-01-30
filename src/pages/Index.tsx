@@ -6,13 +6,12 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import { Loader2 } from "lucide-react";
 import LoadingSkeleton from '@/components/LoadingSkeleton';
 import { executeBacktest } from '@/utils/mt4Handler';
-
-const CurrencyPairsList = lazy(() => import('@/components/CurrencyPairsList'));
-const ExcelConfig = lazy(() => import('@/components/ExcelConfig'));
-const DateRangeSelector = lazy(() => import('@/components/DateRangeSelector'));
-const RobotSelector = lazy(() => import('@/components/RobotSelector'));
-const TestingModeSelector = lazy(() => import('@/components/TestingModeSelector'));
-const ConfigurationOptions = lazy(() => import('@/components/ConfigurationOptions'));
+import CurrencyPairsList from '@/components/CurrencyPairsList';
+import ExcelConfig from '@/components/ExcelConfig';
+import DateRangeSelector from '@/components/DateRangeSelector';
+import RobotSelector from '@/components/RobotSelector';
+import TestingModeSelector from '@/components/TestingModeSelector';
+import ConfigurationOptions from '@/components/ConfigurationOptions';
 
 const Index = () => {
   const { toast } = useToast();
