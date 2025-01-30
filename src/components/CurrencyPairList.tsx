@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   DndContext,
   closestCenter,
@@ -16,7 +16,6 @@ import {
 import { SortablePair } from './SortablePair';
 import { Button } from './ui/button';
 import { ScrollArea } from './ui/scroll-area';
-import { useToast } from '@/hooks/use-toast';
 
 interface CurrencyPairListProps {
   pairs: string[];
@@ -25,9 +24,6 @@ interface CurrencyPairListProps {
 }
 
 const CurrencyPairList = ({ pairs, onPairsChange, robotName }: CurrencyPairListProps) => {
-  const { toast } = useToast();
-  const [selectedPairs, setSelectedPairs] = useState<Set<string>>(new Set(pairs));
-
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -47,29 +43,11 @@ const CurrencyPairList = ({ pairs, onPairsChange, robotName }: CurrencyPairListP
   };
 
   const selectAll = () => {
-    setSelectedPairs(new Set(pairs));
-    toast({
-      title: "Selección actualizada",
-      description: "Todos los pares han sido seleccionados",
-    });
+    // Implementar lógica de selección
   };
 
   const deselectAll = () => {
-    setSelectedPairs(new Set());
-    toast({
-      title: "Selección actualizada",
-      description: "Todos los pares han sido deseleccionados",
-    });
-  };
-
-  const handlePairSelection = (id: string, selected: boolean) => {
-    const newSelection = new Set(selectedPairs);
-    if (selected) {
-      newSelection.add(id);
-    } else {
-      newSelection.delete(id);
-    }
-    setSelectedPairs(newSelection);
+    // Implementar lógica de deselección
   };
 
   return (
@@ -91,12 +69,7 @@ const CurrencyPairList = ({ pairs, onPairsChange, robotName }: CurrencyPairListP
         >
           <SortableContext items={pairs} strategy={verticalListSortingStrategy}>
             {pairs.map((pair) => (
-              <SortablePair 
-                key={pair} 
-                id={pair} 
-                selected={selectedPairs.has(pair)}
-                onSelect={handlePairSelection}
-              />
+              <SortablePair key={pair} id={pair} />
             ))}
           </SortableContext>
         </DndContext>

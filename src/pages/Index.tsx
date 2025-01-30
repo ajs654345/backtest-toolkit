@@ -1,21 +1,18 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
-import CurrencyPairsList from '@/components/CurrencyPairsList';
-import ExcelConfig from '@/components/ExcelConfig';
-import DateRangeSelector from '@/components/DateRangeSelector';
-import RobotSelector from '@/components/RobotSelector';
-import TestingModeSelector from '@/components/TestingModeSelector';
-import ConfigurationOptions from '@/components/ConfigurationOptions';
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useToast } from "@/components/ui/use-toast";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import CurrencyPairsList from '@/components/CurrencyPairsList';
 
 const Index = () => {
   const { toast } = useToast();
-  const today = new Date();
   const [selectedRobots, setSelectedRobots] = useState<File[]>([]);
-  const [dateFrom, setDateFrom] = useState<Date>(today);
-  const [dateTo, setDateTo] = useState<Date>(today);
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
   const [outputPath, setOutputPath] = useState('');
   const [excelName, setExcelName] = useState('');
   const [useExistingExcel, setUseExistingExcel] = useState(false);
@@ -30,7 +27,29 @@ const Index = () => {
     "AUDNZD", "GBPCHF", "EURNZD", "AUDCHF", "NZDUSD", "NZDCAD", "NZDCHF"
   ]);
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    const setFiles = files.filter(file => file.name.endsWith('.set'));
+    setSelectedRobots(setFiles);
+  };
+
+  const handleExistingExcelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && file.name.endsWith('.xlsx')) {
+      setExistingExcelFile(file);
+    }
+  };
+
   const executeBacktest = async () => {
+    if (!dateFrom || !dateTo) {
+      toast({
+        title: "Error",
+        description: "Por favor, seleccione las fechas de inicio y fin",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (selectedRobots.length === 0) {
       toast({
         title: "Error",
@@ -46,10 +65,8 @@ const Index = () => {
           name: robot.name,
           pairs: currencyPairs
         })),
-        dateRange: {
-          from: dateFrom,
-          to: dateTo
-        },
+        dateFrom,
+        dateTo,
         testingMode,
         outputPath,
         excelConfig: {
@@ -82,27 +99,71 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background/50 p-6">
-      <Card className="max-w-5xl mx-auto p-6 glass-card">
+    <div className="min-h-screen bg-background p-6">
+      <Card className="max-w-5xl mx-auto p-6">
         <h1 className="text-2xl font-bold mb-6 text-center">Herramienta de Backtesting MT4</h1>
         
         <div className="space-y-6">
-          <RobotSelector
-            selectedRobots={selectedRobots}
-            setSelectedRobots={setSelectedRobots}
-          />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="dateFrom">Fecha Inicio</Label>
+                <Input
+                  type="date"
+                  id="dateFrom"
+                  value={dateFrom}
+                  onChange={(e) => setDateFrom(e.target.value)}
+                />
+              </div>
+              <div>
+                <Label htmlFor="dateTo">Fecha Fin</Label>
+                <Input
+                  type="date"
+                  id="dateTo"
+                  value={dateTo}
+                  onChange={(e) => setDateTo(e.target.value)}
+                />
+              </div>
+            </div>
 
-          <TestingModeSelector
-            testingMode={testingMode}
-            setTestingMode={setTestingMode}
-          />
+            <div>
+              <Label htmlFor="robots">Seleccionar Robots (archivos .set)</Label>
+              <Input
+                type="file"
+                id="robots"
+                multiple
+                accept=".set"
+                onChange={handleFileChange}
+                className="mt-1"
+              />
+              {selectedRobots.length > 0 && (
+                <div className="mt-2 p-2 border rounded-md">
+                  <p className="font-medium mb-2">Robots seleccionados:</p>
+                  {selectedRobots.map((robot, index) => (
+                    <div key={index} className="py-1">{robot.name}</div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
 
-          <DateRangeSelector
-            dateFrom={dateFrom}
-            dateTo={dateTo}
-            setDateFrom={setDateFrom}
-            setDateTo={setDateTo}
-          />
+          <div className="mb-6">
+            <Label>Modo de Prueba</Label>
+            <RadioGroup defaultValue="control" value={testingMode} onValueChange={setTestingMode} className="mt-2">
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="control" id="control" />
+                <Label htmlFor="control">Puntos de Control</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="tick" id="tick" />
+                <Label htmlFor="tick">Tick</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="price" id="price" />
+                <Label htmlFor="price">Último Precio</Label>
+              </div>
+            </RadioGroup>
+          </div>
 
           <div>
             <Label className="text-center block mb-4">Pares de Divisas (Arrastrar para reordenar)</Label>
@@ -112,28 +173,59 @@ const Index = () => {
             />
           </div>
 
-          <ExcelConfig
-            useExistingExcel={useExistingExcel}
-            setUseExistingExcel={setUseExistingExcel}
-            existingExcelFile={existingExcelFile}
-            handleExistingExcelChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file && file.name.endsWith('.xlsx')) {
-                setExistingExcelFile(file);
-              }
-            }}
-            useDefaultNaming={useDefaultNaming}
-            setUseDefaultNaming={setUseDefaultNaming}
-            excelName={excelName}
-            setExcelName={setExcelName}
-            outputPath={outputPath}
-            setOutputPath={setOutputPath}
-          />
+          <div className="space-y-4">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="useExisting"
+                checked={useExistingExcel}
+                onCheckedChange={(checked) => setUseExistingExcel(checked === true)}
+              />
+              <Label htmlFor="useExisting">Usar archivo Excel existente</Label>
+            </div>
 
-          <ConfigurationOptions
-            saveConfig={saveConfig}
-            setSaveConfig={setSaveConfig}
-          />
+            {useExistingExcel ? (
+              <div>
+                <Input
+                  type="file"
+                  accept=".xlsx"
+                  onChange={handleExistingExcelChange}
+                  className="mt-2"
+                />
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="useDefaultNaming"
+                    checked={useDefaultNaming}
+                    onCheckedChange={(checked) => setUseDefaultNaming(checked === true)}
+                  />
+                  <Label htmlFor="useDefaultNaming">Usar nombre por defecto (Nombre del robot + Fecha)</Label>
+                </div>
+                {!useDefaultNaming && (
+                  <div>
+                    <Label htmlFor="excelName">Nombre personalizado del archivo Excel</Label>
+                    <Input
+                      type="text"
+                      id="excelName"
+                      value={excelName}
+                      onChange={(e) => setExcelName(e.target.value)}
+                      placeholder="Nombre del archivo Excel"
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="saveConfig"
+              checked={saveConfig}
+              onCheckedChange={(checked) => setSaveConfig(checked === true)}
+            />
+            <Label htmlFor="saveConfig">Guardar configuración actual</Label>
+          </div>
 
           <Button 
             className="w-full"
