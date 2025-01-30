@@ -4,7 +4,7 @@ import type { MT4Config } from '../types/mt4';
 
 export const executeBacktest = async (config: MT4Config) => {
   try {
-    // Validate MT4 installation first
+    // Validar instalación de MT4 primero
     if (!validateMT4Installation()) {
       toast({
         title: "Error",

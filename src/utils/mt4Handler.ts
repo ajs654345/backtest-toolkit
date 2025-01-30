@@ -1,63 +1,89 @@
 import * as path from 'path';
 import * as fs from 'fs';
+import { exec } from 'child_process';
 import type { MT4Config } from '../types/mt4';
 
-const MT4_PATH = 'C:\\Users\\arodr\\AppData\\Roaming\\Darwinex MT4';
+const MT4_PATH = process.env.MT4_PATH || 'C:\\Program Files (x86)\\MetaTrader 4';
+const TERMINAL_EXE = 'terminal.exe';
 
 export const executeBacktest = async (config: MT4Config): Promise<any> => {
   try {
-    console.log('Starting backtest with config:', config);
-    console.log('Using MT4 path:', MT4_PATH);
-
-    // Verify MT4 installation
-    if (!fs.existsSync(MT4_PATH)) {
-      throw new Error(`MT4 not found at path: ${MT4_PATH}`);
+    console.log('Iniciando backtest con configuración:', config);
+    
+    // Verificar instalación de MT4
+    const terminalPath = path.join(MT4_PATH, TERMINAL_EXE);
+    if (!fs.existsSync(terminalPath)) {
+      throw new Error(`MT4 no encontrado en: ${terminalPath}`);
     }
 
-    // Verify robot file exists
-    const robotFullPath = path.join(MT4_PATH, 'MQL4', 'Experts', path.basename(config.robotPath));
-    if (!fs.existsSync(robotFullPath)) {
-      throw new Error(`Robot not found at path: ${robotFullPath}`);
+    // Verificar archivo del robot
+    const robotPath = path.resolve(config.robotPath);
+    if (!fs.existsSync(robotPath)) {
+      throw new Error(`Robot no encontrado en: ${robotPath}`);
     }
 
-    // Create output directory if it doesn't exist
+    // Crear directorio de salida si no existe
     if (!fs.existsSync(config.outputPath)) {
       fs.mkdirSync(config.outputPath, { recursive: true });
     }
 
-    // Generate unique report name
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const reportName = `backtest_${path.basename(config.robotPath, '.ex4')}_${config.pair}_${timestamp}`;
-    const reportPath = path.join(config.outputPath, `${reportName}.htm`);
+    // Construir comando para MT4
+    const command = [
+      `"${terminalPath}"`,
+      `/config:"${config.robotPath}"`,
+      `/symbol:${config.pair}`,
+      `/fromdate:${config.dateFrom}`,
+      `/todate:${config.dateTo}`,
+      `/testmodel:${getTestModel(config.testingMode)}`,
+      '/shutdown'
+    ].join(' ');
 
-    // Aquí implementaremos la lógica real de backtesting usando el modo de prueba especificado
-    console.log(`Executing backtest in ${config.testingMode} mode`);
+    console.log('Ejecutando comando:', command);
 
-    // Por ahora retornamos datos simulados
-    const mockResult = {
-      profit: 1000,
-      trades: 50,
-      winRate: 65,
-      drawdown: 15,
-      reportPath: reportPath
-    };
-
-    return mockResult;
+    // Ejecutar MT4
+    return new Promise((resolve, reject) => {
+      exec(command, (error, stdout, stderr) => {
+        if (error) {
+          console.error('Error ejecutando MT4:', error);
+          reject(error);
+          return;
+        }
+        
+        console.log('Salida de MT4:', stdout);
+        if (stderr) console.error('Errores de MT4:', stderr);
+        
+        resolve({
+          success: true,
+          output: stdout,
+          reportPath: path.join(config.outputPath, `${config.pair}_backtest_report.htm`)
+        });
+      });
+    });
   } catch (error) {
-    console.error('Error during backtest:', error);
+    console.error('Error durante el backtest:', error);
     throw error;
+  }
+};
+
+const getTestModel = (mode: MT4Config['testingMode']): number => {
+  switch (mode) {
+    case 'control': return 0;
+    case 'tick': return 1;
+    case 'price': return 2;
+    default: return 0;
   }
 };
 
 export const validateMT4Installation = (): boolean => {
   try {
-    return fs.existsSync(MT4_PATH);
+    const terminalPath = path.join(MT4_PATH, TERMINAL_EXE);
+    return fs.existsSync(terminalPath);
   } catch (error) {
-    console.error('Error validating MT4 installation:', error);
+    console.error('Error validando instalación de MT4:', error);
     return false;
   }
 };
 
 export const getTerminalPath = (): string => {
-  return MT4_PATH;
+  return path.join(MT4_PATH, TERMINAL_EXE);
 };

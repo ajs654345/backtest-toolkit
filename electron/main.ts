@@ -26,9 +26,11 @@ function createWindow() {
   // Configurar manejadores IPC
   ipcMain.handle('execute-backtest', async (_, config) => {
     try {
+      console.log('Recibida solicitud de backtest:', config);
       const result = await executeBacktest(config);
       return { success: true, data: result };
     } catch (error) {
+      console.error('Error en el proceso de backtest:', error);
       return { 
         success: false, 
         error: error instanceof Error ? error.message : 'Error desconocido durante el backtesting' 
