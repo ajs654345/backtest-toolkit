@@ -3,6 +3,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { FolderOpen } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 
 interface PathSelectorProps {
   label: string;
@@ -12,18 +13,42 @@ interface PathSelectorProps {
 }
 
 const PathSelector = ({ label, path, onPathChange, placeholder }: PathSelectorProps) => {
+  const { toast } = useToast();
+
   const handleSelectPath = async () => {
     try {
-      // @ts-ignore - Esta API está disponible en Electron
-      const result = await window.electron.showOpenDialog({
-        properties: ['openDirectory']
-      });
-      
-      if (!result.canceled && result.filePaths.length > 0) {
-        onPathChange(result.filePaths[0]);
+      // Verificar si estamos en un entorno Electron
+      if (window && 'electron' in window) {
+        // @ts-ignore - Esta API está disponible en Electron
+        const result = await window.electron.showOpenDialog({
+          properties: ['openDirectory']
+        });
+        
+        if (!result.canceled && result.filePaths.length > 0) {
+          onPathChange(result.filePaths[0]);
+        }
+      } else {
+        // Si no estamos en Electron, usamos el input de tipo file nativo
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.webkitdirectory = true;
+        
+        input.onchange = (e) => {
+          const files = (e.target as HTMLInputElement).files;
+          if (files && files.length > 0) {
+            onPathChange(files[0].path);
+          }
+        };
+        
+        input.click();
       }
     } catch (error) {
       console.error('Error al seleccionar ruta:', error);
+      toast({
+        title: "Error",
+        description: "No se pudo abrir el explorador de archivos. Por favor, ingrese la ruta manualmente.",
+        variant: "destructive"
+      });
     }
   };
 
