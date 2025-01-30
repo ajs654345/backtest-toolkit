@@ -1,0 +1,36 @@
+{
+  "appId": "com.backtesting.app",
+  "productName": "Backtesting Toolkit",
+  "directories": {
+    "output": "release/"
+  },
+  "files": [
+    "dist/**/*",
+    "electron/**/*"
+  ],
+  "win": {
+    "target": [
+      "nsis"
+    ],
+    "icon": "public/favicon.ico",
+    "artifactName": "${productName}-Setup-${version}.${ext}"
+  },
+  "nsis": {
+    "oneClick": true,
+    "perMachine": false,
+    "allowToChangeInstallationDirectory": false,
+    "deleteAppDataOnUninstall": true
+  },
+  "mac": {
+    "target": [
+      "dmg"
+    ],
+    "icon": "public/favicon.ico"
+  },
+  "linux": {
+    "target": [
+      "AppImage"
+    ],
+    "icon": "public/favicon.ico"
+  }
+}
