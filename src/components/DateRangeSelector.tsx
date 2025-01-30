@@ -16,7 +16,7 @@ const DateRangeSelector = ({ dateFrom, dateTo, setDateFrom, setDateTo }: DateRan
     <div className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-2">
-          <Label>Fecha Inicio: {format(dateFrom, "dd/MM/yyyy", { locale: es })}</Label>
+          <Label>De: {format(dateFrom, "dd/MM/yyyy", { locale: es })}</Label>
           <Calendar
             mode="single"
             selected={dateFrom}
@@ -27,7 +27,7 @@ const DateRangeSelector = ({ dateFrom, dateTo, setDateFrom, setDateTo }: DateRan
         </div>
         
         <div className="space-y-2">
-          <Label>Fecha Fin: {format(dateTo, "dd/MM/yyyy", { locale: es })}</Label>
+          <Label>A: {format(dateTo, "dd/MM/yyyy", { locale: es })}</Label>
           <Calendar
             mode="single"
             selected={dateTo}
