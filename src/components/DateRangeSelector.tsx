@@ -1,8 +1,6 @@
 import React from 'react';
-import { Calendar } from "@/components/ui/calendar";
 import { Label } from "@/components/ui/label";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
+import { Input } from "@/components/ui/input";
 
 interface DateRangeSelectorProps {
   dateFrom: Date;
@@ -12,28 +10,44 @@ interface DateRangeSelectorProps {
 }
 
 const DateRangeSelector = ({ dateFrom, dateTo, setDateFrom, setDateTo }: DateRangeSelectorProps) => {
+  const formatDateForInput = (date: Date) => {
+    return date.toISOString().split('T')[0];
+  };
+
+  const handleDateFromChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const date = new Date(e.target.value);
+    if (!isNaN(date.getTime())) {
+      setDateFrom(date);
+    }
+  };
+
+  const handleDateToChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const date = new Date(e.target.value);
+    if (!isNaN(date.getTime())) {
+      setDateTo(date);
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-2">
-          <Label>De: {format(dateFrom, "dd/MM/yyyy", { locale: es })}</Label>
-          <Calendar
-            mode="single"
-            selected={dateFrom}
-            onSelect={(date) => date && setDateFrom(date)}
-            className="rounded-md border"
-            locale={es}
+          <Label>Desde:</Label>
+          <Input
+            type="date"
+            value={formatDateForInput(dateFrom)}
+            onChange={handleDateFromChange}
+            className="w-full"
           />
         </div>
         
         <div className="space-y-2">
-          <Label>A: {format(dateTo, "dd/MM/yyyy", { locale: es })}</Label>
-          <Calendar
-            mode="single"
-            selected={dateTo}
-            onSelect={(date) => date && setDateTo(date)}
-            className="rounded-md border"
-            locale={es}
+          <Label>Hasta:</Label>
+          <Input
+            type="date"
+            value={formatDateForInput(dateTo)}
+            onChange={handleDateToChange}
+            className="w-full"
           />
         </div>
       </div>
