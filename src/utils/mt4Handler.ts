@@ -1,26 +1,10 @@
 import * as path from 'path';
 import * as fs from 'fs';
+import type { MT4Config } from '../types/mt4';
 
 const MT4_PATH = 'C:\\Users\\arodr\\AppData\\Roaming\\Darwinex MT4';
 
-interface MT4Config {
-  robotPath: string;
-  dateFrom: string;
-  dateTo: string;
-  pair: string;
-  outputPath: string;
-  testingMode: string;
-}
-
-interface BacktestResult {
-  profit: number;
-  trades: number;
-  winRate: number;
-  drawdown: number;
-  reportPath: string;
-}
-
-export const executeBacktest = async (config: MT4Config): Promise<BacktestResult> => {
+export const executeBacktest = async (config: MT4Config): Promise<any> => {
   try {
     console.log('Starting backtest with config:', config);
     console.log('Using MT4 path:', MT4_PATH);
@@ -46,9 +30,11 @@ export const executeBacktest = async (config: MT4Config): Promise<BacktestResult
     const reportName = `backtest_${path.basename(config.robotPath, '.ex4')}_${config.pair}_${timestamp}`;
     const reportPath = path.join(config.outputPath, `${reportName}.htm`);
 
-    // Here we would normally execute the backtest
-    // For now, return mock data since we need to implement the actual MT4 integration
-    const mockResult: BacktestResult = {
+    // Aquí implementaremos la lógica real de backtesting usando el modo de prueba especificado
+    console.log(`Executing backtest in ${config.testingMode} mode`);
+
+    // Por ahora retornamos datos simulados
+    const mockResult = {
       profit: 1000,
       trades: 50,
       winRate: 65,
@@ -56,9 +42,6 @@ export const executeBacktest = async (config: MT4Config): Promise<BacktestResult
       reportPath: reportPath
     };
 
-    // Log success
-    console.log('Backtest completed successfully:', mockResult);
-    
     return mockResult;
   } catch (error) {
     console.error('Error during backtest:', error);

@@ -1,14 +1,6 @@
 import { toast } from "@/components/ui/use-toast";
 import { executeBacktest as executeBacktestHandler, validateMT4Installation } from "@/utils/mt4Handler";
-
-interface MT4Config {
-  robotPath: string;
-  dateFrom: string;
-  dateTo: string;
-  pair: string;
-  outputPath: string;
-  testingMode: string;
-}
+import type { MT4Config } from '../types/mt4';
 
 export const executeBacktest = async (config: MT4Config) => {
   try {
