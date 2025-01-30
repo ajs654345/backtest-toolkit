@@ -19,6 +19,7 @@ const DateRangeSelector = ({ dateFrom, dateTo, setDateFrom, setDateTo }: DateRan
           id="dateFrom"
           value={dateFrom}
           onChange={(e) => setDateFrom(e.target.value)}
+          className="mt-1 dark:bg-gray-800 dark:text-white"
         />
       </div>
       <div>
@@ -28,6 +29,7 @@ const DateRangeSelector = ({ dateFrom, dateTo, setDateFrom, setDateTo }: DateRan
           id="dateTo"
           value={dateTo}
           onChange={(e) => setDateTo(e.target.value)}
+          className="mt-1 dark:bg-gray-800 dark:text-white"
         />
       </div>
     </div>
