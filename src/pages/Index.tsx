@@ -81,7 +81,8 @@ const Index = () => {
             dateFrom,
             dateTo,
             pair,
-            outputPath: outputPath || './backtest_results'
+            outputPath: outputPath || './backtest_results',
+            testingMode // Add the testingMode parameter here
           });
 
           toast({
