@@ -12,6 +12,7 @@ import DateRangeSelector from '@/components/DateRangeSelector';
 import RobotSelector from '@/components/RobotSelector';
 import TestingModeSelector from '@/components/TestingModeSelector';
 import ConfigurationOptions from '@/components/ConfigurationOptions';
+import type { MT4Config } from '@/types/mt4';
 
 const Index = () => {
   const { toast } = useToast();
@@ -23,7 +24,7 @@ const Index = () => {
   const [useExistingExcel, setUseExistingExcel] = useState(false);
   const [existingExcelFile, setExistingExcelFile] = useState<File | null>(null);
   const [useDefaultNaming, setUseDefaultNaming] = useState(true);
-  const [testingMode, setTestingMode] = useState('control');
+  const [testingMode, setTestingMode] = useState<MT4Config['testingMode']>('control');
   const [saveConfig, setSaveConfig] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [currencyPairs, setCurrencyPairs] = useState([
@@ -82,7 +83,7 @@ const Index = () => {
             dateTo,
             pair,
             outputPath: outputPath || './backtest_results',
-            testingMode // Add the testingMode parameter here
+            testingMode
           });
 
           toast({
