@@ -4,7 +4,6 @@ import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import CurrencyPairsList from '@/components/CurrencyPairsList';
 import ExcelConfig from '@/components/ExcelConfig';
-import DateRangeSelector from '@/components/DateRangeSelector';
 import RobotSelector from '@/components/RobotSelector';
 import TestingModeSelector from '@/components/TestingModeSelector';
 import ConfigurationOptions from '@/components/ConfigurationOptions';
@@ -13,8 +12,6 @@ import { Label } from "@/components/ui/label";
 const Index = () => {
   const { toast } = useToast();
   const [selectedRobots, setSelectedRobots] = useState<File[]>([]);
-  const [dateFrom, setDateFrom] = useState('');
-  const [dateTo, setDateTo] = useState('');
   const [outputPath, setOutputPath] = useState('');
   const [excelName, setExcelName] = useState('');
   const [useExistingExcel, setUseExistingExcel] = useState(false);
@@ -30,15 +27,6 @@ const Index = () => {
   ]);
 
   const executeBacktest = async () => {
-    if (!dateFrom || !dateTo) {
-      toast({
-        title: "Error",
-        description: "Por favor, seleccione las fechas de inicio y fin",
-        variant: "destructive",
-      });
-      return;
-    }
-
     if (selectedRobots.length === 0) {
       toast({
         title: "Error",
@@ -54,8 +42,6 @@ const Index = () => {
           name: robot.name,
           pairs: currencyPairs
         })),
-        dateFrom,
-        dateTo,
         testingMode,
         outputPath,
         excelConfig: {
@@ -93,13 +79,6 @@ const Index = () => {
         <h1 className="text-2xl font-bold mb-6 text-center">Herramienta de Backtesting MT4</h1>
         
         <div className="space-y-6">
-          <DateRangeSelector
-            dateFrom={dateFrom}
-            dateTo={dateTo}
-            setDateFrom={setDateFrom}
-            setDateTo={setDateTo}
-          />
-
           <RobotSelector
             selectedRobots={selectedRobots}
             setSelectedRobots={setSelectedRobots}
