@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import CurrencyPairsList from '@/components/CurrencyPairsList';
 import ExcelConfig from '@/components/ExcelConfig';
+import DateRangeSelector from '@/components/DateRangeSelector';
 import RobotSelector from '@/components/RobotSelector';
 import TestingModeSelector from '@/components/TestingModeSelector';
 import ConfigurationOptions from '@/components/ConfigurationOptions';
@@ -11,7 +12,10 @@ import { Label } from "@/components/ui/label";
 
 const Index = () => {
   const { toast } = useToast();
+  const today = new Date();
   const [selectedRobots, setSelectedRobots] = useState<File[]>([]);
+  const [dateFrom, setDateFrom] = useState<Date>(today);
+  const [dateTo, setDateTo] = useState<Date>(today);
   const [outputPath, setOutputPath] = useState('');
   const [excelName, setExcelName] = useState('');
   const [useExistingExcel, setUseExistingExcel] = useState(false);
@@ -42,6 +46,10 @@ const Index = () => {
           name: robot.name,
           pairs: currencyPairs
         })),
+        dateRange: {
+          from: dateFrom,
+          to: dateTo
+        },
         testingMode,
         outputPath,
         excelConfig: {
@@ -87,6 +95,13 @@ const Index = () => {
           <TestingModeSelector
             testingMode={testingMode}
             setTestingMode={setTestingMode}
+          />
+
+          <DateRangeSelector
+            dateFrom={dateFrom}
+            dateTo={dateTo}
+            setDateFrom={setDateFrom}
+            setDateTo={setDateTo}
           />
 
           <div>
