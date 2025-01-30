@@ -1,10 +1,11 @@
 import React from 'react';
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import type { MT4Config } from '@/types/mt4';
 
 interface TestingModeSelectorProps {
-  testingMode: string;
-  setTestingMode: (mode: string) => void;
+  testingMode: MT4Config['testingMode'];
+  setTestingMode: (mode: MT4Config['testingMode']) => void;
 }
 
 const TestingModeSelector = ({ testingMode, setTestingMode }: TestingModeSelectorProps) => {
