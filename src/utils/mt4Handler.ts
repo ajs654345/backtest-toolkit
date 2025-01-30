@@ -12,23 +12,38 @@ interface MT4Config {
   outputPath: string;
 }
 
+// Coordenadas específicas para MT4 en resolución 1920x1080
+const MT4_COORDINATES = {
+  LOAD_BUTTON: { x: 100, y: 100 },        // Botón "Cargar" en el constructor
+  DATE_FROM: { x: 200, y: 200 },          // Campo "Desde"
+  DATE_TO: { x: 300, y: 200 },            // Campo "Hasta"
+  PAIR_SELECT: { x: 400, y: 200 },        // Selector de par
+  START_BUTTON: { x: 500, y: 300 },       // Botón "Iniciar"
+  REPORT_CONTEXT: { x: 600, y: 400 },     // Click derecho para menú contextual
+  SAVE_REPORT: { x: 620, y: 420 },        // Opción "Guardar como informe"
+  ACCEPT_BUTTON: { x: 700, y: 500 }       // Botón "Aceptar" en el constructor
+};
+
 export const executeBacktest = async (config: MT4Config) => {
   try {
     console.log('Iniciando backtesting para:', config);
     
-    // 1. Abrir MT4 y cargar el robot
+    // 1. Configurar robotjs
+    robotjs.setMouseDelay(2);
+    robotjs.setKeyboardDelay(2);
+    robotjs.setKeyboardDelay(100);
+    
+    // 2. Cargar el robot en el constructor
     await loadRobot(config.robotPath);
     
-    // 2. Configurar fechas y par
+    // 3. Configurar parámetros
     await configureBacktest(config);
     
-    // 3. Ejecutar backtesting
+    // 4. Ejecutar backtesting
     await runBacktest();
     
-    // 4. Capturar resultados
+    // 5. Capturar y guardar resultados
     const results = await captureResults();
-    
-    // 5. Guardar informes y capturas
     await saveReports(config, results);
     
     return results;
@@ -39,49 +54,51 @@ export const executeBacktest = async (config: MT4Config) => {
 };
 
 const loadRobot = async (robotPath: string) => {
-  // Configurar resolución
-  robotjs.setMouseDelay(2);
-  robotjs.setKeyboardDelay(2);
+  // Abrir constructor de estrategias
+  robotjs.keyTap('f7');
+  await new Promise(resolve => setTimeout(resolve, 1000));
   
-  // Abrir ventana de carga
-  robotjs.moveMouse(100, 100); // Posición del botón "Cargar"
+  // Click en "Cargar"
+  robotjs.moveMouse(MT4_COORDINATES.LOAD_BUTTON.x, MT4_COORDINATES.LOAD_BUTTON.y);
   robotjs.mouseClick();
   
   // Escribir ruta del robot
   robotjs.typeString(robotPath);
   robotjs.keyTap('enter');
   
-  // Esperar a que cargue
+  // Esperar y dar click en "Aceptar"
   await new Promise(resolve => setTimeout(resolve, 1000));
+  robotjs.moveMouse(MT4_COORDINATES.ACCEPT_BUTTON.x, MT4_COORDINATES.ACCEPT_BUTTON.y);
+  robotjs.mouseClick();
 };
 
 const configureBacktest = async (config: MT4Config) => {
   // Configurar fechas
-  robotjs.moveMouse(200, 200); // Posición del campo fecha inicial
+  robotjs.moveMouse(MT4_COORDINATES.DATE_FROM.x, MT4_COORDINATES.DATE_FROM.y);
   robotjs.mouseClick();
   robotjs.typeString(config.dateFrom);
   
-  robotjs.moveMouse(300, 200); // Posición del campo fecha final
+  robotjs.moveMouse(MT4_COORDINATES.DATE_TO.x, MT4_COORDINATES.DATE_TO.y);
   robotjs.mouseClick();
   robotjs.typeString(config.dateTo);
   robotjs.typeString(config.dateTo); // También para "saltar a"
   
   // Configurar par de divisas
-  robotjs.moveMouse(400, 200);
+  robotjs.moveMouse(MT4_COORDINATES.PAIR_SELECT.x, MT4_COORDINATES.PAIR_SELECT.y);
   robotjs.mouseClick();
   robotjs.typeString(config.pair);
   
-  // Dar click en "Saltar"
-  robotjs.moveMouse(500, 300);
+  // Click en "Saltar"
+  robotjs.moveMouse(MT4_COORDINATES.START_BUTTON.x, MT4_COORDINATES.START_BUTTON.y);
   robotjs.mouseClick();
 };
 
 const runBacktest = async () => {
   // Click en "Iniciar"
-  robotjs.moveMouse(500, 300);
+  robotjs.moveMouse(MT4_COORDINATES.START_BUTTON.x, MT4_COORDINATES.START_BUTTON.y);
   robotjs.mouseClick();
   
-  // Esperar a que termine el backtesting
+  // Esperar a que termine el backtesting (ajustar según necesidad)
   await new Promise(resolve => setTimeout(resolve, 5000));
 };
 
@@ -109,6 +126,7 @@ const parseOCRText = (text: string) => {
   };
   
   // Implementar lógica de parsing aquí
+  // Buscar patrones específicos en el texto para extraer los valores
   
   return params;
 };
@@ -128,9 +146,9 @@ const saveReports = async (config: MT4Config, results: any) => {
   fs.writeFileSync(screenshotPath, results.screenshot);
   
   // Guardar informe
-  robotjs.moveMouse(600, 400); // Posición del botón derecho en el informe
+  robotjs.moveMouse(MT4_COORDINATES.REPORT_CONTEXT.x, MT4_COORDINATES.REPORT_CONTEXT.y);
   robotjs.mouseClick('right');
-  robotjs.moveMouse(620, 420); // Posición de "Guardar como informe"
+  robotjs.moveMouse(MT4_COORDINATES.SAVE_REPORT.x, MT4_COORDINATES.SAVE_REPORT.y);
   robotjs.mouseClick();
   
   // Escribir nombre del archivo
