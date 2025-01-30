@@ -12,24 +12,24 @@ interface DateRangeSelectorProps {
 const DateRangeSelector = ({ dateFrom, dateTo, setDateFrom, setDateTo }: DateRangeSelectorProps) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div>
+      <div className="space-y-2">
         <Label htmlFor="dateFrom">Fecha Inicio</Label>
         <Input
           type="date"
           id="dateFrom"
           value={dateFrom}
           onChange={(e) => setDateFrom(e.target.value)}
-          className="mt-1 dark:bg-gray-800 dark:text-white"
+          className="w-full bg-background"
         />
       </div>
-      <div>
+      <div className="space-y-2">
         <Label htmlFor="dateTo">Fecha Fin</Label>
         <Input
           type="date"
           id="dateTo"
           value={dateTo}
           onChange={(e) => setDateTo(e.target.value)}
-          className="mt-1 dark:bg-gray-800 dark:text-white"
+          className="w-full bg-background"
         />
       </div>
     </div>

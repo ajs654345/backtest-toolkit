@@ -56,9 +56,18 @@
 
   body {
     @apply bg-background text-foreground transition-colors duration-300;
+    background-image: url('/background.svg');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
   }
 
   [data-theme='dark'] .rdp-button:hover:not([disabled]):not(.rdp-day_selected) {
     background-color: rgba(255, 255, 255, 0.1);
   }
+}
+
+.glass-card {
+  @apply bg-background/80 backdrop-blur-lg border rounded-lg shadow-lg;
 }
