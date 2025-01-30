@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { ThemeToggle } from '@/components/ThemeToggle';
 import CurrencyPairsList from '@/components/CurrencyPairsList';
 import ExcelConfig from '@/components/ExcelConfig';
 import DateRangeSelector from '@/components/DateRangeSelector';
@@ -89,9 +88,8 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background p-6">
-      <ThemeToggle />
-      <Card className="max-w-5xl mx-auto p-6">
+    <div className="min-h-screen bg-background/50 p-6">
+      <Card className="max-w-5xl mx-auto p-6 glass-card">
         <h1 className="text-2xl font-bold mb-6 text-center">Herramienta de Backtesting MT4</h1>
         
         <div className="space-y-6">
