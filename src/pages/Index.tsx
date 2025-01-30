@@ -1,16 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, Suspense, lazy } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { ThemeToggle } from '@/components/ThemeToggle';
-import CurrencyPairsList from '@/components/CurrencyPairsList';
-import ExcelConfig from '@/components/ExcelConfig';
-import DateRangeSelector from '@/components/DateRangeSelector';
-import RobotSelector from '@/components/RobotSelector';
-import TestingModeSelector from '@/components/TestingModeSelector';
-import ConfigurationOptions from '@/components/ConfigurationOptions';
-import { Label } from "@/components/ui/label";
-import { executeBacktest } from '@/utils/mt4Handler';
+import { Loader2, CheckCircle2, AlertCircle } from "lucide-react";
+import LoadingSkeleton from '@/components/LoadingSkeleton';
+
+// Lazy load components for better performance
+const CurrencyPairsList = lazy(() => import('@/components/CurrencyPairsList'));
+const ExcelConfig = lazy(() => import('@/components/ExcelConfig'));
+const DateRangeSelector = lazy(() => import('@/components/DateRangeSelector'));
+const RobotSelector = lazy(() => import('@/components/RobotSelector'));
+const TestingModeSelector = lazy(() => import('@/components/TestingModeSelector'));
+const ConfigurationOptions = lazy(() => import('@/components/ConfigurationOptions'));
 
 const Index = () => {
   const { toast } = useToast();
@@ -32,24 +34,40 @@ const Index = () => {
     "AUDNZD", "GBPCHF", "EURNZD", "AUDCHF", "NZDUSD", "NZDCAD", "NZDCHF"
   ]);
 
-  const handleBacktest = async () => {
+  // Función para validar el formulario
+  const validateForm = () => {
     if (!dateFrom || !dateTo) {
       toast({
-        title: "Error",
-        description: "Por favor, seleccione las fechas de inicio y fin",
+        title: "Error de validación",
+        description: "Las fechas son obligatorias",
         variant: "destructive",
       });
-      return;
+      return false;
     }
 
     if (selectedRobots.length === 0) {
       toast({
-        title: "Error",
-        description: "Por favor, seleccione al menos un robot",
+        title: "Error de validación",
+        description: "Debes seleccionar al menos un robot",
         variant: "destructive",
       });
-      return;
+      return false;
     }
+
+    if (!outputPath) {
+      toast({
+        title: "Error de validación",
+        description: "La ruta de salida es obligatoria",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleBacktest = async () => {
+    if (!validateForm()) return;
 
     setIsProcessing(true);
     try {
@@ -68,13 +86,20 @@ const Index = () => {
             outputPath: outputPath || './backtest_results'
           });
 
+          toast({
+            title: "Completado",
+            description: `Backtest finalizado para ${robot.name} - ${pair}`,
+            icon: <CheckCircle2 className="h-4 w-4 text-green-500" />
+          });
+
           console.log(`Backtest completed for ${robot.name} - ${pair}:`, result);
         }
       }
 
       toast({
-        title: "Backtesting Completado",
-        description: "Todos los backtests han sido ejecutados exitosamente.",
+        title: "Proceso Completado",
+        description: "Todos los backtests han sido ejecutados exitosamente",
+        icon: <CheckCircle2 className="h-4 w-4 text-green-500" />
       });
     } catch (error) {
       console.error('Error during backtest:', error);
@@ -82,6 +107,7 @@ const Index = () => {
         title: "Error",
         description: "Ocurrió un error durante el proceso de backtesting",
         variant: "destructive",
+        icon: <AlertCircle className="h-4 w-4 text-red-500" />
       });
     } finally {
       setIsProcessing(false);
@@ -90,67 +116,94 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background p-6">
-      <ThemeToggle />
-      <Card className="max-w-5xl mx-auto p-6">
+      <div className="fixed top-4 right-4 z-50">
+        <ThemeToggle />
+      </div>
+      
+      <Card className="max-w-5xl mx-auto p-6 animate-fade-in">
         <h1 className="text-2xl font-bold mb-6 text-center">Herramienta de Backtesting MT4</h1>
         
-        <div className="space-y-6">
-          <DateRangeSelector
-            dateFrom={dateFrom}
-            dateTo={dateTo}
-            setDateFrom={setDateFrom}
-            setDateTo={setDateTo}
-          />
+        <Suspense fallback={<LoadingSkeleton />}>
+          <div className="space-y-6">
+            <DateRangeSelector
+              dateFrom={dateFrom}
+              dateTo={dateTo}
+              setDateFrom={setDateFrom}
+              setDateTo={setDateTo}
+            />
 
-          <RobotSelector
-            selectedRobots={selectedRobots}
-            setSelectedRobots={setSelectedRobots}
-          />
+            <RobotSelector
+              selectedRobots={selectedRobots}
+              setSelectedRobots={(robots) => {
+                setSelectedRobots(robots);
+                if (robots.length > 0) {
+                  toast({
+                    title: "Robots seleccionados",
+                    description: `${robots.length} robot(es) cargado(s) correctamente`,
+                  });
+                }
+              }}
+            />
 
-          <TestingModeSelector
-            testingMode={testingMode}
-            setTestingMode={setTestingMode}
-          />
+            <TestingModeSelector
+              testingMode={testingMode}
+              setTestingMode={setTestingMode}
+            />
 
-          <div>
-            <Label className="text-center block mb-4">Pares de Divisas (Arrastrar para reordenar)</Label>
             <CurrencyPairsList 
               currencyPairs={currencyPairs}
-              onReorder={setCurrencyPairs}
+              onReorder={(newOrder) => {
+                setCurrencyPairs(newOrder);
+                toast({
+                  title: "Orden actualizado",
+                  description: "Se ha actualizado el orden de los pares",
+                });
+              }}
             />
+
+            <ExcelConfig
+              useExistingExcel={useExistingExcel}
+              setUseExistingExcel={setUseExistingExcel}
+              existingExcelFile={existingExcelFile}
+              handleExistingExcelChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file && file.name.endsWith('.xlsx')) {
+                  setExistingExcelFile(file);
+                  toast({
+                    title: "Excel seleccionado",
+                    description: `Archivo ${file.name} cargado correctamente`,
+                  });
+                }
+              }}
+              useDefaultNaming={useDefaultNaming}
+              setUseDefaultNaming={setUseDefaultNaming}
+              excelName={excelName}
+              setExcelName={setExcelName}
+              outputPath={outputPath}
+              setOutputPath={setOutputPath}
+            />
+
+            <ConfigurationOptions
+              saveConfig={saveConfig}
+              setSaveConfig={setSaveConfig}
+            />
+
+            <Button 
+              className="w-full relative transition-all duration-200 hover:scale-[1.02]"
+              onClick={handleBacktest}
+              disabled={isProcessing}
+            >
+              {isProcessing ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Procesando...
+                </>
+              ) : (
+                "Ejecutar Backtesting"
+              )}
+            </Button>
           </div>
-
-          <ExcelConfig
-            useExistingExcel={useExistingExcel}
-            setUseExistingExcel={setUseExistingExcel}
-            existingExcelFile={existingExcelFile}
-            handleExistingExcelChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file && file.name.endsWith('.xlsx')) {
-                setExistingExcelFile(file);
-              }
-            }}
-            useDefaultNaming={useDefaultNaming}
-            setUseDefaultNaming={setUseDefaultNaming}
-            excelName={excelName}
-            setExcelName={setExcelName}
-            outputPath={outputPath}
-            setOutputPath={setOutputPath}
-          />
-
-          <ConfigurationOptions
-            saveConfig={saveConfig}
-            setSaveConfig={setSaveConfig}
-          />
-
-          <Button 
-            className="w-full"
-            onClick={handleBacktest}
-            disabled={isProcessing}
-          >
-            {isProcessing ? "Procesando..." : "Ejecutar Backtesting"}
-          </Button>
-        </div>
+        </Suspense>
       </Card>
     </div>
   );
