@@ -14,11 +14,14 @@ interface MT4Config {
 
 // Coordenadas específicas para MT4 en resolución 1920x1080
 const MT4_COORDINATES = {
-  LOAD_BUTTON: { x: 100, y: 100 },        // Botón "Cargar" en el constructor
-  DATE_FROM: { x: 200, y: 200 },          // Campo "Desde"
-  DATE_TO: { x: 300, y: 200 },            // Campo "Hasta"
-  PAIR_SELECT: { x: 400, y: 200 },        // Selector de par
-  START_BUTTON: { x: 500, y: 300 },       // Botón "Iniciar"
+  F7_BUTTON: { x: 0, y: 0 },              // Tecla F7 para abrir constructor
+  LOAD_BUTTON: { x: 150, y: 50 },         // Botón "Cargar" en el constructor
+  DATE_FROM: { x: 250, y: 150 },          // Campo "Desde"
+  DATE_TO: { x: 250, y: 180 },            // Campo "Hasta"
+  JUMP_TO: { x: 250, y: 210 },            // Campo "Saltar a"
+  PAIR_SELECT: { x: 250, y: 120 },        // Selector de par
+  JUMP_BUTTON: { x: 300, y: 400 },        // Botón "Saltar"
+  START_BUTTON: { x: 300, y: 450 },       // Botón "Iniciar"
   REPORT_CONTEXT: { x: 600, y: 400 },     // Click derecho para menú contextual
   SAVE_REPORT: { x: 620, y: 420 },        // Opción "Guardar como informe"
   ACCEPT_BUTTON: { x: 700, y: 500 }       // Botón "Aceptar" en el constructor
@@ -30,19 +33,22 @@ export const executeBacktest = async (config: MT4Config) => {
     
     // 1. Configurar robotjs
     robotjs.setMouseDelay(2);
-    robotjs.setKeyboardDelay(2);
     robotjs.setKeyboardDelay(100);
     
-    // 2. Cargar el robot en el constructor
+    // 2. Abrir constructor de estrategias (F7)
+    robotjs.keyTap('f7');
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // 3. Cargar el robot
     await loadRobot(config.robotPath);
     
-    // 3. Configurar parámetros
+    // 4. Configurar parámetros
     await configureBacktest(config);
     
-    // 4. Ejecutar backtesting
+    // 5. Ejecutar backtesting
     await runBacktest();
     
-    // 5. Capturar y guardar resultados
+    // 6. Capturar y guardar resultados
     const results = await captureResults();
     await saveReports(config, results);
     
@@ -54,10 +60,6 @@ export const executeBacktest = async (config: MT4Config) => {
 };
 
 const loadRobot = async (robotPath: string) => {
-  // Abrir constructor de estrategias
-  robotjs.keyTap('f7');
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  
   // Click en "Cargar"
   robotjs.moveMouse(MT4_COORDINATES.LOAD_BUTTON.x, MT4_COORDINATES.LOAD_BUTTON.y);
   robotjs.mouseClick();
@@ -73,6 +75,11 @@ const loadRobot = async (robotPath: string) => {
 };
 
 const configureBacktest = async (config: MT4Config) => {
+  // Configurar par de divisas
+  robotjs.moveMouse(MT4_COORDINATES.PAIR_SELECT.x, MT4_COORDINATES.PAIR_SELECT.y);
+  robotjs.mouseClick();
+  robotjs.typeString(config.pair);
+  
   // Configurar fechas
   robotjs.moveMouse(MT4_COORDINATES.DATE_FROM.x, MT4_COORDINATES.DATE_FROM.y);
   robotjs.mouseClick();
@@ -81,15 +88,13 @@ const configureBacktest = async (config: MT4Config) => {
   robotjs.moveMouse(MT4_COORDINATES.DATE_TO.x, MT4_COORDINATES.DATE_TO.y);
   robotjs.mouseClick();
   robotjs.typeString(config.dateTo);
-  robotjs.typeString(config.dateTo); // También para "saltar a"
   
-  // Configurar par de divisas
-  robotjs.moveMouse(MT4_COORDINATES.PAIR_SELECT.x, MT4_COORDINATES.PAIR_SELECT.y);
+  robotjs.moveMouse(MT4_COORDINATES.JUMP_TO.x, MT4_COORDINATES.JUMP_TO.y);
   robotjs.mouseClick();
-  robotjs.typeString(config.pair);
+  robotjs.typeString(config.dateTo);
   
   // Click en "Saltar"
-  robotjs.moveMouse(MT4_COORDINATES.START_BUTTON.x, MT4_COORDINATES.START_BUTTON.y);
+  robotjs.moveMouse(MT4_COORDINATES.JUMP_BUTTON.x, MT4_COORDINATES.JUMP_BUTTON.y);
   robotjs.mouseClick();
 };
 
