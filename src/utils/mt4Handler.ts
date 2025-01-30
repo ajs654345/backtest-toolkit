@@ -1,4 +1,4 @@
-import { keyboard, mouse, screen } from 'robotjs';
+import robotjs from 'robotjs';
 import { createWorker } from 'tesseract.js';
 import screenshot from 'screenshot-desktop';
 import * as XLSX from 'xlsx';
@@ -39,34 +39,34 @@ export const executeBacktest = async (config: MT4Config) => {
 
 const loadRobot = async (robotPath: string) => {
   // Simular click en "Cargar" en MT4
-  mouse.moveSmooth(100, 100);
-  mouse.click();
+  robotjs.moveMouse(100, 100);
+  robotjs.mouseClick();
   
   // Simular escritura de la ruta
-  keyboard.typeString(robotPath);
-  keyboard.keyTap('enter');
+  robotjs.typeString(robotPath);
+  robotjs.keyTap('enter');
 };
 
 const configureBacktest = async (config: MT4Config) => {
   // Configurar fechas
-  mouse.moveSmooth(200, 200); // Posición del campo de fecha inicial
-  mouse.click();
-  keyboard.typeString(config.dateFrom);
+  robotjs.moveMouse(200, 200); // Posición del campo de fecha inicial
+  robotjs.mouseClick();
+  robotjs.typeString(config.dateFrom);
   
-  mouse.moveSmooth(300, 200); // Posición del campo de fecha final
-  mouse.click();
-  keyboard.typeString(config.dateTo);
+  robotjs.moveMouse(300, 200); // Posición del campo de fecha final
+  robotjs.mouseClick();
+  robotjs.typeString(config.dateTo);
   
   // Configurar par de divisas
-  mouse.moveSmooth(400, 200);
-  mouse.click();
-  keyboard.typeString(config.pair);
+  robotjs.moveMouse(400, 200);
+  robotjs.mouseClick();
+  robotjs.typeString(config.pair);
 };
 
 const runBacktest = async () => {
   // Click en "Iniciar"
-  mouse.moveSmooth(500, 300);
-  mouse.click();
+  robotjs.moveMouse(500, 300);
+  robotjs.mouseClick();
   
   // Esperar a que termine el backtest
   await new Promise(resolve => setTimeout(resolve, 5000));
