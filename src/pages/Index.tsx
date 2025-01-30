@@ -61,7 +61,7 @@ const Index = () => {
           });
 
           const result = await executeBacktest({
-            robotPath: robot.path,
+            robotPath: robot.name,
             dateFrom,
             dateTo,
             pair,
