@@ -6,6 +6,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { InfoIcon } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/components/ui/use-toast";
+import PathSelector from './PathSelector';
 
 interface ExcelConfigProps {
   useExistingExcel: boolean;
@@ -121,20 +122,12 @@ const ExcelConfig = ({
         </>
       )}
 
-      <div>
-        <Label htmlFor="outputPath">Ruta de salida</Label>
-        <Input
-          type="text"
-          id="outputPath"
-          value={outputPath}
-          onChange={(e) => setOutputPath(e.target.value)}
-          placeholder="Ruta donde se guardarán los archivos"
-          className="mt-1"
-        />
-        <p className="text-sm text-muted-foreground mt-1">
-          Los resultados del backtesting, capturas e informes se guardarán en esta ruta, organizados por carpetas (Robot/Par/Fecha)
-        </p>
-      </div>
+      <PathSelector
+        label="Ruta de salida"
+        path={outputPath}
+        onPathChange={setOutputPath}
+        placeholder="Seleccione la carpeta donde se guardarán los archivos"
+      />
     </div>
   );
 };
