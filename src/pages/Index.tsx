@@ -3,10 +3,10 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { Loader2, CheckCircle2, AlertCircle } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import LoadingSkeleton from '@/components/LoadingSkeleton';
+import { executeBacktest } from '@/utils/mt4Handler';
 
-// Lazy load components for better performance
 const CurrencyPairsList = lazy(() => import('@/components/CurrencyPairsList'));
 const ExcelConfig = lazy(() => import('@/components/ExcelConfig'));
 const DateRangeSelector = lazy(() => import('@/components/DateRangeSelector'));
@@ -34,7 +34,6 @@ const Index = () => {
     "AUDNZD", "GBPCHF", "EURNZD", "AUDCHF", "NZDUSD", "NZDCAD", "NZDCHF"
   ]);
 
-  // Función para validar el formulario
   const validateForm = () => {
     if (!dateFrom || !dateTo) {
       toast({
@@ -89,7 +88,7 @@ const Index = () => {
           toast({
             title: "Completado",
             description: `Backtest finalizado para ${robot.name} - ${pair}`,
-            icon: <CheckCircle2 className="h-4 w-4 text-green-500" />
+            variant: "default",
           });
 
           console.log(`Backtest completed for ${robot.name} - ${pair}:`, result);
@@ -99,7 +98,7 @@ const Index = () => {
       toast({
         title: "Proceso Completado",
         description: "Todos los backtests han sido ejecutados exitosamente",
-        icon: <CheckCircle2 className="h-4 w-4 text-green-500" />
+        variant: "default",
       });
     } catch (error) {
       console.error('Error during backtest:', error);
@@ -107,7 +106,6 @@ const Index = () => {
         title: "Error",
         description: "Ocurrió un error durante el proceso de backtesting",
         variant: "destructive",
-        icon: <AlertCircle className="h-4 w-4 text-red-500" />
       });
     } finally {
       setIsProcessing(false);
