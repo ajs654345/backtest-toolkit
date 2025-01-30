@@ -36,7 +36,14 @@ const PathSelector = ({ label, path, onPathChange, placeholder }: PathSelectorPr
         input.onchange = (e) => {
           const files = (e.target as HTMLInputElement).files;
           if (files && files.length > 0) {
-            onPathChange(files[0].path);
+            // En lugar de usar path, usamos el nombre del archivo como identificador
+            const selectedPath = Array.from(files)
+              .map(file => file.webkitRelativePath.split('/')[0])
+              .filter((value, index, self) => self.indexOf(value) === index)[0];
+            
+            if (selectedPath) {
+              onPathChange(selectedPath);
+            }
           }
         };
         
