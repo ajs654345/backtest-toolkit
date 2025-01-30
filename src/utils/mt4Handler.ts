@@ -3,18 +3,40 @@ import * as fs from 'fs';
 import { exec } from 'child_process';
 import type { MT4Config } from '../types/mt4';
 
-const MT4_PATH = process.env.MT4_PATH || 'C:\\Program Files (x86)\\MetaTrader 4';
-const TERMINAL_EXE = 'terminal.exe';
+const DEFAULT_MT4_PATHS = [
+  'C:\\Program Files (x86)\\MetaTrader 4',
+  'C:\\Users\\arodr\\AppData\\Roaming\\MetaQuotes\\Terminal',
+  'C:\\Users\\arodr\\AppData\\Roaming\\Darwinex MT4'
+];
+
+const findMT4Installation = (): string | null => {
+  // First check environment variable
+  if (process.env.MT4_PATH && fs.existsSync(path.join(process.env.MT4_PATH, 'terminal.exe'))) {
+    return process.env.MT4_PATH;
+  }
+
+  // Then check default paths
+  for (const mt4Path of DEFAULT_MT4_PATHS) {
+    if (fs.existsSync(path.join(mt4Path, 'terminal.exe'))) {
+      return mt4Path;
+    }
+  }
+
+  return null;
+};
 
 export const executeBacktest = async (config: MT4Config): Promise<any> => {
   try {
     console.log('Iniciando backtest con configuración:', config);
     
-    // Verificar instalación de MT4
-    const terminalPath = path.join(MT4_PATH, TERMINAL_EXE);
-    if (!fs.existsSync(terminalPath)) {
-      throw new Error(`MT4 no encontrado en: ${terminalPath}`);
+    // Find MT4 installation
+    const mt4Path = findMT4Installation();
+    if (!mt4Path) {
+      throw new Error('No se encontró ninguna instalación válida de MetaTrader 4');
     }
+
+    const terminalPath = path.join(mt4Path, 'terminal.exe');
+    console.log('Usando MT4 en:', terminalPath);
 
     // Verificar archivo del robot
     const robotPath = path.resolve(config.robotPath);
@@ -75,15 +97,10 @@ const getTestModel = (mode: MT4Config['testingMode']): number => {
 };
 
 export const validateMT4Installation = (): boolean => {
-  try {
-    const terminalPath = path.join(MT4_PATH, TERMINAL_EXE);
-    return fs.existsSync(terminalPath);
-  } catch (error) {
-    console.error('Error validando instalación de MT4:', error);
-    return false;
-  }
+  return findMT4Installation() !== null;
 };
 
-export const getTerminalPath = (): string => {
-  return path.join(MT4_PATH, TERMINAL_EXE);
+export const getTerminalPath = (): string | null => {
+  const mt4Path = findMT4Installation();
+  return mt4Path ? path.join(mt4Path, 'terminal.exe') : null;
 };
