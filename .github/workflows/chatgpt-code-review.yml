@@ -16,7 +16,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Instalar OpenAI CLI y Requests
-        run: pip install openai requests
+        run: pip install --upgrade openai requests
 
       - name: Revisar código con ChatGPT
         env:
