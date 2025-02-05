@@ -51,11 +51,13 @@ jobs:
               print(response.text)
               exit(1)
 
-          chat_response = openai.ChatCompletion.create(
+          response = openai.ChatCompletion.create(
               model='gpt-4',
-              messages=[{'role': 'system', 'content': 'Eres un experto en revisión de código Python.'},
-                        {'role': 'user', 'content': f'Revisa este código y sugiere mejoras:\n{code}'}]
+              messages=[
+                  {'role': 'system', 'content': 'Eres un experto en revisión de código en Python.'},
+                  {'role': 'user', 'content': f'Revisa este código y sugiere mejoras:\n\n{code}'}
+              ]
           )
 
-          print(chat_response['choices'][0]['message']['content'])
+          print(response.choices[0].message.content)
           "
