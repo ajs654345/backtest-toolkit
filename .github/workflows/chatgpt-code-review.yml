@@ -1,0 +1,52 @@
+name: ChatGPT Code Review
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  review_code:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clonar el repositorio
+        uses: actions/checkout@v2
+
+      - name: Instalar OpenAI CLI
+        run: pip install openai
+
+      - name: Revisar código con ChatGPT
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GITHUB_ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+          
+        run: |
+          python -c "
+          import openai
+          import requests
+          import os
+
+          token = os.getenv('GITHUB_ACCESS_TOKEN')
+          repo_owner = 'ajs654345'
+          repo_name = 'Backtestin-bolt'
+          file_path = 'test.py'
+
+          # Descargar código desde GitHub
+          headers = {'Authorization': f'token {token}'}
+          url = f'https://api.github.com/repos/{repo_owner}/{repo_name}/contents/{file_path}'
+          response = requests.get(url, headers=headers)
+          content = response.json()['content'].encode('utf-8')
+
+          # Analizar el código con ChatGPT
+          openai.api_key = os.getenv('OPENAI_API_KEY')
+          chat_response = openai.ChatCompletion.create(
+              model='gpt-4',
+              messages=[{'role': 'system', 'content': 'Eres un experto en revisión de código Python.'},
+                        {'role': 'user', 'content': f'Revisa este código y sugiere mejoras:\n{content}'}]
+          )
+
+          print(chat_response['choices'][0]['message']['content'])
+          "
