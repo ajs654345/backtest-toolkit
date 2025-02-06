@@ -54,7 +54,7 @@ jobs:
 
               # Nueva forma de llamar a ChatGPT con OpenAI API
               response = openai.chat.completions.create(
-                  model='gpt-4',
+                  model='gpt-3.5-turbo',  # 🔹 Ahora usamos `gpt-3.5-turbo`
                   messages=[
                       {'role': 'system', 'content': 'Eres un experto en revisión de código en Python.'},
                       {'role': 'user', 'content': f'Revisa este código y sugiere mejoras:\n\n{code}'}
