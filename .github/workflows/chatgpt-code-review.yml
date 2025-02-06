@@ -23,45 +23,45 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           GITHUB_ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
         run: |
-          python -c "
-import openai
-import requests
-import os
-import base64
+          python - <<EOF
+          import openai
+          import requests
+          import os
+          import base64
 
-def review_code_with_chatgpt():
-    openai.api_key = os.getenv('OPENAI_API_KEY')
-    token = os.getenv('GITHUB_ACCESS_TOKEN')
-    repo_owner = 'ajs654345'
-    repo_name = 'Backtestin-bolt'
-    file_path = 'test.py'  # Asegúrate de que este archivo existe en el repo
+          def review_code_with_chatgpt():
+              openai.api_key = os.getenv('OPENAI_API_KEY')
+              token = os.getenv('GITHUB_ACCESS_TOKEN')
+              repo_owner = 'ajs654345'
+              repo_name = 'Backtestin-bolt'
+              file_path = 'test.py'  # Asegúrate de que este archivo existe en el repo
 
-    headers = {'Authorization': f'token {token}', 'Accept': 'application/vnd.github.v3+json'}
-    url = f'https://api.github.com/repos/{repo_owner}/{repo_name}/contents/{file_path}'
-    response = requests.get(url, headers=headers)
+              headers = {'Authorization': f'token {token}', 'Accept': 'application/vnd.github.v3+json'}
+              url = f'https://api.github.com/repos/{repo_owner}/{repo_name}/contents/{file_path}'
+              response = requests.get(url, headers=headers)
 
-    if response.status_code == 200:
-        file_data = response.json()
-        if 'content' in file_data:
-            code = base64.b64decode(file_data['content']).decode('utf-8')
-        else:
-            print('🔴 Error: El archivo no tiene contenido.')
-            exit(1)
-    else:
-        print(f'🔴 Error al obtener archivo desde GitHub API: {response.status_code}')
-        print(response.text)
-        exit(1)
+              if response.status_code == 200:
+                  file_data = response.json()
+                  if 'content' in file_data:
+                      code = base64.b64decode(file_data['content']).decode('utf-8')
+                  else:
+                      print('🔴 Error: El archivo no tiene contenido.')
+                      exit(1)
+              else:
+                  print(f'🔴 Error al obtener archivo desde GitHub API: {response.status_code}')
+                  print(response.text)
+                  exit(1)
 
-    # Nueva forma de llamar a ChatGPT con OpenAI API
-    response = openai.chat.completions.create(
-        model='gpt-4',
-        messages=[
-            {'role': 'system', 'content': 'Eres un experto en revisión de código en Python.'},
-            {'role': 'user', 'content': f'Revisa este código y sugiere mejoras:\n\n{code}'}
-        ]
-    )
+              # Nueva forma de llamar a ChatGPT con OpenAI API
+              response = openai.chat.completions.create(
+                  model='gpt-4',
+                  messages=[
+                      {'role': 'system', 'content': 'Eres un experto en revisión de código en Python.'},
+                      {'role': 'user', 'content': f'Revisa este código y sugiere mejoras:\n\n{code}'}
+                  ]
+              )
 
-    print(response.choices[0].message.content)
+              print(response.choices[0].message.content)
 
-review_code_with_chatgpt()
-          "
+          review_code_with_chatgpt()
+          EOF
