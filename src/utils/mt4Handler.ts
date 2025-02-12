@@ -2,6 +2,9 @@
 import * as path from 'path';
 import * as fs from 'fs';
 import { exec, spawn } from 'child_process';
+import { validateConfig } from './validators';
+import { MT4Error, withErrorHandling } from './errorHandler';
+import { initializeMT4Automation, captureResults } from './mt4Automation';
 import type { MT4Config } from '../types/mt4';
 
 const DEFAULT_MT4_PATHS = [
@@ -10,13 +13,13 @@ const DEFAULT_MT4_PATHS = [
   'C:\\Users\\arodr\\AppData\\Roaming\\Darwinex MT4'
 ];
 
-const findMT4Installation = (): string | null => {
-  // First check environment variable
+const findMT4Installation = async (): Promise<string> => {
+  // Primero buscar en variable de entorno
   if (process.env.MT4_PATH && fs.existsSync(path.join(process.env.MT4_PATH, 'terminal.exe'))) {
     return process.env.MT4_PATH;
   }
 
-  // Then check default paths
+  // Luego buscar en rutas predeterminadas
   for (const mt4Path of DEFAULT_MT4_PATHS) {
     if (fs.existsSync(path.join(mt4Path, 'terminal.exe'))) {
       console.log('MT4 encontrado en:', mt4Path);
@@ -24,40 +27,29 @@ const findMT4Installation = (): string | null => {
     }
   }
 
-  return null;
+  throw new MT4Error('No se encontró ninguna instalación válida de MetaTrader 4');
 };
 
 export const executeBacktest = async (config: MT4Config): Promise<any> => {
-  try {
+  return withErrorHandling(async () => {
     console.log('Iniciando backtest con configuración:', config);
     
-    // Find MT4 installation
-    const mt4Path = findMT4Installation();
-    if (!mt4Path) {
-      throw new Error('No se encontró ninguna instalación válida de MetaTrader 4');
-    }
-
+    // Validar configuración
+    validateConfig(config);
+    
+    // Encontrar instalación de MT4
+    const mt4Path = await findMT4Installation();
     const terminalPath = path.join(mt4Path, 'terminal.exe');
+    
     console.log('Usando MT4 en:', terminalPath);
-
-    // Verificar archivo del robot
-    const robotPath = path.resolve(config.robotPath);
-    if (!fs.existsSync(robotPath)) {
-      throw new Error(`Robot no encontrado en: ${robotPath}`);
-    }
-
-    // Crear directorio de salida si no existe
-    if (!fs.existsSync(config.outputPath)) {
-      fs.mkdirSync(config.outputPath, { recursive: true });
-    }
 
     // Inicializar automatización
     const automationInitialized = await initializeMT4Automation();
     if (!automationInitialized) {
-      throw new Error('No se pudo inicializar la automatización de MT4');
+      throw new MT4Error('No se pudo inicializar la automatización de MT4');
     }
 
-    // Construir comando para MT4
+    // Construir argumentos
     const args = [
       `/config:"${config.robotPath}"`,
       `/symbol:${config.pair}`,
@@ -69,7 +61,6 @@ export const executeBacktest = async (config: MT4Config): Promise<any> => {
 
     console.log('Ejecutando MT4 con argumentos:', args);
 
-    // Usar spawn en lugar de exec para mejor control del proceso
     return new Promise((resolve, reject) => {
       const mt4Process = spawn(terminalPath, args, {
         windowsHide: false,
@@ -79,40 +70,43 @@ export const executeBacktest = async (config: MT4Config): Promise<any> => {
       let output = '';
 
       mt4Process.stdout?.on('data', (data) => {
-        console.log('MT4 output:', data.toString());
-        output += data.toString();
+        const message = data.toString();
+        console.log('MT4 output:', message);
+        output += message;
       });
 
       mt4Process.stderr?.on('data', (data) => {
-        console.error('MT4 error:', data.toString());
+        const error = data.toString();
+        console.error('MT4 error:', error);
+        output += `ERROR: ${error}\n`;
       });
 
       mt4Process.on('error', (error) => {
         console.error('Error al iniciar MT4:', error);
-        reject(error);
+        reject(new MT4Error('Error al iniciar MT4', error));
       });
 
       mt4Process.on('close', async (code) => {
         console.log('MT4 proceso terminado con código:', code);
         if (code === 0) {
-          // Capturar resultados antes de cerrar
-          const screenshotPath = await captureResults(config.outputPath);
-          
-          resolve({
-            success: true,
-            output: output,
-            reportPath: path.join(config.outputPath, `${config.pair}_backtest_report.htm`),
-            screenshotPath
-          });
+          try {
+            const screenshotPath = await captureResults(config.outputPath);
+            
+            resolve({
+              success: true,
+              output,
+              reportPath: path.join(config.outputPath, `${config.pair}_backtest_report.htm`),
+              screenshotPath
+            });
+          } catch (error) {
+            reject(new MT4Error('Error al capturar resultados', error));
+          }
         } else {
-          reject(new Error(`MT4 terminó con código de error: ${code}`));
+          reject(new MT4Error(`MT4 terminó con código de error: ${code}`, { output }));
         }
       });
     });
-  } catch (error) {
-    console.error('Error durante el backtest:', error);
-    throw error;
-  }
+  }, 'Error durante la ejecución del backtest');
 };
 
 const getTestModel = (mode: MT4Config['testingMode']): number => {
@@ -124,21 +118,17 @@ const getTestModel = (mode: MT4Config['testingMode']): number => {
   }
 };
 
-export const validateMT4Installation = (): boolean => {
-  return findMT4Installation() !== null;
+export const validateMT4Installation = (): Promise<boolean> => {
+  return findMT4Installation()
+    .then(() => true)
+    .catch(() => false);
 };
 
-export const getTerminalPath = (): string | null => {
-  const mt4Path = findMT4Installation();
-  return mt4Path ? path.join(mt4Path, 'terminal.exe') : null;
+export const getTerminalPath = async (): Promise<string | null> => {
+  try {
+    const mt4Path = await findMT4Installation();
+    return path.join(mt4Path, 'terminal.exe');
+  } catch {
+    return null;
+  }
 };
-
-async function initializeMT4Automation(): Promise<boolean> {
-  // Implement initialization logic here
-  return true;
-}
-
-async function captureResults(outputPath: string): Promise<string> {
-  // Implement result capture logic here
-  return 'screenshot_path';
-}
