@@ -3,7 +3,7 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import { executeBacktest } from '@/utils/mt4Handler';
+import { executeBacktest } from '@/services/mt4Service';
 import type { MT4Config } from '@/types/mt4';
 
 interface BacktestFormProps {
@@ -65,39 +65,44 @@ const BacktestForm = ({
 
     setIsProcessing(true);
     try {
+      console.log('Iniciando proceso de backtesting...');
+      
       for (const robot of selectedRobots) {
         for (const pair of currencyPairs) {
+          console.log(`Procesando ${robot.name} - ${pair}`);
+          
           toast({
             title: "Procesando",
             description: `Ejecutando backtest para ${robot.name} en ${pair}`,
           });
 
-          const result = await executeBacktest({
+          const config: MT4Config = {
             robotPath: robot.name,
             dateFrom,
             dateTo,
             pair,
             outputPath: outputPath || './backtest_results',
             testingMode
-          });
+          };
+
+          console.log('Configuración:', config);
+          
+          const result = await executeBacktest(config);
+          console.log('Resultado:', result);
 
           toast({
             title: "Completado",
             description: `Backtest finalizado para ${robot.name} - ${pair}`,
-            variant: "default",
           });
-
-          console.log(`Backtest completed for ${robot.name} - ${pair}:`, result);
         }
       }
 
       toast({
         title: "Proceso Completado",
         description: "Todos los backtests han sido ejecutados exitosamente",
-        variant: "default",
       });
     } catch (error) {
-      console.error('Error during backtest:', error);
+      console.error('Error durante el proceso:', error);
       toast({
         title: "Error",
         description: "Ocurrió un error durante el proceso de backtesting",
