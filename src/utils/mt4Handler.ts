@@ -50,6 +50,12 @@ export const executeBacktest = async (config: MT4Config): Promise<any> => {
       fs.mkdirSync(config.outputPath, { recursive: true });
     }
 
+    // Inicializar automatización
+    const automationInitialized = await initializeMT4Automation();
+    if (!automationInitialized) {
+      throw new Error('No se pudo inicializar la automatización de MT4');
+    }
+
     // Construir comando para MT4
     const args = [
       `/config:"${config.robotPath}"`,
@@ -85,13 +91,17 @@ export const executeBacktest = async (config: MT4Config): Promise<any> => {
         reject(error);
       });
 
-      mt4Process.on('close', (code) => {
+      mt4Process.on('close', async (code) => {
         console.log('MT4 proceso terminado con código:', code);
         if (code === 0) {
+          // Capturar resultados antes de cerrar
+          const screenshotPath = await captureResults(config.outputPath);
+          
           resolve({
             success: true,
             output: output,
-            reportPath: path.join(config.outputPath, `${config.pair}_backtest_report.htm`)
+            reportPath: path.join(config.outputPath, `${config.pair}_backtest_report.htm`),
+            screenshotPath
           });
         } else {
           reject(new Error(`MT4 terminó con código de error: ${code}`));
@@ -121,3 +131,13 @@ export const getTerminalPath = (): string | null => {
   const mt4Path = findMT4Installation();
   return mt4Path ? path.join(mt4Path, 'terminal.exe') : null;
 };
+
+async function initializeMT4Automation(): Promise<boolean> {
+  // Implement initialization logic here
+  return true;
+}
+
+async function captureResults(outputPath: string): Promise<string> {
+  // Implement result capture logic here
+  return 'screenshot_path';
+}
