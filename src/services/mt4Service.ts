@@ -3,41 +3,54 @@ import { toast } from "@/components/ui/use-toast";
 import { executeBacktest as executeBacktestHandler, validateMT4Installation } from "@/utils/mt4Handler";
 import type { MT4Config } from '../types/mt4';
 
+const isElectron = () => {
+  return window && window.electron;
+};
+
 export const executeBacktest = async (config: MT4Config) => {
   try {
-    console.log('Iniciando servicio de backtesting...');
+    console.log('Verificando entorno Electron...');
     
-    // Validar que estamos en Electron
-    if (!window.electron) {
-      console.error('Esta función solo está disponible en la versión de escritorio');
+    if (!isElectron()) {
+      const error = new Error('Esta función solo está disponible en la versión de escritorio');
+      console.error(error);
       toast({
-        title: "Error",
-        description: "Esta función solo está disponible en la versión de escritorio",
+        title: "Error de Entorno",
+        description: error.message,
         variant: "destructive",
       });
       return;
     }
+
+    console.log('Iniciando servicio de backtesting...');
+    console.log('Configuración recibida:', config);
 
     // Validar instalación de MT4
-    const isValid = await validateMT4Installation();
-    console.log('Validación MT4:', isValid);
-    
-    if (!isValid) {
-      console.error('MetaTrader 4 no encontrado');
+    try {
+      const isValid = await validateMT4Installation();
+      console.log('Resultado validación MT4:', isValid);
+      
+      if (!isValid) {
+        throw new Error('MetaTrader 4 no encontrado en la ruta especificada');
+      }
+    } catch (error) {
+      console.error('Error en validación de MT4:', error);
       toast({
-        title: "Error",
-        description: "MetaTrader 4 no encontrado en la ruta especificada",
+        title: "Error de MT4",
+        description: error instanceof Error ? error.message : "Error al validar instalación de MT4",
         variant: "destructive",
       });
       return;
     }
 
-    console.log('Enviando configuración a Electron:', config);
-    
-    // Invocar el proceso de backtest a través de Electron
+    console.log('Enviando comando a Electron...');
     const result = await window.electron.invoke('execute-backtest', config);
-    console.log('Resultado del backtest:', result);
+    console.log('Respuesta de Electron:', result);
     
+    if (!result) {
+      throw new Error('No se recibió respuesta del proceso de backtest');
+    }
+
     if (result.success) {
       toast({
         title: "Éxito",
@@ -48,10 +61,11 @@ export const executeBacktest = async (config: MT4Config) => {
       throw new Error(result.error || 'Error desconocido durante el backtesting');
     }
   } catch (error) {
-    console.error('Error durante el backtesting:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Error desconocido durante el backtesting';
+    console.error('Error en executeBacktest:', errorMessage);
     toast({
       title: "Error",
-      description: error instanceof Error ? error.message : "Error durante el backtesting",
+      description: errorMessage,
       variant: "destructive",
     });
     throw error;

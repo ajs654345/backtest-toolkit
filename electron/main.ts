@@ -1,3 +1,4 @@
+
 import { app, BrowserWindow, ipcMain } from 'electron';
 import path from 'path';
 import { executeBacktest } from '../src/utils/mt4Handler';
@@ -26,19 +27,20 @@ function createWindow() {
   // Configurar manejadores IPC
   ipcMain.handle('execute-backtest', async (_, config) => {
     try {
-      console.log('Recibida solicitud de backtest:', config);
+      console.log('Proceso principal: Recibida solicitud de backtest:', config);
       
       // Notificar al frontend que el proceso está iniciando
       win.webContents.send('backtest-status', 'starting');
       
       const result = await executeBacktest(config);
+      console.log('Proceso principal: Resultado del backtest:', result);
       
       // Notificar al frontend que el proceso ha terminado
       win.webContents.send('backtest-status', 'completed');
       
       return { success: true, data: result };
     } catch (error) {
-      console.error('Error en el proceso de backtest:', error);
+      console.error('Proceso principal: Error en el proceso de backtest:', error);
       
       // Notificar al frontend del error
       win.webContents.send('backtest-status', 'error');
