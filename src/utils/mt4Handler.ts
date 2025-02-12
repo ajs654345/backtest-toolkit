@@ -4,7 +4,6 @@ import * as fs from 'fs';
 import { exec, spawn } from 'child_process';
 import { validateConfig } from './validators';
 import { MT4Error, withErrorHandling } from './errorHandler';
-import { initializeMT4Automation, captureResults } from './mt4Automation';
 import type { MT4Config } from '../types/mt4';
 
 const DEFAULT_MT4_PATH = 'C:\\Users\\arodr\\AppData\\Roaming\\Darwinex MT4';
@@ -23,7 +22,7 @@ const findMT4Installation = async (): Promise<string> => {
   }
 };
 
-const startMT4Process = async (terminalPath: string, args: string[]): Promise<any> => {
+const startMT4Process = async (terminalPath: string, args: string[], outputPath: string, pair: string): Promise<any> => {
   console.log('Intentando iniciar MT4 con:', { terminalPath, args });
 
   return new Promise((resolve, reject) => {
@@ -67,17 +66,11 @@ const startMT4Process = async (terminalPath: string, args: string[]): Promise<an
       mt4Process.on('close', async (code) => {
         console.log('MT4 proceso terminado con código:', code);
         if (code === 0) {
-          try {
-            const screenshotPath = await captureResults(config.outputPath);
-            resolve({
-              success: true,
-              output,
-              reportPath: path.join(config.outputPath, `${config.pair}_backtest_report.htm`),
-              screenshotPath
-            });
-          } catch (error) {
-            reject(new MT4Error('Error al capturar resultados', error));
-          }
+          resolve({
+            success: true,
+            output,
+            reportPath: path.join(outputPath, `${pair}_backtest_report.htm`)
+          });
         } else {
           reject(new MT4Error(`MT4 terminó con código de error: ${code}`, { output }));
         }
@@ -115,7 +108,7 @@ export const executeBacktest = async (config: MT4Config): Promise<any> => {
 
     console.log('Ejecutando MT4 con argumentos:', args);
 
-    return await startMT4Process(terminalPath, args);
+    return await startMT4Process(terminalPath, args, config.outputPath, config.pair);
   }, 'Error durante la ejecución del backtest');
 };
 
