@@ -1,3 +1,4 @@
+
 import { toast } from "@/components/ui/use-toast";
 import { executeBacktest as executeBacktestHandler, validateMT4Installation } from "@/utils/mt4Handler";
 import type { MT4Config } from '../types/mt4';

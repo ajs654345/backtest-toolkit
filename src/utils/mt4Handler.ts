@@ -1,4 +1,3 @@
-
 import * as path from 'path';
 import * as fs from 'fs';
 import { exec, spawn } from 'child_process';
@@ -7,27 +6,16 @@ import { MT4Error, withErrorHandling } from './errorHandler';
 import { initializeMT4Automation, captureResults } from './mt4Automation';
 import type { MT4Config } from '../types/mt4';
 
-const DEFAULT_MT4_PATHS = [
-  'C:\\Program Files (x86)\\MetaTrader 4',
-  'C:\\Users\\arodr\\AppData\\Roaming\\MetaQuotes\\Terminal',
-  'C:\\Users\\arodr\\AppData\\Roaming\\Darwinex MT4'
-];
+const DEFAULT_MT4_PATH = 'C:\\Users\\arodr\\AppData\\Roaming\\Darwinex MT4';
 
 const findMT4Installation = async (): Promise<string> => {
-  // Primero buscar en variable de entorno
-  if (process.env.MT4_PATH && fs.existsSync(path.join(process.env.MT4_PATH, 'terminal.exe'))) {
-    return process.env.MT4_PATH;
+  // Usar la ruta directa que sabemos que funciona
+  if (fs.existsSync(path.join(DEFAULT_MT4_PATH, 'terminal.exe'))) {
+    console.log('MT4 encontrado en:', DEFAULT_MT4_PATH);
+    return DEFAULT_MT4_PATH;
   }
 
-  // Luego buscar en rutas predeterminadas
-  for (const mt4Path of DEFAULT_MT4_PATHS) {
-    if (fs.existsSync(path.join(mt4Path, 'terminal.exe'))) {
-      console.log('MT4 encontrado en:', mt4Path);
-      return mt4Path;
-    }
-  }
-
-  throw new MT4Error('No se encontró ninguna instalación válida de MetaTrader 4');
+  throw new MT4Error('No se encontró la instalación de MetaTrader 4 en la ruta especificada');
 };
 
 export const executeBacktest = async (config: MT4Config): Promise<any> => {
