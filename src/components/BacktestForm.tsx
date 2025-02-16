@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { executeBacktest } from '@/services/mt4Service';
+import { supabase } from "@/integrations/supabase/client";
 import type { MT4Config } from '@/types/mt4';
 
 interface BacktestFormProps {
@@ -60,6 +61,30 @@ const BacktestForm = ({
     return true;
   };
 
+  const saveBacktest = async (robotName: string, pair: string) => {
+    try {
+      const { error } = await supabase.from('backtests').insert({
+        robot_name: robotName,
+        currency_pair: pair,
+        date_from: dateFrom,
+        date_to: dateTo,
+        testing_mode: testingMode,
+        output_path: outputPath
+      });
+
+      if (error) throw error;
+
+      console.log('Backtest guardado en la base de datos');
+    } catch (error) {
+      console.error('Error al guardar el backtest:', error);
+      toast({
+        title: "Error",
+        description: "No se pudo guardar el registro del backtest",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleBacktest = async () => {
     if (!validateForm()) return;
 
@@ -89,6 +114,9 @@ const BacktestForm = ({
           
           const result = await executeBacktest(config);
           console.log('Resultado:', result);
+
+          // Guardar el registro del backtest
+          await saveBacktest(robot.name, pair);
 
           toast({
             title: "Completado",
