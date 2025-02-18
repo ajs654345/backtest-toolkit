@@ -17,7 +17,8 @@ interface DateRangeSelectorProps {
 }
 
 const DateRangeSelector = ({ dateFrom, dateTo, setDateFrom, setDateTo }: DateRangeSelectorProps) => {
-  const years = Array.from({ length: 5 }, (_, i) => 2020 + i);
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: currentYear - 1970 + 1 }, (_, i) => 1970 + i);
   const months = [
     "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
     "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
