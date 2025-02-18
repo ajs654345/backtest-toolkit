@@ -13,16 +13,6 @@ import ConfigurationOptions from '@/components/ConfigurationOptions';
 import { Label } from "@/components/ui/label";
 import type { MT4Config } from '@/types/mt4';
 
-declare global {
-  interface Window {
-    electron: {
-      ipcRenderer: {
-        invoke(channel: string, ...args: any[]): Promise<any>;
-      };
-    };
-  }
-}
-
 const Index = () => {
   const { toast } = useToast();
   const [selectedRobots, setSelectedRobots] = useState<File[]>([]);

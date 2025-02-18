@@ -1,10 +1,13 @@
+
 interface ElectronAPI {
-  invoke(channel: string, ...args: any[]): Promise<any>;
+  ipcRenderer: {
+    invoke(channel: string, ...args: any[]): Promise<any>;
+  };
 }
 
 declare global {
   interface Window {
-    electron?: ElectronAPI;
+    electron: ElectronAPI;
   }
 }
 
