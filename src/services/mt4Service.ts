@@ -44,7 +44,7 @@ export const executeBacktest = async (config: MT4Config) => {
     }
 
     console.log('Enviando comando a Electron...');
-    const result = await window.electron.invoke('execute-backtest', config);
+    const result = await window.electron.ipcRenderer.invoke('execute-backtest', config);
     console.log('Respuesta de Electron:', result);
     
     if (!result) {
