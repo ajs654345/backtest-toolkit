@@ -5,7 +5,7 @@ import { Loader2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { executeBacktest } from '@/services/mt4Service';
 import { supabase } from "@/integrations/supabase/client";
-import type { MT4Config } from '@/types/mt4';
+import type { MT4Config, BacktestRecord } from '@/types/mt4';
 
 interface BacktestFormProps {
   selectedRobots: File[];
@@ -63,14 +63,18 @@ const BacktestForm = ({
 
   const saveBacktest = async (robotName: string, pair: string) => {
     try {
-      const { error } = await supabase.from('backtests').insert({
+      const backtestData: BacktestRecord = {
         robot_name: robotName,
         currency_pair: pair,
         date_from: dateFrom,
         date_to: dateTo,
         testing_mode: testingMode,
         output_path: outputPath
-      });
+      };
+
+      const { error } = await supabase
+        .from('backtests')
+        .insert(backtestData);
 
       if (error) throw error;
 
