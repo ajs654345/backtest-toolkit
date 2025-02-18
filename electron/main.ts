@@ -1,64 +1,55 @@
 
 import { app, BrowserWindow, ipcMain } from 'electron';
 import path from 'path';
-import { executeBacktest } from '../src/utils/mt4Handler';
+import { exec } from 'child_process';
+import { fileURLToPath } from 'url';
+
+let mainWindow: BrowserWindow | null = null;
 
 function createWindow() {
-  const win = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
-      webSecurity: false,
     },
-    icon: path.join(__dirname, '../public/favicon.ico'),
-    autoHideMenuBar: true,
-    title: 'Backtesting Toolkit'
   });
 
   if (process.env.NODE_ENV === 'development') {
-    win.loadURL('http://localhost:8080');
-    win.webContents.openDevTools();
+    mainWindow.loadURL('http://localhost:8080');
+    mainWindow.webContents.openDevTools();
   } else {
-    win.loadFile(path.join(__dirname, '../dist/index.html'));
+    mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));
   }
-
-  // Configurar manejadores IPC
-  ipcMain.handle('execute-backtest', async (_, config) => {
-    try {
-      console.log('Proceso principal: Recibida solicitud de backtest:', config);
-      
-      // Notificar al frontend que el proceso está iniciando
-      win.webContents.send('backtest-status', 'starting');
-      
-      const result = await executeBacktest(config);
-      console.log('Proceso principal: Resultado del backtest:', result);
-      
-      // Notificar al frontend que el proceso ha terminado
-      win.webContents.send('backtest-status', 'completed');
-      
-      return { success: true, data: result };
-    } catch (error) {
-      console.error('Proceso principal: Error en el proceso de backtest:', error);
-      
-      // Notificar al frontend del error
-      win.webContents.send('backtest-status', 'error');
-      
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Error desconocido durante el backtesting' 
-      };
-    }
-  });
 }
 
 app.whenReady().then(() => {
   createWindow();
 
-  app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow();
+  // Configurar el manejador para ejecutar MT4
+  ipcMain.handle('execute-mt4', async (_, config) => {
+    try {
+      const mt4Path = 'C:\\Users\\arodr\\AppData\\Roaming\\Darwinex MT4\\terminal.exe';
+      
+      console.log('Intentando ejecutar MT4 desde:', mt4Path);
+      console.log('Configuración:', config);
+
+      // Ejecutar MT4
+      exec(`"${mt4Path}"`, (error, stdout, stderr) => {
+        if (error) {
+          console.error('Error al ejecutar MT4:', error);
+          return { success: false, error: error.message };
+        }
+        console.log('MT4 ejecutado correctamente');
+        console.log('Salida:', stdout);
+        if (stderr) console.error('Error:', stderr);
+      });
+
+      return { success: true };
+    } catch (error) {
+      console.error('Error en execute-mt4:', error);
+      return { success: false, error: error instanceof Error ? error.message : 'Error desconocido' };
     }
   });
 });
@@ -66,5 +57,11 @@ app.whenReady().then(() => {
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
+  }
+});
+
+app.on('activate', () => {
+  if (mainWindow === null) {
+    createWindow();
   }
 });

@@ -13,6 +13,16 @@ import ConfigurationOptions from '@/components/ConfigurationOptions';
 import { Label } from "@/components/ui/label";
 import type { MT4Config } from '@/types/mt4';
 
+declare global {
+  interface Window {
+    electron: {
+      ipcRenderer: {
+        invoke(channel: string, ...args: any[]): Promise<any>;
+      };
+    };
+  }
+}
+
 const Index = () => {
   const { toast } = useToast();
   const [selectedRobots, setSelectedRobots] = useState<File[]>([]);
@@ -76,30 +86,23 @@ const Index = () => {
         description: "Comprobando la instalación de MetaTrader 4...",
       });
 
-      // Simulamos la verificación de MT4
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Ejecutar MT4 a través de Electron
+      const result = await window.electron.ipcRenderer.invoke('execute-mt4', command);
 
-      console.log('Intentando abrir MT4 en:', 'C:\\Users\\arodr\\AppData\\Roaming\\Darwinex MT4');
-      
-      toast({
-        title: "Backtesting Iniciado",
-        description: "Intentando ejecutar MetaTrader 4. Por favor, espere...",
-      });
+      if (!result.success) {
+        throw new Error(result.error || 'Error al ejecutar MT4');
+      }
 
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
-      console.log('Comando de ejecución enviado a MT4');
-      
       toast({
         title: "Proceso Finalizado",
-        description: "El proceso de backtesting ha finalizado. Verifique que MT4 se haya abierto correctamente.",
+        description: "MT4 se ha iniciado correctamente. Por favor, verifique la aplicación.",
       });
 
     } catch (error) {
       console.error('Error durante el backtesting:', error);
       toast({
         title: "Error",
-        description: "Ocurrió un error al intentar ejecutar MT4. Por favor, verifique que esté instalado correctamente.",
+        description: error instanceof Error ? error.message : "Ocurrió un error al intentar ejecutar MT4",
         variant: "destructive",
       });
     }
