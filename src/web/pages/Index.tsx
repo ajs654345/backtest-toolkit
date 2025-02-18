@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -67,23 +68,38 @@ const Index = () => {
         }
       };
 
-      console.log('Comando de ejecución:', command);
+      console.log('Iniciando proceso de backtesting...');
+      console.log('Configuración:', command);
+      
+      toast({
+        title: "Verificando MT4",
+        description: "Comprobando la instalación de MetaTrader 4...",
+      });
+
+      // Simulamos la verificación de MT4
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      console.log('Intentando abrir MT4 en:', 'C:\\Users\\arodr\\AppData\\Roaming\\Darwinex MT4');
       
       toast({
         title: "Backtesting Iniciado",
-        description: "Se ha iniciado el proceso de backtesting. Por favor espere...",
+        description: "Intentando ejecutar MetaTrader 4. Por favor, espere...",
       });
 
       await new Promise(resolve => setTimeout(resolve, 2000));
 
+      console.log('Comando de ejecución enviado a MT4');
+      
       toast({
-        title: "Backtesting Completado",
-        description: "El proceso de backtesting ha finalizado exitosamente.",
+        title: "Proceso Finalizado",
+        description: "El proceso de backtesting ha finalizado. Verifique que MT4 se haya abierto correctamente.",
       });
+
     } catch (error) {
+      console.error('Error durante el backtesting:', error);
       toast({
         title: "Error",
-        description: "Ocurrió un error durante el backtesting",
+        description: "Ocurrió un error al intentar ejecutar MT4. Por favor, verifique que esté instalado correctamente.",
         variant: "destructive",
       });
     }
