@@ -12,7 +12,8 @@ function createWindow() {
     height: 800,
     webPreferences: {
       nodeIntegration: true,
-      contextIsolation: false,
+      contextIsolation: true,
+      preload: path.join(__dirname, 'preload.js')
     },
   });
 
@@ -30,12 +31,12 @@ app.whenReady().then(() => {
   // Configurar el manejador para ejecutar MT4
   ipcMain.handle('execute-mt4', async (_, config) => {
     try {
-      const mt4Path = 'C:\\Users\\arodr\\AppData\\Roaming\\Darwinex MT4\\terminal.exe';
+      // Aquí deberías configurar la ruta correcta a tu MT4
+      const mt4Path = 'C:\\Program Files (x86)\\MetaTrader 4\\terminal.exe';
       
       console.log('Intentando ejecutar MT4 desde:', mt4Path);
       console.log('Configuración:', config);
 
-      // Ejecutar MT4
       exec(`"${mt4Path}"`, (error, stdout, stderr) => {
         if (error) {
           console.error('Error al ejecutar MT4:', error);

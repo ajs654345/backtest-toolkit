@@ -19,7 +19,7 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  base: '/',
+  base: process.env.ELECTRON === 'true' ? './' : '/',
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
