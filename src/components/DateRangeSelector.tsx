@@ -52,11 +52,11 @@ const DateRangeSelector = ({ dateFrom, dateTo, setDateFrom, setDateTo }: DateRan
               selected={dateFrom ? new Date(dateFrom) : undefined}
               onSelect={handleDateFromSelect}
               fromYear={1970}
-              toYear={new Date().getFullYear() + 100}
-              captionLayout="dropdown-buttons"
+              captionLayout="dropdown"
               showOutsideDays={false}
               fixedWeeks
               today={new Date()}
+              locale={es}
             />
           </PopoverContent>
         </Popover>
@@ -80,11 +80,11 @@ const DateRangeSelector = ({ dateFrom, dateTo, setDateFrom, setDateTo }: DateRan
               selected={dateTo ? new Date(dateTo) : undefined}
               onSelect={handleDateToSelect}
               fromYear={1970}
-              toYear={new Date().getFullYear() + 100}
-              captionLayout="dropdown-buttons"
+              captionLayout="dropdown"
               showOutsideDays={false}
               fixedWeeks
               today={new Date()}
+              locale={es}
             />
           </PopoverContent>
         </Popover>
