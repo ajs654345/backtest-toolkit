@@ -1,13 +1,16 @@
 
 import React from 'react';
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
+import { Calendar as CalendarIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import { Label } from "@/components/ui/label";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 interface DateRangeSelectorProps {
   dateFrom: string;
@@ -17,165 +20,74 @@ interface DateRangeSelectorProps {
 }
 
 const DateRangeSelector = ({ dateFrom, dateTo, setDateFrom, setDateTo }: DateRangeSelectorProps) => {
-  const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: currentYear - 1970 + 1 }, (_, i) => 1970 + i);
-  const months = [
-    "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-    "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
-  ];
-  const days = Array.from({ length: 31 }, (_, i) => i + 1);
-
-  const getMonthNumber = (monthName: string) => {
-    const monthIndex = months.indexOf(monthName) + 1;
-    return monthIndex < 10 ? `0${monthIndex}` : `${monthIndex}`;
+  const handleDateFromSelect = (date: Date | undefined) => {
+    if (date) {
+      setDateFrom(format(date, 'yyyy-MM-dd'));
+    }
   };
 
-  const formatDate = (year: string, month: string, day: number) => {
-    const formattedDay = day < 10 ? `0${day}` : `${day}`;
-    return `${year}-${getMonthNumber(month)}-${formattedDay}`;
-  };
-
-  const getSelectedMonth = (date: string) => {
-    if (!date) return months[0];
-    const monthNum = parseInt(date.split('-')[1]) - 1;
-    return months[monthNum];
-  };
-
-  const getSelectedYear = (date: string) => {
-    if (!date) return years[0].toString();
-    return date.split('-')[0];
-  };
-
-  const getSelectedDay = (date: string) => {
-    if (!date) return 1;
-    return parseInt(date.split('-')[2]);
+  const handleDateToSelect = (date: Date | undefined) => {
+    if (date) {
+      setDateTo(format(date, 'yyyy-MM-dd'));
+    }
   };
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div className="space-y-2">
         <Label htmlFor="dateFrom">Fecha Inicio</Label>
-        <div className="flex gap-2">
-          <Select
-            value={getSelectedDay(dateFrom).toString()}
-            onValueChange={(day) => setDateFrom(formatDate(
-              getSelectedYear(dateFrom),
-              getSelectedMonth(dateFrom),
-              parseInt(day)
-            ))}
-          >
-            <SelectTrigger className="w-[100px]">
-              <SelectValue placeholder="Día" />
-            </SelectTrigger>
-            <SelectContent>
-              {days.map((day) => (
-                <SelectItem key={day} value={day.toString()}>
-                  {day}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select
-            value={getSelectedMonth(dateFrom)}
-            onValueChange={(month) => setDateFrom(formatDate(
-              getSelectedYear(dateFrom),
-              month,
-              getSelectedDay(dateFrom)
-            ))}
-          >
-            <SelectTrigger className="w-[140px]">
-              <SelectValue placeholder="Mes" />
-            </SelectTrigger>
-            <SelectContent>
-              {months.map((month) => (
-                <SelectItem key={month} value={month}>
-                  {month}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select
-            value={getSelectedYear(dateFrom)}
-            onValueChange={(year) => setDateFrom(formatDate(
-              year,
-              getSelectedMonth(dateFrom),
-              getSelectedDay(dateFrom)
-            ))}
-          >
-            <SelectTrigger className="w-[120px]">
-              <SelectValue placeholder="Año" />
-            </SelectTrigger>
-            <SelectContent>
-              {years.map((year) => (
-                <SelectItem key={year} value={year.toString()}>
-                  {year}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              className={`w-full justify-start text-left font-normal ${!dateFrom && "text-muted-foreground"}`}
+            >
+              <CalendarIcon className="mr-2 h-4 w-4" />
+              {dateFrom ? format(new Date(dateFrom), "d 'de' MMMM yyyy", { locale: es }) : "Seleccionar fecha"}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="start">
+            <Calendar
+              mode="single"
+              selected={dateFrom ? new Date(dateFrom) : undefined}
+              onSelect={handleDateFromSelect}
+              fromYear={1970}
+              toYear={new Date().getFullYear() + 100}
+              captionLayout="dropdown-buttons"
+              showOutsideDays={false}
+              fixedWeeks
+              today={new Date()}
+            />
+          </PopoverContent>
+        </Popover>
       </div>
+
       <div className="space-y-2">
         <Label htmlFor="dateTo">Fecha Fin</Label>
-        <div className="flex gap-2">
-          <Select
-            value={getSelectedDay(dateTo).toString()}
-            onValueChange={(day) => setDateTo(formatDate(
-              getSelectedYear(dateTo),
-              getSelectedMonth(dateTo),
-              parseInt(day)
-            ))}
-          >
-            <SelectTrigger className="w-[100px]">
-              <SelectValue placeholder="Día" />
-            </SelectTrigger>
-            <SelectContent>
-              {days.map((day) => (
-                <SelectItem key={day} value={day.toString()}>
-                  {day}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select
-            value={getSelectedMonth(dateTo)}
-            onValueChange={(month) => setDateTo(formatDate(
-              getSelectedYear(dateTo),
-              month,
-              getSelectedDay(dateTo)
-            ))}
-          >
-            <SelectTrigger className="w-[140px]">
-              <SelectValue placeholder="Mes" />
-            </SelectTrigger>
-            <SelectContent>
-              {months.map((month) => (
-                <SelectItem key={month} value={month}>
-                  {month}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select
-            value={getSelectedYear(dateTo)}
-            onValueChange={(year) => setDateTo(formatDate(
-              year,
-              getSelectedMonth(dateTo),
-              getSelectedDay(dateTo)
-            ))}
-          >
-            <SelectTrigger className="w-[120px]">
-              <SelectValue placeholder="Año" />
-            </SelectTrigger>
-            <SelectContent>
-              {years.map((year) => (
-                <SelectItem key={year} value={year.toString()}>
-                  {year}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              className={`w-full justify-start text-left font-normal ${!dateTo && "text-muted-foreground"}`}
+            >
+              <CalendarIcon className="mr-2 h-4 w-4" />
+              {dateTo ? format(new Date(dateTo), "d 'de' MMMM yyyy", { locale: es }) : "Seleccionar fecha"}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="start">
+            <Calendar
+              mode="single"
+              selected={dateTo ? new Date(dateTo) : undefined}
+              onSelect={handleDateToSelect}
+              fromYear={1970}
+              toYear={new Date().getFullYear() + 100}
+              captionLayout="dropdown-buttons"
+              showOutsideDays={false}
+              fixedWeeks
+              today={new Date()}
+            />
+          </PopoverContent>
+        </Popover>
       </div>
     </div>
   );
