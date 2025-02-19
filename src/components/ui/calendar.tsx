@@ -2,7 +2,8 @@
 import * as React from "react"
 import { DayPicker } from "react-day-picker"
 import { cn } from "@/lib/utils"
-import { CalendarNavigation } from "./calendar/CalendarNavigation"
+import { ChevronLeft, ChevronRight } from "lucide-react"
+import { buttonVariants } from "@/components/ui/button"
 import { calendarStyles } from "./calendar/calendar-styles"
 
 export type CalendarProps = React.ComponentProps<typeof DayPicker>
@@ -22,9 +23,30 @@ function Calendar({
         ...classNames,
       }}
       components={{
-        // usamos aquí el nuevo componente de navegación
-        IconLeft: () => null,  // estos componentes son requeridos por DayPicker
-        IconRight: () => null, // pero los dejamos vacíos ya que usamos nuestro propio componente
+        Navigation: ({ onPreviousClick, onNextClick, ...navigationProps }) => (
+          <div className="space-x-1 flex items-center">
+            <button
+              onClick={onPreviousClick}
+              className={cn(
+                buttonVariants({ variant: "outline" }),
+                "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100"
+              )}
+              title={navigationProps.previousLabel}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            <button
+              onClick={onNextClick}
+              className={cn(
+                buttonVariants({ variant: "outline" }),
+                "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100"
+              )}
+              title={navigationProps.nextLabel}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
+        )
       }}
       {...props}
     />
