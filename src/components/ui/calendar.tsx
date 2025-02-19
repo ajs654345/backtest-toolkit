@@ -23,30 +23,32 @@ function Calendar({
         ...classNames,
       }}
       components={{
-        Navigation: ({ onPreviousClick, onNextClick, ...navigationProps }) => (
-          <div className="space-x-1 flex items-center">
-            <button
-              onClick={onPreviousClick}
-              className={cn(
-                buttonVariants({ variant: "outline" }),
-                "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100"
-              )}
-              title={navigationProps.previousLabel}
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </button>
-            <button
-              onClick={onNextClick}
-              className={cn(
-                buttonVariants({ variant: "outline" }),
-                "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100"
-              )}
-              title={navigationProps.nextLabel}
-            >
-              <ChevronRight className="h-4 w-4" />
-            </button>
-          </div>
-        )
+        IconLeft: ({ ...props }) => (
+          <button
+            onClick={props.onClick}
+            className={cn(
+              buttonVariants({ variant: "outline" }),
+              "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100"
+            )}
+            title={props.label}
+            disabled={props.disabled}
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+        ),
+        IconRight: ({ ...props }) => (
+          <button
+            onClick={props.onClick}
+            className={cn(
+              buttonVariants({ variant: "outline" }),
+              "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100"
+            )}
+            title={props.label}
+            disabled={props.disabled}
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        ),
       }}
       {...props}
     />
