@@ -23,14 +23,16 @@ const DateRangeSelector = ({ dateFrom, dateTo, setDateFrom, setDateTo }: DateRan
     "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
     "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
   ];
+  const days = Array.from({ length: 31 }, (_, i) => i + 1);
 
   const getMonthNumber = (monthName: string) => {
     const monthIndex = months.indexOf(monthName) + 1;
     return monthIndex < 10 ? `0${monthIndex}` : `${monthIndex}`;
   };
 
-  const formatDate = (year: string, month: string) => {
-    return `${year}-${getMonthNumber(month)}-01`;
+  const formatDate = (year: string, month: string, day: number) => {
+    const formattedDay = day < 10 ? `0${day}` : `${day}`;
+    return `${year}-${getMonthNumber(month)}-${formattedDay}`;
   };
 
   const getSelectedMonth = (date: string) => {
@@ -44,16 +46,44 @@ const DateRangeSelector = ({ dateFrom, dateTo, setDateFrom, setDateTo }: DateRan
     return date.split('-')[0];
   };
 
+  const getSelectedDay = (date: string) => {
+    if (!date) return 1;
+    return parseInt(date.split('-')[2]);
+  };
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div className="space-y-2">
         <Label htmlFor="dateFrom">Fecha Inicio</Label>
         <div className="flex gap-2">
           <Select
-            value={getSelectedMonth(dateFrom)}
-            onValueChange={(month) => setDateFrom(formatDate(getSelectedYear(dateFrom), month))}
+            value={getSelectedDay(dateFrom).toString()}
+            onValueChange={(day) => setDateFrom(formatDate(
+              getSelectedYear(dateFrom),
+              getSelectedMonth(dateFrom),
+              parseInt(day)
+            ))}
           >
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-[100px]">
+              <SelectValue placeholder="Día" />
+            </SelectTrigger>
+            <SelectContent>
+              {days.map((day) => (
+                <SelectItem key={day} value={day.toString()}>
+                  {day}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select
+            value={getSelectedMonth(dateFrom)}
+            onValueChange={(month) => setDateFrom(formatDate(
+              getSelectedYear(dateFrom),
+              month,
+              getSelectedDay(dateFrom)
+            ))}
+          >
+            <SelectTrigger className="w-[140px]">
               <SelectValue placeholder="Mes" />
             </SelectTrigger>
             <SelectContent>
@@ -66,7 +96,11 @@ const DateRangeSelector = ({ dateFrom, dateTo, setDateFrom, setDateTo }: DateRan
           </Select>
           <Select
             value={getSelectedYear(dateFrom)}
-            onValueChange={(year) => setDateFrom(formatDate(year, getSelectedMonth(dateFrom)))}
+            onValueChange={(year) => setDateFrom(formatDate(
+              year,
+              getSelectedMonth(dateFrom),
+              getSelectedDay(dateFrom)
+            ))}
           >
             <SelectTrigger className="w-[120px]">
               <SelectValue placeholder="Año" />
@@ -85,10 +119,33 @@ const DateRangeSelector = ({ dateFrom, dateTo, setDateFrom, setDateTo }: DateRan
         <Label htmlFor="dateTo">Fecha Fin</Label>
         <div className="flex gap-2">
           <Select
-            value={getSelectedMonth(dateTo)}
-            onValueChange={(month) => setDateTo(formatDate(getSelectedYear(dateTo), month))}
+            value={getSelectedDay(dateTo).toString()}
+            onValueChange={(day) => setDateTo(formatDate(
+              getSelectedYear(dateTo),
+              getSelectedMonth(dateTo),
+              parseInt(day)
+            ))}
           >
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-[100px]">
+              <SelectValue placeholder="Día" />
+            </SelectTrigger>
+            <SelectContent>
+              {days.map((day) => (
+                <SelectItem key={day} value={day.toString()}>
+                  {day}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select
+            value={getSelectedMonth(dateTo)}
+            onValueChange={(month) => setDateTo(formatDate(
+              getSelectedYear(dateTo),
+              month,
+              getSelectedDay(dateTo)
+            ))}
+          >
+            <SelectTrigger className="w-[140px]">
               <SelectValue placeholder="Mes" />
             </SelectTrigger>
             <SelectContent>
@@ -101,7 +158,11 @@ const DateRangeSelector = ({ dateFrom, dateTo, setDateFrom, setDateTo }: DateRan
           </Select>
           <Select
             value={getSelectedYear(dateTo)}
-            onValueChange={(year) => setDateTo(formatDate(year, getSelectedMonth(dateTo)))}
+            onValueChange={(year) => setDateTo(formatDate(
+              year,
+              getSelectedMonth(dateTo),
+              getSelectedDay(dateTo)
+            ))}
           >
             <SelectTrigger className="w-[120px]">
               <SelectValue placeholder="Año" />
