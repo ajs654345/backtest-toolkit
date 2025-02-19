@@ -53,8 +53,30 @@ function Calendar({
         ...classNames,
       }}
       components={{
-        PrevButton: () => <ChevronLeft className="h-4 w-4" />,
-        NextButton: () => <ChevronRight className="h-4 w-4" />,
+        Navigation: ({ ...props }) => (
+          <div className="space-x-1 flex items-center">
+            <button
+              onClick={props.onPreviousClick}
+              className={cn(
+                buttonVariants({ variant: "outline" }),
+                "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100"
+              )}
+              title={props.previousLabel}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            <button
+              onClick={props.onNextClick}
+              className={cn(
+                buttonVariants({ variant: "outline" }),
+                "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100"
+              )}
+              title={props.nextLabel}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
+        )
       }}
       {...props}
     />
