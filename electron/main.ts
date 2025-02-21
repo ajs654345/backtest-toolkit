@@ -1,9 +1,9 @@
 
-import { app, BrowserWindow, ipcMain } from 'electron';
-import path from 'path';
-import { exec } from 'child_process';
+const { app, BrowserWindow, ipcMain } = require('electron');
+const path = require('path');
+const { exec } = require('child_process');
 
-let mainWindow: BrowserWindow | null = null;
+let mainWindow = null;
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 const VITE_DEV_SERVER_URL = 'http://localhost:8080';
@@ -21,7 +21,6 @@ async function createWindow() {
 
   try {
     if (isDevelopment) {
-      // En desarrollo, espera a que el servidor de Vite esté listo
       await new Promise(resolve => setTimeout(resolve, 2000));
       console.log('Loading development URL:', VITE_DEV_SERVER_URL);
       await mainWindow.loadURL(VITE_DEV_SERVER_URL);
