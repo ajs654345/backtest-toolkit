@@ -2,7 +2,6 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
 import path from 'path';
 import { exec } from 'child_process';
-import { fileURLToPath } from 'url';
 
 let mainWindow: BrowserWindow | null = null;
 
@@ -31,8 +30,7 @@ app.whenReady().then(() => {
   // Configurar el manejador para ejecutar MT4
   ipcMain.handle('execute-mt4', async (_, config) => {
     try {
-      // Aquí deberías configurar la ruta correcta a tu MT4
-      const mt4Path = 'C:\\Program Files (x86)\\MetaTrader 4\\terminal.exe';
+      const mt4Path = 'C:\\Users\\arodr\\AppData\\Roaming\\Darwinex MT4\\terminal.exe';
       
       console.log('Intentando ejecutar MT4 desde:', mt4Path);
       console.log('Configuración:', config);
