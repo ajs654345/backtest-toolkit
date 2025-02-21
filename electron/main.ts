@@ -3,55 +3,46 @@ const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const { exec } = require('child_process');
 
-let mainWindow = null;
-
-const isDevelopment = process.env.NODE_ENV !== 'production';
-const VITE_DEV_SERVER_URL = 'http://localhost:8080';
-
-async function createWindow() {
-  mainWindow = new BrowserWindow({
+const createWindow = async () => {
+  const win = new BrowserWindow({
     width: 1200,
     height: 800,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: true,
       preload: path.join(__dirname, 'preload.js')
-    },
+    }
   });
 
-  try {
-    if (isDevelopment) {
+  if (process.env.NODE_ENV === 'development') {
+    try {
+      // Espera a que el servidor de Vite esté listo
       await new Promise(resolve => setTimeout(resolve, 2000));
-      console.log('Loading development URL:', VITE_DEV_SERVER_URL);
-      await mainWindow.loadURL(VITE_DEV_SERVER_URL);
-      mainWindow.webContents.openDevTools();
-    } else {
-      const indexHtml = path.join(__dirname, '../dist/index.html');
-      console.log('Loading production file:', indexHtml);
-      await mainWindow.loadFile(indexHtml);
+      await win.loadURL('http://localhost:8080');
+      win.webContents.openDevTools();
+    } catch (error) {
+      console.error('Error loading dev server:', error);
     }
-  } catch (error) {
-    console.error('Error loading application:', error);
+  } else {
+    win.loadFile(path.join(__dirname, '../dist/index.html'));
   }
 
-  mainWindow.on('closed', () => {
-    mainWindow = null;
-  });
-}
+  return win;
+};
 
-app.on('ready', () => {
-  createWindow();
+app.whenReady().then(async () => {
+  const mainWindow = await createWindow();
+
+  app.on('activate', () => {
+    if (BrowserWindow.getAllWindows().length === 0) {
+      createWindow();
+    }
+  });
 });
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
-  }
-});
-
-app.on('activate', () => {
-  if (mainWindow === null) {
-    createWindow();
   }
 });
 
