@@ -16,10 +16,12 @@ function createWindow() {
     },
   });
 
+  // En desarrollo, carga la URL del servidor de desarrollo
   if (process.env.NODE_ENV === 'development') {
     mainWindow.loadURL('http://localhost:8080');
     mainWindow.webContents.openDevTools();
   } else {
+    // En producción, carga el archivo HTML compilado
     mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));
   }
 }
@@ -27,7 +29,6 @@ function createWindow() {
 app.whenReady().then(() => {
   createWindow();
 
-  // Configurar el manejador para ejecutar MT4
   ipcMain.handle('execute-mt4', async (_, config) => {
     try {
       const mt4Path = 'C:\\Users\\arodr\\AppData\\Roaming\\Darwinex MT4\\terminal.exe';
