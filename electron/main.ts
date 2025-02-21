@@ -6,6 +6,7 @@ import { exec } from 'child_process';
 let mainWindow: BrowserWindow | null = null;
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
+const VITE_DEV_SERVER_URL = 'http://localhost:8080';
 
 async function createWindow() {
   mainWindow = new BrowserWindow({
@@ -18,17 +19,30 @@ async function createWindow() {
     },
   });
 
-  if (isDevelopment) {
-    // En desarrollo, espera a que el servidor de Vite esté listo
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    await mainWindow.loadURL('http://localhost:8080');
-    mainWindow.webContents.openDevTools();
-  } else {
-    mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));
+  try {
+    if (isDevelopment) {
+      // En desarrollo, espera a que el servidor de Vite esté listo
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      console.log('Loading development URL:', VITE_DEV_SERVER_URL);
+      await mainWindow.loadURL(VITE_DEV_SERVER_URL);
+      mainWindow.webContents.openDevTools();
+    } else {
+      const indexHtml = path.join(__dirname, '../dist/index.html');
+      console.log('Loading production file:', indexHtml);
+      await mainWindow.loadFile(indexHtml);
+    }
+  } catch (error) {
+    console.error('Error loading application:', error);
   }
+
+  mainWindow.on('closed', () => {
+    mainWindow = null;
+  });
 }
 
-app.whenReady().then(createWindow);
+app.on('ready', () => {
+  createWindow();
+});
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
@@ -42,7 +56,6 @@ app.on('activate', () => {
   }
 });
 
-// Configurar IPC handlers
 ipcMain.handle('execute-mt4', async (_, config) => {
   try {
     const mt4Path = 'C:\\Users\\arodr\\AppData\\Roaming\\Darwinex MT4\\terminal.exe';
