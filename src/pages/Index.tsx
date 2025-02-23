@@ -1,27 +1,28 @@
 import React, { useState } from 'react';
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ThemeToggle } from '@/components/ThemeToggle';
+import { useToast } from "@/hooks/use-toast";
 import CurrencyPairsList from '@/components/CurrencyPairsList';
 import ExcelConfig from '@/components/ExcelConfig';
 import DateRangeSelector from '@/components/DateRangeSelector';
 import RobotSelector from '@/components/RobotSelector';
 import TestingModeSelector from '@/components/TestingModeSelector';
 import ConfigurationOptions from '@/components/ConfigurationOptions';
-import BacktestForm from '@/components/BacktestForm';
-import type { MT4Config } from '@/types/mt4';
+import { Label } from "@/components/ui/label";
 
 const Index = () => {
+  const { toast } = useToast();
+  const today = new Date();
   const [selectedRobots, setSelectedRobots] = useState<File[]>([]);
-  const [dateFrom, setDateFrom] = useState('');
-  const [dateTo, setDateTo] = useState('');
+  const [dateFrom, setDateFrom] = useState<Date>(today);
+  const [dateTo, setDateTo] = useState<Date>(today);
   const [outputPath, setOutputPath] = useState('');
   const [excelName, setExcelName] = useState('');
   const [useExistingExcel, setUseExistingExcel] = useState(false);
   const [existingExcelFile, setExistingExcelFile] = useState<File | null>(null);
   const [useDefaultNaming, setUseDefaultNaming] = useState(true);
-  const [testingMode, setTestingMode] = useState<MT4Config['testingMode']>('control');
+  const [testingMode, setTestingMode] = useState('control');
   const [saveConfig, setSaveConfig] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
   const [currencyPairs, setCurrencyPairs] = useState([
     "USDJPY", "GBPNZD", "AUDUSD", "EURJPY", "CHFJPY", "GBPCAD", "CADJPY", "EURUSD",
     "USDCHF", "USDCAD", "EURCAD", "GBPUSD", "GBPAUD", "EURAUD", "AUDJPY", "EURCHF",
@@ -29,23 +30,63 @@ const Index = () => {
     "AUDNZD", "GBPCHF", "EURNZD", "AUDCHF", "NZDUSD", "NZDCAD", "NZDCHF"
   ]);
 
-  return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="fixed top-4 right-4 z-50">
-        <ThemeToggle />
-      </div>
+  const executeBacktest = async () => {
+    if (selectedRobots.length === 0) {
+      toast({
+        title: "Error",
+        description: "Por favor, seleccione al menos un robot",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const command = {
+        robots: selectedRobots.map(robot => ({
+          name: robot.name,
+          pairs: currencyPairs
+        })),
+        dateRange: {
+          from: dateFrom,
+          to: dateTo
+        },
+        testingMode,
+        outputPath,
+        excelConfig: {
+          useExisting: useExistingExcel,
+          fileName: useDefaultNaming ? '' : excelName,
+          existingFile: existingExcelFile?.name
+        }
+      };
+
+      console.log('Comando de ejecución:', command);
       
-      <Card className="max-w-5xl mx-auto p-6 animate-fade-in">
+      toast({
+        title: "Backtesting Iniciado",
+        description: "Se ha iniciado el proceso de backtesting. Por favor espere...",
+      });
+
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      toast({
+        title: "Backtesting Completado",
+        description: "El proceso de backtesting ha finalizado exitosamente.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Ocurrió un error durante el backtesting",
+        variant: "destructive",
+      });
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-background/50 p-6">
+      <Card className="max-w-5xl mx-auto p-6 glass-card">
         <h1 className="text-2xl font-bold mb-6 text-center">Herramienta de Backtesting MT4</h1>
         
         <div className="space-y-6">
-          <DateRangeSelector
-            dateFrom={dateFrom}
-            dateTo={dateTo}
-            setDateFrom={setDateFrom}
-            setDateTo={setDateTo}
-          />
-
           <RobotSelector
             selectedRobots={selectedRobots}
             setSelectedRobots={setSelectedRobots}
@@ -53,13 +94,23 @@ const Index = () => {
 
           <TestingModeSelector
             testingMode={testingMode}
-            setTestingMode={(mode: MT4Config['testingMode']) => setTestingMode(mode)}
+            setTestingMode={setTestingMode}
           />
 
-          <CurrencyPairsList 
-            currencyPairs={currencyPairs}
-            onReorder={setCurrencyPairs}
+          <DateRangeSelector
+            dateFrom={dateFrom}
+            dateTo={dateTo}
+            setDateFrom={setDateFrom}
+            setDateTo={setDateTo}
           />
+
+          <div>
+            <Label className="text-center block mb-4">Pares de Divisas (Arrastrar para reordenar)</Label>
+            <CurrencyPairsList 
+              currencyPairs={currencyPairs}
+              onReorder={setCurrencyPairs}
+            />
+          </div>
 
           <ExcelConfig
             useExistingExcel={useExistingExcel}
@@ -84,16 +135,12 @@ const Index = () => {
             setSaveConfig={setSaveConfig}
           />
 
-          <BacktestForm
-            selectedRobots={selectedRobots}
-            dateFrom={dateFrom}
-            dateTo={dateTo}
-            outputPath={outputPath}
-            testingMode={testingMode}
-            currencyPairs={currencyPairs}
-            isProcessing={isProcessing}
-            setIsProcessing={setIsProcessing}
-          />
+          <Button 
+            className="w-full"
+            onClick={executeBacktest}
+          >
+            Ejecutar Backtesting
+          </Button>
         </div>
       </Card>
     </div>

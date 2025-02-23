@@ -6,7 +6,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { InfoIcon } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/components/ui/use-toast";
-import PathSelector from './PathSelector';
+import { Button } from "@/components/ui/button";
 
 interface ExcelConfigProps {
   useExistingExcel: boolean;
@@ -41,6 +41,32 @@ const ExcelConfig = ({
       toast({
         title: "Nuevo Excel",
         description: "Se creará un nuevo archivo Excel con los resultados",
+      });
+    }
+  };
+
+  const handleDirectorySelect = async () => {
+    try {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.webkitdirectory = true;
+      
+      input.onchange = (e) => {
+        const files = (e.target as HTMLInputElement).files;
+        if (files && files.length > 0) {
+          // Obtener la ruta del primer archivo seleccionado
+          const path = files[0].webkitRelativePath.split('/')[0];
+          setOutputPath(path);
+        }
+      };
+      
+      input.click();
+    } catch (err) {
+      console.error('Error al seleccionar directorio:', err);
+      toast({
+        title: "Error",
+        description: "No se pudo seleccionar el directorio",
+        variant: "destructive",
       });
     }
   };
@@ -122,12 +148,29 @@ const ExcelConfig = ({
         </>
       )}
 
-      <PathSelector
-        label="Ruta de salida"
-        path={outputPath}
-        onPathChange={setOutputPath}
-        placeholder="Seleccione la carpeta donde se guardarán los archivos"
-      />
+      <div>
+        <Label htmlFor="outputPath">Ruta de salida</Label>
+        <div className="flex space-x-2">
+          <Input
+            type="text"
+            id="outputPath"
+            value={outputPath}
+            readOnly
+            placeholder="Seleccione la carpeta de destino"
+            className="mt-1"
+          />
+          <Button
+            type="button"
+            onClick={handleDirectorySelect}
+            className="mt-1"
+          >
+            Seleccionar
+          </Button>
+        </div>
+        <p className="text-sm text-muted-foreground mt-1">
+          Los resultados del backtesting, capturas e informes se guardarán en esta ruta, organizados por carpetas (Robot/Par/Fecha)
+        </p>
+      </div>
     </div>
   );
 };

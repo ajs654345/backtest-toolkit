@@ -29,9 +29,7 @@ const RobotSelector = ({ selectedRobots, setSelectedRobots }: RobotSelectorProps
         <div className="mt-2 p-2 border rounded-md">
           <p className="font-medium mb-2">Robots seleccionados:</p>
           {selectedRobots.map((robot, index) => (
-            <div key={index} className="py-1">
-              {robot.name}
-            </div>
+            <div key={index} className="py-1">{robot.name}</div>
           ))}
         </div>
       )}
