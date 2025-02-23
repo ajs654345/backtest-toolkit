@@ -3,6 +3,12 @@ const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const { exec } = require('child_process');
 
+const isDev = process.env.NODE_ENV === 'development';
+
+function getAssetPath(...paths) {
+  return path.join(__dirname, '..', ...paths);
+}
+
 const createWindow = async () => {
   const win = new BrowserWindow({
     width: 1200,
@@ -14,9 +20,9 @@ const createWindow = async () => {
     }
   });
 
-  if (process.env.NODE_ENV === 'development') {
+  if (isDev) {
     try {
-      // Espera a que el servidor de Vite esté listo
+      console.log('Intentando cargar servidor de desarrollo...');
       await new Promise(resolve => setTimeout(resolve, 2000));
       await win.loadURL('http://localhost:8080');
       win.webContents.openDevTools();
@@ -24,13 +30,18 @@ const createWindow = async () => {
       console.error('Error loading dev server:', error);
     }
   } else {
-    win.loadFile(path.join(__dirname, '../dist/index.html'));
+    const indexPath = getAssetPath('dist', 'index.html');
+    console.log('Cargando archivo:', indexPath);
+    win.loadFile(indexPath);
   }
 
   return win;
 };
 
 app.whenReady().then(async () => {
+  console.log('Directorio actual:', process.cwd());
+  console.log('Directorio del archivo:', __dirname);
+  
   const mainWindow = await createWindow();
 
   app.on('activate', () => {
