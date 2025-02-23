@@ -3,12 +3,6 @@ const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const { exec } = require('child_process');
 
-const isDev = process.env.NODE_ENV === 'development';
-
-function getAssetPath(...paths) {
-  return path.join(__dirname, '..', ...paths);
-}
-
 const createWindow = async () => {
   const win = new BrowserWindow({
     width: 1200,
@@ -20,29 +14,38 @@ const createWindow = async () => {
     }
   });
 
+  // Determina si estamos en desarrollo o producción
+  const isDev = !app.isPackaged;
+
   if (isDev) {
-    try {
-      console.log('Intentando cargar servidor de desarrollo...');
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      await win.loadURL('http://localhost:8080');
-      win.webContents.openDevTools();
-    } catch (error) {
-      console.error('Error loading dev server:', error);
-    }
+    console.log('Running in development mode');
+    // En desarrollo, carga desde el servidor de Vite
+    win.loadURL('http://localhost:8080');
+    win.webContents.openDevTools();
   } else {
-    const indexPath = getAssetPath('dist', 'index.html');
-    console.log('Cargando archivo:', indexPath);
-    win.loadFile(indexPath);
+    console.log('Running in production mode');
+    // En producción, carga desde los archivos construidos
+    win.loadFile(path.join(__dirname, '../dist/index.html'));
   }
+
+  // Log any load errors
+  win.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
+    console.error('Failed to load:', errorCode, errorDescription);
+  });
 
   return win;
 };
 
 app.whenReady().then(async () => {
-  console.log('Directorio actual:', process.cwd());
-  console.log('Directorio del archivo:', __dirname);
+  console.log('App is ready');
+  console.log('Current working directory:', process.cwd());
   
-  const mainWindow = await createWindow();
+  try {
+    const mainWindow = await createWindow();
+    console.log('Window created successfully');
+  } catch (error) {
+    console.error('Error creating window:', error);
+  }
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
@@ -60,21 +63,22 @@ app.on('window-all-closed', () => {
 ipcMain.handle('execute-mt4', async (_, config) => {
   try {
     const mt4Path = 'C:\\Users\\arodr\\AppData\\Roaming\\Darwinex MT4\\terminal.exe';
-    console.log('Intentando ejecutar MT4 desde:', mt4Path);
-    console.log('Configuración:', config);
+    console.log('Attempting to execute MT4 from:', mt4Path);
+    console.log('Configuration:', config);
 
     exec(`"${mt4Path}"`, (error, stdout, stderr) => {
       if (error) {
-        console.error('Error al ejecutar MT4:', error);
+        console.error('Error executing MT4:', error);
         return { success: false, error: error.message };
       }
-      console.log('MT4 ejecutado correctamente');
-      if (stderr) console.error('Error:', stderr);
+      console.log('MT4 executed successfully');
+      if (stderr) console.error('stderr:', stderr);
+      if (stdout) console.log('stdout:', stdout);
     });
 
     return { success: true };
   } catch (error) {
-    console.error('Error en execute-mt4:', error);
-    return { success: false, error: error instanceof Error ? error.message : 'Error desconocido' };
+    console.error('Error in execute-mt4:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
   }
 });
