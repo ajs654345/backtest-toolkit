@@ -46,12 +46,11 @@ const DateRangeSelector = ({ dateFrom, dateTo, setDateFrom, setDateTo }: DateRan
               {dateFrom ? format(new Date(dateFrom), "d 'de' MMMM yyyy", { locale: es }) : "Seleccionar fecha"}
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
+          <PopoverContent className="w-auto p-0">
             <Calendar
               mode="single"
               selected={dateFrom ? new Date(dateFrom) : undefined}
               onSelect={handleDateFromSelect}
-              initialFocus
               locale={es}
             />
           </PopoverContent>
@@ -70,12 +69,11 @@ const DateRangeSelector = ({ dateFrom, dateTo, setDateFrom, setDateTo }: DateRan
               {dateTo ? format(new Date(dateTo), "d 'de' MMMM yyyy", { locale: es }) : "Seleccionar fecha"}
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
+          <PopoverContent className="w-auto p-0">
             <Calendar
               mode="single"
               selected={dateTo ? new Date(dateTo) : undefined}
               onSelect={handleDateToSelect}
-              initialFocus
               locale={es}
             />
           </PopoverContent>
