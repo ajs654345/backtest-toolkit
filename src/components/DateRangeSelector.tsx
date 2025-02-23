@@ -35,7 +35,7 @@ const DateRangeSelector = ({ dateFrom, dateTo, setDateFrom, setDateTo }: DateRan
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div className="space-y-2">
-        <Label htmlFor="dateFrom">Fecha Inicio</Label>
+        <Label>Fecha Inicio</Label>
         <Popover>
           <PopoverTrigger asChild>
             <Button
@@ -51,6 +51,7 @@ const DateRangeSelector = ({ dateFrom, dateTo, setDateFrom, setDateTo }: DateRan
               mode="single"
               selected={dateFrom ? new Date(dateFrom) : undefined}
               onSelect={handleDateFromSelect}
+              initialFocus
               locale={es}
             />
           </PopoverContent>
@@ -58,7 +59,7 @@ const DateRangeSelector = ({ dateFrom, dateTo, setDateFrom, setDateTo }: DateRan
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="dateTo">Fecha Fin</Label>
+        <Label>Fecha Fin</Label>
         <Popover>
           <PopoverTrigger asChild>
             <Button
@@ -74,6 +75,7 @@ const DateRangeSelector = ({ dateFrom, dateTo, setDateFrom, setDateTo }: DateRan
               mode="single"
               selected={dateTo ? new Date(dateTo) : undefined}
               onSelect={handleDateToSelect}
+              initialFocus
               locale={es}
             />
           </PopoverContent>
