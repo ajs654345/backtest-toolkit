@@ -23,10 +23,10 @@ const DateRangeSelector = ({ dateRange, setDateRange }: DateRangeSelectorProps) 
             Hasta: {dateRange?.to ? format(dateRange.to, "dd/MM/yyyy", { locale: es }) : "Sin seleccionar"}
           </Label>
           <Calendar
-            mode="range"
             selected={dateRange}
             onSelect={setDateRange}
             className="rounded-md border"
+            mode="range"
             numberOfMonths={2}
           />
         </div>
