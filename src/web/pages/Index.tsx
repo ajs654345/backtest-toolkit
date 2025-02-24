@@ -13,7 +13,7 @@ const Index = () => {
         <DateSelector label="Desde" date={dateFrom} setDate={setDateFrom} />
         <DateSelector label="Hasta" date={dateTo} setDate={setDateTo} />
       </div>
-      <div className="mt-6 w-full max-w-xl mx-auto">
+      <div className="mt-6 w-full max-w-4xl mx-auto">
         <BacktestForm />
       </div>
     </div>
