@@ -14,11 +14,11 @@ interface DateSelectorProps {
 
 const DateSelector = ({ label, date, setDate }: DateSelectorProps) => {
   return (
-    <div className="w-full max-w-md p-4 border rounded-lg shadow-lg flex flex-col items-center space-y-4 bg-card">
+    <div className="w-full p-4 border rounded-lg shadow-lg flex flex-col items-center space-y-4 bg-card">
       <Label className="text-lg font-semibold text-center">
         {label}: {date ? format(date, "dd/MM/yyyy", { locale: es }) : "Sin seleccionar"}
       </Label>
-      <div className="w-full">
+      <div className="w-full min-w-[320px]">
         <Calendar
           mode="single"
           selected={date}
