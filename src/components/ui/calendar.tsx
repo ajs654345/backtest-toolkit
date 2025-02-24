@@ -26,10 +26,11 @@ function Calendar({
         showOutsideDays={showOutsideDays}
         locale={{ ...es, options: { weekStartsOn: 1 } }}
         className={cn("p-3", className)}
+        hideHead={false}
         classNames={{
           months: "flex flex-col space-y-4",
           month: "space-y-4",
-          caption: "hidden", // 🚀 🔥 Elimina "Febrero 2025"
+          caption: "hidden",
           table: "w-full border-collapse",
           head_row: "grid grid-cols-7",
           head_cell: "text-muted-foreground font-bold text-sm flex items-center justify-center h-10",
@@ -46,12 +47,9 @@ function Calendar({
           ),
           day_selected: "bg-blue-600 text-white hover:bg-blue-700 focus:bg-blue-700",
           day_today: "bg-gray-700 text-white border border-blue-500",
-          day_outside: "text-gray-500 opacity-50", // 📌 🔥 Oscurece días fuera del mes actual
+          day_outside: "text-gray-500 opacity-50",
           day_disabled: "text-gray-500 opacity-50",
           ...classNames,
-        }}
-        components={{
-          Caption: () => null, // 📌 Elimina cualquier rastro del mes y año
         }}
         {...props}
       />

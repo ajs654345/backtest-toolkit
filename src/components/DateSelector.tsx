@@ -87,10 +87,8 @@ const DateSelector = ({ label, date, setDate }: DateSelectorProps) => {
           onSelect={setDate}
           disabled={(date) => date < fromDate || date > toDate}
           className="w-[300px] rounded-md border"
-          month={new Date(selectedYear, selectedMonth, 1)}
-          locale={es}
+          month={new Date(selectedYear, selectedMonth)}
           showOutsideDays={true}
-          fixedWeeks
         />
       </div>
 
