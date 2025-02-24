@@ -13,6 +13,9 @@ interface DateSelectorProps {
 }
 
 const DateSelector = ({ label, date, setDate }: DateSelectorProps) => {
+  const fromDate = new Date(1900, 0, 1);
+  const toDate = new Date(new Date().getFullYear() + 100, 11, 31);
+
   return (
     <div className="w-full p-4 border rounded-lg shadow-lg flex flex-col items-center space-y-4 bg-card">
       <Label className="text-lg font-semibold text-center">
@@ -23,14 +26,21 @@ const DateSelector = ({ label, date, setDate }: DateSelectorProps) => {
           mode="single"
           selected={date}
           onSelect={setDate}
+          disabled={(date) => 
+            date < fromDate || date > toDate
+          }
           className="w-full rounded-md border bg-background"
           locale={{ ...es, options: { weekStartsOn: 1 } }}
+          initialFocus
           classNames={{
             months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
             month: "space-y-4 w-full",
             caption: "flex justify-center pt-1 relative items-center",
             caption_label: "text-sm font-medium",
             nav: "space-x-1 flex items-center",
+            nav_button: "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100",
+            nav_button_previous: "absolute left-1",
+            nav_button_next: "absolute right-1",
             table: "w-full border-collapse space-y-1",
             head_row: "flex w-full",
             head_cell: "text-muted-foreground rounded-md w-10 font-normal text-[0.8rem] h-10 flex items-center justify-center",
