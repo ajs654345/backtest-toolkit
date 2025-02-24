@@ -4,7 +4,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
-import { es } from "date-fns/locale";
+import { es } from 'date-fns/locale';
 import { Slider } from "@/components/ui/slider";
 import {
   Select,
@@ -100,10 +100,8 @@ const DateSelector = ({ label, date, setDate }: DateSelectorProps) => {
           selected={date}
           onSelect={setDate}
           disabled={(date) => date < fromDate || date > toDate}
-          className="w-full max-w-xs rounded-md border"
+          className="rounded-md border"
           locale={es}
-          fixedWeeks
-          showWeekNumber={false}
         />
       </div>
 
