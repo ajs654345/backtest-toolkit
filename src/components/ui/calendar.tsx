@@ -33,7 +33,7 @@ function Calendar({
           table: "w-full border-collapse",
           head_row: "grid grid-cols-7",
           head_cell: "text-muted-foreground font-bold text-sm flex items-center justify-center h-10",
-          row: "grid grid-cols-7 gap-0",
+          row: "grid grid-cols-7",
           cell: cn(
             "relative text-center text-sm flex items-center justify-center w-[42px] h-[42px]",
             "border border-gray-600",
