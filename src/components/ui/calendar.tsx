@@ -14,43 +14,44 @@ function Calendar({
   className,
   classNames,
   showOutsideDays = true,
-  month,
   ...props
 }: CalendarProps) {
   return (
-    <div className="w-[300px] mx-auto">
+    <div className="w-[280px] flex flex-col items-center">
       <DayPicker
-        month={month}
         showOutsideDays={showOutsideDays}
         className={cn("p-3", className)}
         locale={{ ...es, options: { weekStartsOn: 1 } }}
         classNames={{
           months: "flex flex-col space-y-4",
           month: "space-y-4",
-          caption: "flex justify-between items-center px-4 py-2 text-lg font-semibold",
-          caption_label: "text-lg font-semibold text-center w-full",
-          nav: "flex items-center justify-between px-4",
+          caption: "flex justify-center pt-1 relative items-center",
+          caption_label: "text-sm font-medium",
+          nav: "flex items-center justify-between px-2",
           nav_button: cn(
             buttonVariants({ variant: "outline" }),
             "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100"
           ),
           table: "w-full border-collapse",
           head_row: "grid grid-cols-7",
-          head_cell: "text-muted-foreground font-bold text-sm flex items-center justify-center h-10",
+          head_cell: "text-muted-foreground rounded-md font-normal text-[0.8rem] flex items-center justify-center h-9",
           row: "grid grid-cols-7",
           cell: cn(
-            "relative text-center text-sm flex items-center justify-center w-[40px] h-[40px] border border-gray-600",
+            "relative text-center text-sm flex items-center justify-center w-[35px] h-[35px]",
             props.mode === "range" ? "[&:has([aria-selected])]:bg-accent" : ""
           ),
           day: cn(
             buttonVariants({ variant: "ghost" }),
-            "w-[40px] h-[40px] p-0 font-semibold rounded-md",
-            "aria-selected:bg-blue-500 aria-selected:text-white",
-            "outside:opacity-50"
+            "w-[35px] h-[35px] p-0 font-normal aria-selected:opacity-100 hover:bg-accent hover:text-accent-foreground mx-auto"
           ),
-          day_selected: "bg-blue-600 text-white hover:bg-blue-700 focus:bg-blue-700",
-          day_today: "bg-gray-700 text-white border border-blue-500",
-          day_disabled: "text-gray-500 opacity-50",
+          day_selected:
+            "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
+          day_today: "bg-accent text-accent-foreground",
+          day_outside: "text-muted-foreground opacity-50",
+          day_disabled: "text-muted-foreground opacity-50",
+          day_range_middle:
+            "aria-selected:bg-accent aria-selected:text-accent-foreground",
+          day_hidden: "invisible",
           ...classNames,
         }}
         {...props}
