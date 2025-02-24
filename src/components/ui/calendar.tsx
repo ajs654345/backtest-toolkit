@@ -33,15 +33,15 @@ function Calendar({
           table: "w-full border-collapse",
           head_row: "grid grid-cols-7",
           head_cell: "text-muted-foreground font-bold text-sm flex items-center justify-center h-10",
-          row: "grid grid-cols-7",
+          row: "grid grid-cols-7 gap-0",
           cell: cn(
-            "relative text-center text-sm flex items-center justify-center w-[40px] h-[40px]",
+            "relative text-center text-sm flex items-center justify-center w-[42px] h-[42px]",
             "border border-gray-600",
-            props.mode === "range" ? "[&:has([aria-selected])]:bg-accent" : ""
+            "aria-selected:bg-blue-500 aria-selected:text-white"
           ),
           day: cn(
             buttonVariants({ variant: "ghost" }),
-            "w-[40px] h-[40px] p-0 font-semibold rounded-md",
+            "w-[42px] h-[42px] p-0 font-semibold rounded-md",
             "aria-selected:bg-blue-500 aria-selected:text-white"
           ),
           day_selected: "bg-blue-600 text-white hover:bg-blue-700 focus:bg-blue-700",
