@@ -15,31 +15,28 @@ function Calendar({
   classNames,
   showOutsideDays = true,
   month,
+  onMonthChange,
   ...props
 }: CalendarProps) {
   return (
     <div className="w-[300px] mx-auto">
       <DayPicker
         month={month}
+        onMonthChange={onMonthChange}
         showOutsideDays={showOutsideDays}
         locale={{ ...es, options: { weekStartsOn: 1 } }}
         className={cn("p-3", className)}
-        captionLayout="dropdown"
         classNames={{
           months: "flex flex-col space-y-4",
           month: "space-y-4",
-          caption: "hidden", // 🚀 🔥 ELIMINA EL TÍTULO "FEBRERO 2025"
-          nav: "flex items-center justify-between px-4",
-          nav_button: cn(
-            buttonVariants({ variant: "outline" }),
-            "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100"
-          ),
+          caption: "hidden", // 🚀 🔥 Elimina "Febrero 2025"
           table: "w-full border-collapse",
           head_row: "grid grid-cols-7",
           head_cell: "text-muted-foreground font-bold text-sm flex items-center justify-center h-10",
           row: "grid grid-cols-7",
           cell: cn(
-            "relative text-center text-sm flex items-center justify-center w-[40px] h-[40px] border border-gray-600",
+            "relative text-center text-sm flex items-center justify-center w-[40px] h-[40px]",
+            "border border-gray-600",
             props.mode === "range" ? "[&:has([aria-selected])]:bg-accent" : ""
           ),
           day: cn(
@@ -49,9 +46,12 @@ function Calendar({
           ),
           day_selected: "bg-blue-600 text-white hover:bg-blue-700 focus:bg-blue-700",
           day_today: "bg-gray-700 text-white border border-blue-500",
-          day_outside: "text-gray-500 opacity-50", // 🚀 🔥 OSCURECE LOS DÍAS QUE NO PERTENECEN AL MES ACTUAL
+          day_outside: "text-gray-500 opacity-50", // 📌 🔥 Oscurece días fuera del mes actual
           day_disabled: "text-gray-500 opacity-50",
           ...classNames,
+        }}
+        components={{
+          Caption: () => null, // 📌 Elimina cualquier rastro del mes y año
         }}
         {...props}
       />

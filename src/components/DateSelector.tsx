@@ -5,7 +5,6 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { es } from 'date-fns/locale';
-import { Slider } from "@/components/ui/slider";
 import {
   Select,
   SelectContent,
@@ -38,17 +37,13 @@ const DateSelector = ({ label, date, setDate }: DateSelectorProps) => {
   );
 
   const handleYearChange = (year: string) => {
-    const newYear = parseInt(year);
-    setSelectedYear(newYear);
-    const newDate = new Date(newYear, selectedMonth, 1);
-    setDate(newDate);
+    setSelectedYear(parseInt(year));
+    setDate(new Date(parseInt(year), selectedMonth, date?.getDate() || 1));
   };
 
   const handleMonthChange = (month: string) => {
-    const newMonth = MONTHS.indexOf(month);
-    setSelectedMonth(newMonth);
-    const newDate = new Date(selectedYear, newMonth, 1);
-    setDate(newDate);
+    setSelectedMonth(MONTHS.indexOf(month));
+    setDate(new Date(selectedYear, MONTHS.indexOf(month), date?.getDate() || 1));
   };
 
   return (
