@@ -17,7 +17,7 @@ function Calendar({
   ...props
 }: CalendarProps) {
   return (
-    <div className="w-[300px]">
+    <div className="w-[280px] flex flex-col items-center">
       <DayPicker
         showOutsideDays={showOutsideDays}
         className={cn("p-3", className)}
@@ -33,16 +33,16 @@ function Calendar({
             "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100"
           ),
           table: "w-full border-collapse",
-          head_row: "grid grid-cols-7 gap-0",
+          head_row: "grid grid-cols-7",
           head_cell: "text-muted-foreground rounded-md font-normal text-[0.8rem] flex items-center justify-center h-9",
-          row: "grid grid-cols-7 gap-0",
+          row: "grid grid-cols-7",
           cell: cn(
-            "relative p-0 text-center text-sm flex items-center justify-center w-[40px] h-[40px]",
+            "relative text-center text-sm flex items-center justify-center w-[35px] h-[35px]",
             props.mode === "range" ? "[&:has([aria-selected])]:bg-accent" : ""
           ),
           day: cn(
             buttonVariants({ variant: "ghost" }),
-            "w-[40px] h-[40px] p-0 font-normal aria-selected:opacity-100 hover:bg-accent hover:text-accent-foreground mx-auto"
+            "w-[35px] h-[35px] p-0 font-normal aria-selected:opacity-100 hover:bg-accent hover:text-accent-foreground mx-auto"
           ),
           day_selected:
             "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
