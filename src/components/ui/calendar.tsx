@@ -26,24 +26,22 @@ function Calendar({
         month: "space-y-4",
         caption: "flex justify-center pt-1 relative items-center",
         caption_label: "text-sm font-medium",
-        nav: "space-x-1 flex items-center",
+        nav: "flex items-center justify-between px-2",
         nav_button: cn(
           buttonVariants({ variant: "outline" }),
           "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100"
         ),
-        nav_button_previous: "absolute left-1",
-        nav_button_next: "absolute right-1",
-        table: "w-full border-collapse space-y-1",
-        head_row: "grid grid-cols-7",
+        table: "w-full border-collapse",
+        head_row: "grid grid-cols-7 gap-1",
         head_cell: "text-muted-foreground rounded-md font-normal text-[0.8rem] flex items-center justify-center h-9",
-        row: "mt-2 grid grid-cols-7",
+        row: "grid grid-cols-7 gap-1",
         cell: cn(
-          "relative p-0 text-center text-sm focus-within:relative focus-within:z-20",
+          "relative p-0 text-center text-sm flex items-center justify-center w-10 h-10",
           props.mode === "range" ? "[&:has([aria-selected])]:bg-accent" : ""
         ),
         day: cn(
           buttonVariants({ variant: "ghost" }),
-          "h-9 w-9 p-0 font-normal aria-selected:opacity-100 hover:bg-accent hover:text-accent-foreground"
+          "h-10 w-10 p-0 font-normal aria-selected:opacity-100 hover:bg-accent hover:text-accent-foreground mx-auto"
         ),
         day_selected:
           "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
