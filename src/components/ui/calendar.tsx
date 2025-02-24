@@ -34,16 +34,16 @@ function Calendar({
         nav_button_previous: "absolute left-1",
         nav_button_next: "absolute right-1",
         table: "w-full border-collapse space-y-1",
-        head_row: "grid grid-cols-7",
-        head_cell: "text-muted-foreground rounded-md w-10 h-10 font-normal text-[0.8rem] flex items-center justify-center",
-        row: "grid grid-cols-7 gap-1",
+        head_row: "grid grid-cols-7 w-full",
+        head_cell: "text-muted-foreground rounded-md font-normal text-[0.8rem] flex items-center justify-center h-10",
+        row: "grid grid-cols-7 w-full",
         cell: cn(
-          "relative p-0 text-center text-sm flex items-center justify-center w-10 h-10",
+          "relative p-0 text-center text-sm flex items-center justify-center h-10",
           props.mode === "range" ? "[&:has([aria-selected])]:bg-accent" : ""
         ),
         day: cn(
           buttonVariants({ variant: "ghost" }),
-          "h-10 w-10 p-0 font-normal aria-selected:opacity-100 hover:bg-accent hover:text-accent-foreground mx-auto"
+          "h-10 w-full p-0 font-normal aria-selected:opacity-100 hover:bg-accent hover:text-accent-foreground"
         ),
         day_selected:
           "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
