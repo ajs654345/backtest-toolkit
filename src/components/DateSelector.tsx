@@ -101,27 +101,10 @@ const DateSelector = ({ label, date, setDate }: DateSelectorProps) => {
           onSelect={setDate}
           disabled={(date) => date < fromDate || date > toDate}
           className="w-[300px] rounded-md border"
+          month={date}
           locale={es}
           showOutsideDays={true}
           fixedWeeks
-          classNames={{
-            months: "flex flex-col space-y-4",
-            month: "space-y-4",
-            caption: "flex justify-between items-center px-4 py-2 text-lg font-semibold",
-            caption_label: "text-lg font-semibold text-center w-full",
-            nav: "flex items-center justify-between px-4",
-            nav_button: "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100",
-            table: "w-full border-collapse",
-            head_row: "grid grid-cols-7",
-            head_cell: "text-muted-foreground font-bold text-sm flex items-center justify-center h-10",
-            row: "grid grid-cols-7",
-            cell: "relative text-center text-sm flex items-center justify-center w-[40px] h-[40px] border border-gray-600",
-            day: "w-[40px] h-[40px] p-0 font-semibold rounded-md aria-selected:bg-blue-500 aria-selected:text-white",
-            day_selected: "bg-blue-600 text-white hover:bg-blue-700 focus:bg-blue-700",
-            day_today: "bg-gray-700 text-white border border-blue-500",
-            day_outside: "text-gray-400 opacity-50",
-            day_disabled: "text-gray-500 opacity-50",
-          }}
         />
       </div>
 
