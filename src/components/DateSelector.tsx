@@ -32,19 +32,14 @@ const DateSelector = ({ label, date, setDate }: DateSelectorProps) => {
   const currentYear = date ? date.getFullYear() : new Date().getFullYear();
   const currentMonth = date ? date.getMonth() : new Date().getMonth();
 
-  // Generar array de años desde 1900 hasta 100 años en el futuro
-  const years = Array.from({ length: toDate.getFullYear() - fromDate.getFullYear() + 1 }, 
-    (_, i) => fromDate.getFullYear() + i);
+  const years = Array.from(
+    { length: toDate.getFullYear() - fromDate.getFullYear() + 1 },
+    (_, i) => fromDate.getFullYear() + i
+  );
 
   const handleYearChange = (year: string) => {
     const newDate = date ? new Date(date) : new Date();
     newDate.setFullYear(parseInt(year));
-    setDate(newDate);
-  };
-
-  const handleYearSliderChange = (value: number[]) => {
-    const newDate = date ? new Date(date) : new Date();
-    newDate.setFullYear(value[0]);
     setDate(newDate);
   };
 
@@ -55,13 +50,14 @@ const DateSelector = ({ label, date, setDate }: DateSelectorProps) => {
   };
 
   return (
-    <div className="w-full p-4 border rounded-lg shadow-lg flex flex-col items-center space-y-4 bg-card">
+    <div className="w-full max-w-md p-4 border rounded-lg shadow-lg flex flex-col items-center space-y-4 bg-card">
       <Label className="text-lg font-semibold text-center">
         {label}: {date ? format(date, "dd/MM/yyyy", { locale: es }) : "Sin seleccionar"}
       </Label>
-      <div className="flex gap-2 w-full mb-4">
+
+      <div className="flex gap-2 w-full mb-4 items-center justify-between">
         <Select value={MONTHS[currentMonth]} onValueChange={handleMonthChange}>
-          <SelectTrigger>
+          <SelectTrigger className="w-1/2">
             <SelectValue placeholder="Mes" />
           </SelectTrigger>
           <SelectContent>
@@ -72,8 +68,9 @@ const DateSelector = ({ label, date, setDate }: DateSelectorProps) => {
             ))}
           </SelectContent>
         </Select>
+
         <Select value={currentYear.toString()} onValueChange={handleYearChange}>
-          <SelectTrigger>
+          <SelectTrigger className="w-1/2">
             <SelectValue placeholder="Año" />
           </SelectTrigger>
           <SelectContent>
@@ -84,7 +81,7 @@ const DateSelector = ({ label, date, setDate }: DateSelectorProps) => {
                 min={fromDate.getFullYear()}
                 max={toDate.getFullYear()}
                 step={1}
-                onValueChange={handleYearSliderChange}
+                onValueChange={(value) => handleYearChange(value[0].toString())}
                 className="w-full"
               />
             </div>
@@ -96,25 +93,23 @@ const DateSelector = ({ label, date, setDate }: DateSelectorProps) => {
           </SelectContent>
         </Select>
       </div>
-      <div className="w-full">
+
+      <div className="w-full flex justify-center">
         <Calendar
           mode="single"
           selected={date}
           onSelect={setDate}
-          disabled={(date) => 
-            date < fromDate || date > toDate
-          }
-          className="w-full rounded-md border"
+          disabled={(date) => date < fromDate || date > toDate}
+          className="w-full max-w-xs rounded-md border"
           locale={es}
-          showOutsideDays={true}
-          month={date || new Date()}
         />
       </div>
+
       <div className="flex gap-2 w-full justify-between">
-        <Button variant="outline" onClick={() => setDate(new Date())} className="w-full">
+        <Button variant="outline" onClick={() => setDate(new Date())} className="w-1/2">
           Hoy
         </Button>
-        <Button variant="outline" onClick={() => setDate(undefined)} className="w-full">
+        <Button variant="outline" onClick={() => setDate(undefined)} className="w-1/2">
           Limpiar
         </Button>
       </div>
