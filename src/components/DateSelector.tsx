@@ -14,21 +14,23 @@ interface DateSelectorProps {
 
 const DateSelector = ({ label, date, setDate }: DateSelectorProps) => {
   return (
-    <div className="w-full max-w-sm p-4 border rounded-lg shadow-lg flex flex-col items-center space-y-4">
+    <div className="w-full max-w-md p-4 border rounded-lg shadow-lg flex flex-col items-center space-y-4 bg-card">
       <Label className="text-lg font-semibold text-center">
         {label}: {date ? format(date, "dd/MM/yyyy", { locale: es }) : "Sin seleccionar"}
       </Label>
-      <Calendar
-        mode="single"
-        selected={date}
-        onSelect={setDate}
-        className="w-full rounded-md border"
-      />
-      <div className="flex gap-2 w-full justify-center">
-        <Button variant="outline" onClick={() => setDate(new Date())}>
+      <div className="w-full">
+        <Calendar
+          mode="single"
+          selected={date}
+          onSelect={setDate}
+          className="w-full rounded-md border bg-background"
+        />
+      </div>
+      <div className="flex gap-2 w-full justify-between">
+        <Button variant="outline" onClick={() => setDate(new Date())} className="w-full">
           Hoy
         </Button>
-        <Button variant="outline" onClick={() => setDate(undefined)}>
+        <Button variant="outline" onClick={() => setDate(undefined)} className="w-full">
           Limpiar
         </Button>
       </div>

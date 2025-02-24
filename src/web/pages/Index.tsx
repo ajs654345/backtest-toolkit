@@ -9,11 +9,11 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background/50 p-6 flex flex-col items-center">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-3xl">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full max-w-4xl mx-auto">
         <DateSelector label="Desde" date={dateFrom} setDate={setDateFrom} />
         <DateSelector label="Hasta" date={dateTo} setDate={setDateTo} />
       </div>
-      <div className="mt-6 w-full max-w-lg">
+      <div className="mt-6 w-full max-w-xl mx-auto">
         <BacktestForm />
       </div>
     </div>
