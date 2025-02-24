@@ -56,8 +56,8 @@ const DateSelector = ({ label, date, setDate }: DateSelectorProps) => {
             day_hidden: "invisible",
           }}
           components={{
-            IconLeft: ({ ...props }) => <ChevronLeft className="h-4 w-4" {...props} />,
-            IconRight: ({ ...props }) => <ChevronRight className="h-4 w-4" {...props} />,
+            PrevButton: ({ ...props }) => <ChevronLeft className="h-4 w-4" {...props} />,
+            NextButton: ({ ...props }) => <ChevronRight className="h-4 w-4" {...props} />,
           }}
         />
       </div>
