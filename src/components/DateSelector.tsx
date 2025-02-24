@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Calendar } from "@/components/ui/calendar";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -29,25 +29,17 @@ const DateSelector = ({ label, date, setDate }: DateSelectorProps) => {
   const fromDate = new Date(1900, 0, 1);
   const toDate = new Date(new Date().getFullYear() + 100, 11, 31);
 
-  const currentYear = date ? date.getFullYear() : new Date().getFullYear();
-  const currentMonth = date ? date.getMonth() : new Date().getMonth();
+  const [selectedMonth, setSelectedMonth] = useState(date ? date.getMonth() : new Date().getMonth());
+  const [selectedYear, setSelectedYear] = useState(date ? date.getFullYear() : new Date().getFullYear());
+
+  useEffect(() => {
+    setDate(new Date(selectedYear, selectedMonth, date ? date.getDate() : 1));
+  }, [selectedMonth, selectedYear]);
 
   const years = Array.from(
     { length: toDate.getFullYear() - fromDate.getFullYear() + 1 },
     (_, i) => fromDate.getFullYear() + i
   );
-
-  const handleYearChange = (year: string) => {
-    const newDate = date ? new Date(date) : new Date();
-    newDate.setFullYear(parseInt(year));
-    setDate(newDate);
-  };
-
-  const handleMonthChange = (month: string) => {
-    const newDate = date ? new Date(date) : new Date();
-    newDate.setMonth(MONTHS.indexOf(month));
-    setDate(newDate);
-  };
 
   return (
     <div className="w-full max-w-md p-4 border rounded-lg shadow-lg flex flex-col items-center space-y-4 bg-card">
@@ -56,7 +48,7 @@ const DateSelector = ({ label, date, setDate }: DateSelectorProps) => {
       </Label>
 
       <div className="flex gap-2 w-full mb-4 items-center justify-between">
-        <Select value={MONTHS[currentMonth]} onValueChange={handleMonthChange}>
+        <Select value={MONTHS[selectedMonth]} onValueChange={(month) => setSelectedMonth(MONTHS.indexOf(month))}>
           <SelectTrigger className="w-1/2">
             <SelectValue placeholder="Mes" />
           </SelectTrigger>
@@ -69,19 +61,19 @@ const DateSelector = ({ label, date, setDate }: DateSelectorProps) => {
           </SelectContent>
         </Select>
 
-        <Select value={currentYear.toString()} onValueChange={handleYearChange}>
+        <Select value={selectedYear.toString()} onValueChange={(year) => setSelectedYear(parseInt(year))}>
           <SelectTrigger className="w-1/2">
             <SelectValue placeholder="Año" />
           </SelectTrigger>
           <SelectContent>
             <div className="px-4 py-2 space-y-2">
-              <Label className="text-sm">Año: {currentYear}</Label>
+              <Label className="text-sm">Año: {selectedYear}</Label>
               <Slider
-                value={[currentYear]}
+                value={[selectedYear]}
                 min={fromDate.getFullYear()}
                 max={toDate.getFullYear()}
                 step={1}
-                onValueChange={(value) => handleYearChange(value[0].toString())}
+                onValueChange={(value) => setSelectedYear(value[0])}
                 className="w-full"
               />
             </div>
@@ -102,26 +94,9 @@ const DateSelector = ({ label, date, setDate }: DateSelectorProps) => {
           disabled={(date) => date < fromDate || date > toDate}
           className="w-[300px] rounded-md border"
           locale={es}
+          month={new Date(selectedYear, selectedMonth)}
           showOutsideDays={true}
           fixedWeeks
-          classNames={{
-            months: "flex flex-col space-y-4",
-            month: "space-y-4",
-            caption: "flex justify-between items-center px-4 py-2 text-lg font-semibold",
-            caption_label: "text-lg font-semibold text-center w-full",
-            nav: "flex items-center justify-between px-4",
-            nav_button: "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100",
-            table: "w-full border-collapse",
-            head_row: "grid grid-cols-7",
-            head_cell: "text-muted-foreground font-bold text-sm flex items-center justify-center h-10",
-            row: "grid grid-cols-7",
-            cell: "relative text-center text-sm flex items-center justify-center w-[40px] h-[40px] border border-gray-600",
-            day: "w-[40px] h-[40px] p-0 font-semibold rounded-md aria-selected:bg-blue-500 aria-selected:text-white",
-            day_selected: "bg-blue-600 text-white hover:bg-blue-700 focus:bg-blue-700",
-            day_today: "bg-gray-700 text-white border border-blue-500",
-            day_outside: "text-gray-400 opacity-50",
-            day_disabled: "text-gray-500 opacity-50",
-          }}
         />
       </div>
 
