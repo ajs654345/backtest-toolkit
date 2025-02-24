@@ -14,6 +14,8 @@ export const useBacktesting = () => {
   const [testingMode, setTestingMode] = useState('control');
   const [saveConfig, setSaveConfig] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [dateFrom, setDateFrom] = useState<Date>();
+  const [dateTo, setDateTo] = useState<Date>();
   const [currencyPairs, setCurrencyPairs] = useState([
     "USDJPY", "GBPNZD", "AUDUSD", "EURJPY", "CHFJPY", "GBPCAD", "CADJPY", "EURUSD",
     "USDCHF", "USDCAD", "EURCAD", "GBPUSD", "GBPAUD", "EURAUD", "AUDJPY", "EURCHF",
@@ -31,10 +33,21 @@ export const useBacktesting = () => {
       return;
     }
 
+    if (!dateFrom || !dateTo) {
+      toast({
+        title: "Error",
+        description: "Por favor, seleccione las fechas de inicio y fin",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
 
     try {
       const command = {
+        dateFrom,
+        dateTo,
         robots: selectedRobots.map(robot => ({
           name: robot.name,
           pairs: currencyPairs
@@ -84,6 +97,10 @@ export const useBacktesting = () => {
     saveConfig,
     setSaveConfig,
     isLoading,
+    dateFrom,
+    setDateFrom,
+    dateTo,
+    setDateTo,
     currencyPairs,
     setCurrencyPairs,
     executeBacktest,
