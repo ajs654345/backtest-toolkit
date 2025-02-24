@@ -1,11 +1,16 @@
 
-import React, { useState } from "react";
+import React from "react";
 import { BacktestForm } from "@/features/backtesting/components/BacktestForm";
 import DateSelector from "@/components/DateSelector";
+import { useBacktesting } from "@/features/backtesting/hooks/useBacktesting";
 
 const Index = () => {
-  const [dateFrom, setDateFrom] = useState<Date>();
-  const [dateTo, setDateTo] = useState<Date>();
+  const {
+    dateFrom,
+    setDateFrom,
+    dateTo,
+    setDateTo
+  } = useBacktesting();
 
   return (
     <div className="min-h-screen bg-background/50 p-6 flex flex-col items-center">
