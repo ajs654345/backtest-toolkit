@@ -5,7 +5,6 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface DateSelectorProps {
   label: string;
@@ -54,10 +53,6 @@ const DateSelector = ({ label, date, setDate }: DateSelectorProps) => {
             day_disabled: "text-muted-foreground opacity-50 cursor-not-allowed",
             day_range_middle: "aria-selected:bg-accent aria-selected:text-accent-foreground",
             day_hidden: "invisible",
-          }}
-          components={{
-            PrevButton: ({ ...props }) => <ChevronLeft className="h-4 w-4" {...props} />,
-            NextButton: ({ ...props }) => <ChevronRight className="h-4 w-4" {...props} />,
           }}
         />
       </div>
