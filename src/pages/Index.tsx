@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { DateRange } from "react-day-picker";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
@@ -12,10 +13,8 @@ import { Label } from "@/components/ui/label";
 
 const Index = () => {
   const { toast } = useToast();
-  const today = new Date();
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   const [selectedRobots, setSelectedRobots] = useState<File[]>([]);
-  const [dateFrom, setDateFrom] = useState<Date>(today);
-  const [dateTo, setDateTo] = useState<Date>(today);
   const [outputPath, setOutputPath] = useState('');
   const [excelName, setExcelName] = useState('');
   const [useExistingExcel, setUseExistingExcel] = useState(false);
@@ -47,8 +46,8 @@ const Index = () => {
           pairs: currencyPairs
         })),
         dateRange: {
-          from: dateFrom,
-          to: dateTo
+          from: dateRange?.from,
+          to: dateRange?.to
         },
         testingMode,
         outputPath,
@@ -98,10 +97,8 @@ const Index = () => {
           />
 
           <DateRangeSelector
-            dateFrom={dateFrom}
-            dateTo={dateTo}
-            setDateFrom={setDateFrom}
-            setDateTo={setDateTo}
+            dateRange={dateRange}
+            setDateRange={setDateRange}
           />
 
           <div>
