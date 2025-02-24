@@ -3,7 +3,7 @@
 
 import * as React from "react"
 import { DayPicker } from "react-day-picker"
-import { es } from "date-fns/locale"
+import { es } from 'date-fns/locale'
 
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
@@ -20,14 +20,14 @@ function Calendar({
   return (
     <div className="w-[300px] mx-auto">
       <DayPicker
-        month={month} // 📌 Mantiene la selección de mes/año
+        month={month}
         showOutsideDays={showOutsideDays}
         className={cn("p-3", className)}
         locale={{ ...es, options: { weekStartsOn: 1 } }}
         classNames={{
           months: "flex flex-col space-y-4",
           month: "space-y-4",
-          caption: "hidden", // 🔥📌 ELIMINA COMPLETAMENTE EL TÍTULO DEL MES Y AÑO
+          caption: "hidden",
           nav: "flex items-center justify-between px-4",
           nav_button: cn(
             buttonVariants({ variant: "outline" }),
@@ -45,14 +45,12 @@ function Calendar({
             buttonVariants({ variant: "ghost" }),
             "w-[40px] h-[40px] p-0 font-semibold rounded-md",
             "aria-selected:bg-blue-500 aria-selected:text-white",
-            "outside:opacity-50" // 📌 🔹 Oscurece días fuera del mes actual
+            "outside:opacity-50"
           ),
           day_selected: "bg-blue-600 text-white hover:bg-blue-700 focus:bg-blue-700",
           day_today: "bg-gray-700 text-white border border-blue-500",
           day_disabled: "text-gray-500 opacity-50",
-        }}
-        components={{
-          caption: () => null, // 🚀 📌 ELIMINA CUALQUIER RASTRO DEL MES Y AÑO SUPERIOR
+          ...classNames,
         }}
         {...props}
       />
