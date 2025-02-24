@@ -101,7 +101,10 @@ const DateSelector = ({ label, date, setDate }: DateSelectorProps) => {
           onSelect={setDate}
           disabled={(date) => date < fromDate || date > toDate}
           className="w-full max-w-xs rounded-md border"
-          locale={es}
+          locale={{ ...es, options: { weekStartsOn: 1 } }}
+          weekStartsOn={1}
+          fixedWeeks
+          numberOfMonths={1}
         />
       </div>
 
