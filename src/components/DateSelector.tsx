@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import { Slider } from "@/components/ui/slider";
 import {
   Select,
   SelectContent,
@@ -38,6 +39,12 @@ const DateSelector = ({ label, date, setDate }: DateSelectorProps) => {
   const handleYearChange = (year: string) => {
     const newDate = date ? new Date(date) : new Date();
     newDate.setFullYear(parseInt(year));
+    setDate(newDate);
+  };
+
+  const handleYearSliderChange = (value: number[]) => {
+    const newDate = date ? new Date(date) : new Date();
+    newDate.setFullYear(value[0]);
     setDate(newDate);
   };
 
@@ -77,6 +84,17 @@ const DateSelector = ({ label, date, setDate }: DateSelectorProps) => {
             ))}
           </SelectContent>
         </Select>
+      </div>
+      <div className="w-full px-2 space-y-2">
+        <Label className="text-sm">Año: {currentYear}</Label>
+        <Slider
+          value={[currentYear]}
+          min={fromDate.getFullYear()}
+          max={toDate.getFullYear()}
+          step={1}
+          onValueChange={handleYearSliderChange}
+          className="w-full"
+        />
       </div>
       <div className="w-full">
         <Calendar
