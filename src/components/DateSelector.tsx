@@ -77,6 +77,17 @@ const DateSelector = ({ label, date, setDate }: DateSelectorProps) => {
             <SelectValue placeholder="Año" />
           </SelectTrigger>
           <SelectContent>
+            <div className="px-4 py-2 space-y-2">
+              <Label className="text-sm">Año: {currentYear}</Label>
+              <Slider
+                value={[currentYear]}
+                min={fromDate.getFullYear()}
+                max={toDate.getFullYear()}
+                step={1}
+                onValueChange={handleYearSliderChange}
+                className="w-full"
+              />
+            </div>
             {years.map((year) => (
               <SelectItem key={year} value={year.toString()}>
                 {year}
@@ -84,17 +95,6 @@ const DateSelector = ({ label, date, setDate }: DateSelectorProps) => {
             ))}
           </SelectContent>
         </Select>
-      </div>
-      <div className="w-full px-2 space-y-2">
-        <Label className="text-sm">Año: {currentYear}</Label>
-        <Slider
-          value={[currentYear]}
-          min={fromDate.getFullYear()}
-          max={toDate.getFullYear()}
-          step={1}
-          onValueChange={handleYearSliderChange}
-          className="w-full"
-        />
       </div>
       <div className="w-full">
         <Calendar
