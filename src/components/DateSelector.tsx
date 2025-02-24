@@ -100,7 +100,7 @@ const DateSelector = ({ label, date, setDate }: DateSelectorProps) => {
           selected={date}
           onSelect={setDate}
           disabled={(date) => date < fromDate || date > toDate}
-          className="w-full max-w-xs rounded-md border [&_.rdp-head_row]:!flex [&_.rdp-row]:!flex [&_.rdp-cell]:flex-1 [&_.rdp-button]:w-full"
+          className="w-full max-w-xs rounded-md border"
           locale={es}
           fixedWeeks
           showWeekNumber={false}
