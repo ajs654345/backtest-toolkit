@@ -17,6 +17,11 @@ interface BacktestCommand {
   };
 }
 
+interface MT4Result {
+  error?: string;
+  data?: any;
+}
+
 class MT4Service {
   private async executeForPair(robot: string, pair: string, command: BacktestCommand): Promise<void> {
     try {
@@ -32,13 +37,12 @@ class MT4Service {
       };
 
       // Enviar el comando a la aplicación de escritorio
-      // Esto requiere que la aplicación de escritorio esté escuchando estos eventos
-      window.electron.send('mt4-command', mt4Command);
+      window.electron?.send('mt4-command', mt4Command);
 
       // Esperar la respuesta de MT4
-      const result = await window.electron.invoke('mt4-result');
+      const result = await window.electron?.invoke('mt4-result') as MT4Result;
 
-      if (result.error) {
+      if (result?.error) {
         throw new Error(result.error);
       }
 
@@ -91,12 +95,12 @@ class MT4Service {
 
   private async updateExistingExcel(command: BacktestCommand): Promise<void> {
     try {
-      const result = await window.electron.invoke('update-excel', {
+      const result = await window.electron?.invoke('update-excel', {
         filePath: command.excelConfig.existingFile,
         results: 'path/to/results'
-      });
+      }) as MT4Result;
 
-      if (result.error) {
+      if (result?.error) {
         throw new Error(result.error);
       }
     } catch (error) {
@@ -107,13 +111,13 @@ class MT4Service {
 
   private async generateNewExcel(command: BacktestCommand): Promise<void> {
     try {
-      const result = await window.electron.invoke('generate-excel', {
+      const result = await window.electron?.invoke('generate-excel', {
         fileName: command.excelConfig.fileName,
         outputPath: command.outputPath,
         results: 'path/to/results'
-      });
+      }) as MT4Result;
 
-      if (result.error) {
+      if (result?.error) {
         throw new Error(result.error);
       }
     } catch (error) {
