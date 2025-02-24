@@ -24,11 +24,11 @@ function Calendar({
         showOutsideDays={showOutsideDays}
         locale={{ ...es, options: { weekStartsOn: 1 } }}
         className={cn("p-3", className)}
-        captionLayout="buttons"
+        captionLayout="dropdown"
         classNames={{
           months: "flex flex-col space-y-4",
           month: "space-y-4",
-          caption: "hidden", // 🚀 🔥 ELIMINA EL TEXTO DE MES Y AÑO
+          caption: "hidden", // 🚀 🔥 ELIMINA EL TÍTULO "FEBRERO 2025"
           nav: "flex items-center justify-between px-4",
           nav_button: cn(
             buttonVariants({ variant: "outline" }),
