@@ -50,9 +50,7 @@ function Calendar({
           day_selected: "bg-blue-600 text-white hover:bg-blue-700 focus:bg-blue-700",
           day_today: "bg-gray-700 text-white border border-blue-500",
           day_disabled: "text-gray-500 opacity-50",
-        }}
-        components={{
-          Caption: () => null,
+          ...classNames,
         }}
         {...props}
       />
