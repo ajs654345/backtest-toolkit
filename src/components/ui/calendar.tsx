@@ -52,7 +52,7 @@ function Calendar({
           day_disabled: "text-gray-500 opacity-50",
         }}
         components={{
-          caption: () => null,
+          Caption: () => null,
         }}
         {...props}
       />
