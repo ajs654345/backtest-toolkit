@@ -26,11 +26,10 @@ function Calendar({
         showOutsideDays={showOutsideDays}
         locale={{ ...es, options: { weekStartsOn: 1 } }}
         className={cn("p-3", className)}
-        hideHead={false}
         classNames={{
           months: "flex flex-col space-y-4",
           month: "space-y-4",
-          caption: "hidden",
+          caption: "sr-only",
           table: "w-full border-collapse",
           head_row: "grid grid-cols-7",
           head_cell: "text-muted-foreground font-bold text-sm flex items-center justify-center h-10",
