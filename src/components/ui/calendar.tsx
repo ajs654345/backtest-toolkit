@@ -24,6 +24,7 @@ function Calendar({
         showOutsideDays={showOutsideDays}
         locale={{ ...es, options: { weekStartsOn: 1 } }}
         className={cn("p-3", className)}
+        captionLayout="buttons"
         classNames={{
           months: "flex flex-col space-y-4",
           month: "space-y-4",
@@ -51,9 +52,6 @@ function Calendar({
           day_outside: "text-gray-500 opacity-50", // 🚀 🔥 OSCURECE LOS DÍAS QUE NO PERTENECEN AL MES ACTUAL
           day_disabled: "text-gray-500 opacity-50",
           ...classNames,
-        }}
-        components={{
-          Caption: () => null, // 🚀 📌 ELIMINA EL TEXTO "FEBRERO 2025"
         }}
         {...props}
       />
