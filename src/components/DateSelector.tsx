@@ -1,50 +1,56 @@
 
-import React, { useState } from "react";
-import { Calendar } from "@/components/ui/calendar";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { format } from "date-fns";
-import { es } from 'date-fns/locale';
+import React, { useState } from "react"
+import { Calendar } from "@/components/ui/calendar"
+import { Label } from "@/components/ui/label"
+import { Button } from "@/components/ui/button"
+import { format } from "date-fns"
+import { es } from "date-fns/locale"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/components/ui/select"
 
 interface DateSelectorProps {
-  label: string;
-  date: Date | undefined;
-  setDate: (date: Date | undefined) => void;
+  label: string
+  date: Date | undefined
+  setDate: (date: Date | undefined) => void
 }
 
 const MONTHS = [
   "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
   "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
-];
+]
 
 const DateSelector = ({ label, date, setDate }: DateSelectorProps) => {
-  const fromDate = new Date(1900, 0, 1);
-  const toDate = new Date(new Date().getFullYear() + 100, 11, 31);
+  const fromDate = new Date(1900, 0, 1)
+  const toDate = new Date(new Date().getFullYear() + 100, 11, 31)
 
-  const [selectedMonth, setSelectedMonth] = useState(date ? date.getMonth() : new Date().getMonth());
-  const [selectedYear, setSelectedYear] = useState(date ? date.getFullYear() : new Date().getFullYear());
+  const [selectedMonth, setSelectedMonth] = useState(
+    date ? date.getMonth() : new Date().getMonth()
+  )
+  const [selectedYear, setSelectedYear] = useState(
+    date ? date.getFullYear() : new Date().getFullYear()
+  )
 
   const years = Array.from(
     { length: toDate.getFullYear() - fromDate.getFullYear() + 1 },
     (_, i) => fromDate.getFullYear() + i
-  );
+  )
 
   const handleYearChange = (year: string) => {
-    setSelectedYear(parseInt(year));
-    setDate(new Date(parseInt(year), selectedMonth, date?.getDate() || 1));
-  };
+    setSelectedYear(parseInt(year))
+    const newDate = new Date(parseInt(year), selectedMonth, 1)
+    setDate(newDate) // 📌 Fuerza el cambio de mes/año en el calendario
+  }
 
   const handleMonthChange = (month: string) => {
-    setSelectedMonth(MONTHS.indexOf(month));
-    setDate(new Date(selectedYear, MONTHS.indexOf(month), date?.getDate() || 1));
-  };
+    setSelectedMonth(MONTHS.indexOf(month))
+    const newDate = new Date(selectedYear, MONTHS.indexOf(month), 1)
+    setDate(newDate) // 📌 Actualiza el calendario al mes correcto
+  }
 
   return (
     <div className="w-full max-w-md p-4 border rounded-lg shadow-lg flex flex-col items-center space-y-4 bg-card">
@@ -87,7 +93,7 @@ const DateSelector = ({ label, date, setDate }: DateSelectorProps) => {
           onSelect={setDate}
           disabled={(date) => date < fromDate || date > toDate}
           className="w-[300px] rounded-md border"
-          month={new Date(selectedYear, selectedMonth)}
+          month={new Date(selectedYear, selectedMonth)} // 📌 Fija el mes actual en el calendario
           showOutsideDays={true}
         />
       </div>
@@ -101,7 +107,7 @@ const DateSelector = ({ label, date, setDate }: DateSelectorProps) => {
         </Button>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default DateSelector;
+export default DateSelector

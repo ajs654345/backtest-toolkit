@@ -33,11 +33,12 @@ function Calendar({
         classNames={{
           months: "flex flex-col space-y-4",
           month: "space-y-4",
-          caption: "sr-only", // Oculta el mes y año
-          table: "w-full border-collapse bg-background",
-          head_row: "grid grid-cols-7 gap-[1px]",
-          head_cell: "text-muted-foreground font-bold text-sm flex items-center justify-center h-10",
-          row: "grid grid-cols-7 gap-[1px]", // Asegura 7 columnas por fila con separación
+          caption: "sr-only", // Oculta el título del mes/año sin afectar estructura
+          table: "w-full border-collapse",
+          head_row: "grid grid-cols-7",
+          head_cell:
+            "text-muted-foreground font-bold text-sm flex items-center justify-center h-10",
+          row: "grid grid-cols-7", // Asegura 7 días en todas las filas
           cell: "flex items-center justify-center h-[42px] w-[42px] border border-gray-600",
           day: cn(
             buttonVariants({ variant: "ghost" }),
@@ -45,14 +46,11 @@ function Calendar({
             "hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
             "rounded-md"
           ),
-          day_range_start: "day-range-start",
-          day_range_end: "day-range-end",
           day_selected:
-            "bg-blue-600 text-white hover:bg-blue-700 focus:bg-blue-700 hover:text-white focus:text-white",
+            "bg-blue-600 text-white hover:bg-blue-700 focus:bg-blue-700",
           day_today: "bg-gray-700 text-white border border-blue-500",
-          day_outside: "text-muted-foreground opacity-50", // Atenúa los días fuera del mes
+          day_outside: "opacity-50", // Atenúa los días fuera del mes
           day_disabled: "text-muted-foreground opacity-50",
-          day_range_middle: "aria-selected:bg-accent aria-selected:text-accent-foreground",
           day_hidden: "invisible",
           ...classNames,
         }}
