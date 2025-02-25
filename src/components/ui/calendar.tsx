@@ -21,7 +21,7 @@ function Calendar({
   ...props
 }: CalendarProps) {
   return (
-    <div className="w-[300px] mx-auto">
+    <div className="w-full max-w-[300px] mx-auto">
       <DayPicker
         month={month}
         onMonthChange={onMonthChange}
@@ -35,14 +35,14 @@ function Calendar({
           month: "space-y-4",
           caption: "sr-only", // Oculta el título del mes/año sin afectar estructura
           table: "w-full border-collapse",
-          head_row: "grid grid-cols-7",
+          head_row: "grid grid-cols-7 gap-0", // Fuerza 7 días en la fila del encabezado
           head_cell:
-            "text-muted-foreground font-bold text-sm flex items-center justify-center h-10",
-          row: "grid grid-cols-7", // Asegura 7 días en todas las filas
-          cell: "flex items-center justify-center h-[42px] w-[42px] border border-gray-600",
+            "text-muted-foreground font-bold text-sm flex items-center justify-center h-10 w-full",
+          row: "grid grid-cols-7 gap-0", // Fuerza 7 días en cada fila sin espacios
+          cell: "flex items-center justify-center h-[42px] w-full border border-gray-600",
           day: cn(
             buttonVariants({ variant: "ghost" }),
-            "h-[42px] w-[42px] p-0 font-normal aria-selected:opacity-100",
+            "h-[42px] w-full p-0 font-normal aria-selected:opacity-100",
             "hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
             "rounded-md"
           ),
