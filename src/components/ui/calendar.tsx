@@ -21,7 +21,7 @@ function Calendar({
   ...props
 }: CalendarProps) {
   return (
-    <div className="w-full max-w-[300px] mx-auto">
+    <div className="w-[294px] mx-auto"> {/* 🔥 Fuerza un ancho divisible por 7 */}
       <DayPicker
         month={month}
         onMonthChange={onMonthChange}
@@ -33,23 +33,23 @@ function Calendar({
         classNames={{
           months: "flex flex-col space-y-4",
           month: "space-y-4",
-          caption: "sr-only", // Oculta el título del mes/año sin afectar estructura
+          caption: "sr-only",
           table: "w-full border-collapse",
-          head_row: "grid grid-cols-7 gap-0", // Fuerza 7 días en la fila del encabezado
+          head_row: "grid grid-cols-7 w-full", // 📌 7 columnas exactas
           head_cell:
-            "text-muted-foreground font-bold text-sm flex items-center justify-center h-10 w-full",
-          row: "grid grid-cols-7 gap-0", // Fuerza 7 días en cada fila sin espacios
-          cell: "flex items-center justify-center h-[42px] w-full border border-gray-600",
+            "text-muted-foreground font-bold text-sm flex items-center justify-center h-10",
+          row: "grid grid-cols-7 w-full", // 📌 7 columnas exactas en cada fila
+          cell: "flex items-center justify-center h-[42px] w-[42px]", // 🔥 Celdas con tamaño fijo
           day: cn(
             buttonVariants({ variant: "ghost" }),
-            "h-[42px] w-full p-0 font-normal aria-selected:opacity-100",
+            "h-[42px] w-[42px] p-0 font-normal aria-selected:opacity-100",
             "hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
             "rounded-md"
           ),
           day_selected:
             "bg-blue-600 text-white hover:bg-blue-700 focus:bg-blue-700",
           day_today: "bg-gray-700 text-white border border-blue-500",
-          day_outside: "opacity-50", // Atenúa los días fuera del mes
+          day_outside: "opacity-50",
           day_disabled: "text-muted-foreground opacity-50",
           day_hidden: "invisible",
           ...classNames,
