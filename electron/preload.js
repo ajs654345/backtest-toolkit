@@ -1,47 +1,56 @@
 
 const { contextBridge, ipcRenderer } = require('electron');
 
-// Exponer funcionalidades de Electron al contexto de la ventana
+// Exponer APIs seguras al mundo del renderizado
 contextBridge.exposeInMainWorld('electron', {
-  // Funciones para diálogos de archivos
-  selectDirectory: () => ipcRenderer.invoke('select-directory'),
-  selectFiles: () => ipcRenderer.invoke('select-files'),
-  selectExcel: () => ipcRenderer.invoke('select-excel'),
-  
-  // Funciones para comunicación con MT4
-  send: (channel, data) => {
-    // Lista blanca de canales permitidos
-    const validChannels = ['mt4-command', 'progress-update'];
-    if (validChannels.includes(channel)) {
-      ipcRenderer.send(channel, data);
-    }
-  },
-  invoke: (channel, data) => {
-    const validChannels = [
-      'mt4-command', 
-      'mt4-result', 
-      'generate-excel', 
-      'update-excel',
-      'get-mt4-terminals',
-      'ensure-directory',
-      'get-documents-path'
+  // Enviar mensajes desde Renderer a Main
+  send: (channel, ...args) => {
+    // Canales permitidos para send
+    const validSendChannels = [
+      'mt4-command',
+      'progress-update',
+      'run-mt4',
+      'cancel-backtest'
     ];
-    if (validChannels.includes(channel)) {
-      return ipcRenderer.invoke(channel, data);
+    if (validSendChannels.includes(channel)) {
+      ipcRenderer.send(channel, ...args);
     }
-    return Promise.reject(new Error('Canal no permitido'));
   },
   
-  // Recibir mensajes
-  on: (channel, func) => {
-    const validChannels = ['progress-update', 'mt4-status'];
-    if (validChannels.includes(channel)) {
-      const subscription = (event, ...args) => func(...args);
-      ipcRenderer.on(channel, subscription);
-      
-      return () => {
-        ipcRenderer.removeListener(channel, subscription);
-      };
+  // Invocar métodos desde Renderer a Main y recibir respuesta
+  invoke: (channel, ...args) => {
+    // Canales permitidos para invoke
+    const validInvokeChannels = [
+      'select-directory',
+      'select-files',
+      'select-excel',
+      'mt4-command',
+      'mt4-result',
+      'generate-excel',
+      'update-excel',
+      'ensure-directory',
+      'get-documents-path',
+      'get-mt4-terminals',
+      'open-file-explorer',
+      'detect-installed-mt4'
+    ];
+    if (validInvokeChannels.includes(channel)) {
+      return ipcRenderer.invoke(channel, ...args);
     }
+    return Promise.reject(new Error(`Canal no permitido: ${channel}`));
   }
+});
+
+// También podemos escuchar eventos del proceso principal
+ipcRenderer.on('progress-update', (event, data) => {
+  // Dispatch a custom event that the renderer can listen to
+  window.dispatchEvent(new CustomEvent('progress-update', { detail: data }));
+});
+
+ipcRenderer.on('mt4-result', (event, data) => {
+  window.dispatchEvent(new CustomEvent('mt4-result', { detail: data }));
+});
+
+ipcRenderer.on('mt4-error', (event, data) => {
+  window.dispatchEvent(new CustomEvent('mt4-error', { detail: data }));
 });

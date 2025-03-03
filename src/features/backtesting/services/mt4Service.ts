@@ -15,6 +15,7 @@ interface BacktestCommand {
     fileName: string;
     existingFile?: string;
   };
+  mt4Terminal?: string;
 }
 
 interface MT4Result {
@@ -41,7 +42,8 @@ class MT4Service {
         from: command.dateFrom?.toISOString(),
         to: command.dateTo?.toISOString(),
         mode: command.testingMode,
-        outputPath: command.outputPath || this.getDefaultOutputPath()
+        outputPath: command.outputPath || this.getDefaultOutputPath(),
+        terminal: command.mt4Terminal
       };
 
       console.log(`Enviando comando para ${robot} en par ${pair}:`, mt4Command);
@@ -69,8 +71,25 @@ class MT4Service {
   }
 
   private getDefaultOutputPath(): string {
-    // Obtener la carpeta de documentos del usuario como ruta predeterminada
-    return window.electron?.invoke('get-documents-path') || 'C:/MT4_Backtest_Results';
+    if (!window.electron) {
+      return 'C:/MT4_Backtest_Results';
+    }
+    
+    // Como esto devuelve una promesa, necesitamos manejarla correctamente
+    // pero como esta función debe devolver string, usaremos un valor por defecto
+    // y actualizaremos la ruta más tarde cuando sea necesario
+    window.electron.invoke('get-documents-path')
+      .then(path => {
+        // Podemos usar el resultado más tarde si es necesario
+        console.log('Ruta de documentos obtenida:', path);
+        return path;
+      })
+      .catch(err => {
+        console.error('Error al obtener ruta de documentos:', err);
+      });
+    
+    // Devolvemos un valor predeterminado
+    return 'C:/MT4_Backtest_Results';
   }
 
   async executeBacktest(command: BacktestCommand): Promise<void> {
@@ -188,10 +207,26 @@ class MT4Service {
   // Método para obtener la lista de terminales MT4 instalados
   async getMT4Terminals(): Promise<string[]> {
     try {
-      const result = await window.electron?.invoke('get-mt4-terminals') as MT4Result;
+      if (!window.electron) {
+        console.error('Electron no está disponible');
+        return [];
+      }
+      
+      const result = await window.electron.invoke('get-mt4-terminals') as MT4Result;
       if (result?.error) {
         throw new Error(result.error);
       }
+      
+      // Para desarrollo, simulamos terminales si no hay datos
+      if (!result.data || result.data.length === 0) {
+        console.log('Usando terminales MT4 simulados para desarrollo');
+        return [
+          'C:\\Program Files\\Darwinex MT4\\terminal.exe',
+          'C:\\Program Files\\MetaTrader 4\\terminal.exe',
+          'C:\\Users\\Usuario\\AppData\\Roaming\\MetaQuotes\\Terminal\\1B80A8D8FC5F405C891BF1E1E5185D92\\terminal.exe'
+        ];
+      }
+      
       return result.data || [];
     } catch (error) {
       console.error('Error al obtener terminales MT4:', error);

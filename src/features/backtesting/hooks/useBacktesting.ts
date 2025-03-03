@@ -48,39 +48,50 @@ export const useBacktesting = () => {
     }
   }, [dateFrom, dateTo]);
   
-  // Cargar fechas guardadas al iniciar
+  // Configurar listeners al cargar el componente
   useEffect(() => {
-    const savedDateFrom = localStorage.getItem('backtestDateFrom');
-    const savedDateTo = localStorage.getItem('backtestDateTo');
+    const setupListeners = () => {
+      const savedDateFrom = localStorage.getItem('backtestDateFrom');
+      const savedDateTo = localStorage.getItem('backtestDateTo');
+      
+      if (savedDateFrom) {
+        setDateFrom(new Date(savedDateFrom));
+      }
+      if (savedDateTo) {
+        setDateTo(new Date(savedDateTo));
+      }
+      
+      // Cargar terminales MT4
+      loadMT4Terminals();
+      
+      // Configurar listener para actualización de progreso
+      if (window.electron) {
+        // Usar addEventListener en lugar de .on para compatibilidad con TypeScript
+        window.addEventListener('progress-update', (event: any) => {
+          const data = event.detail;
+          setProgress(data.progress);
+          setCurrentTask(`${data.robot} - ${data.pair} (${data.current}/${data.total})`);
+        });
+      }
+    };
     
-    if (savedDateFrom) {
-      setDateFrom(new Date(savedDateFrom));
-    }
-    if (savedDateTo) {
-      setDateTo(new Date(savedDateTo));
-    }
+    setupListeners();
     
-    // Cargar terminales MT4
-    loadMT4Terminals();
-    
-    // Configurar listener para actualización de progreso
-    if (window.electron) {
-      window.electron.on('progress-update', (data: any) => {
-        setProgress(data.progress);
-        setCurrentTask(`${data.robot} - ${data.pair} (${data.current}/${data.total})`);
-      });
-    }
+    // Limpieza
+    return () => {
+      if (window.electron) {
+        window.removeEventListener('progress-update', () => {});
+      }
+    };
   }, []);
 
   // Cargar terminales MT4 instalados
   const loadMT4Terminals = async () => {
     try {
-      if (window.electron) {
-        const terminals = await mt4Service.getMT4Terminals();
-        setMT4Terminals(terminals);
-        if (terminals.length > 0) {
-          setSelectedTerminal(terminals[0]);
-        }
+      const terminals = await mt4Service.getMT4Terminals();
+      setMT4Terminals(terminals);
+      if (terminals.length > 0) {
+        setSelectedTerminal(terminals[0]);
       }
     } catch (error) {
       console.error('Error al cargar terminales MT4:', error);
