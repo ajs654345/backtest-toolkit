@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Calendar } from "@/components/ui/calendar";
 import { Label } from "@/components/ui/label";
@@ -101,6 +102,7 @@ const DateSelector = ({ label, date, setDate }: DateSelectorProps) => {
           selected={date}
           onSelect={setDate}
           disabled={(date) => date < fromDate || date > toDate}
+          month={date ? new Date(date.getFullYear(), date.getMonth()) : new Date()}
           className="w-[300px] rounded-md border"
           locale={es}
           showOutsideDays={true}
