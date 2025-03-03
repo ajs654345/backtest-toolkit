@@ -30,5 +30,9 @@ export default defineConfig(({ mode }) => ({
         main: path.resolve(__dirname, 'index.html'),
       },
     },
-  }
+  },
+  // Add specific configuration for electron
+  optimizeDeps: {
+    exclude: ['electron']
+  },
 }));

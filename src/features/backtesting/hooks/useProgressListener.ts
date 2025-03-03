@@ -8,22 +8,18 @@ interface UseProgressListenerProps {
 
 export const useProgressListener = ({ setProgress, setCurrentTask }: UseProgressListenerProps) => {
   useEffect(() => {
-    const handleProgressUpdate = (event: any) => {
+    const handleProgressUpdate = (event: CustomEvent) => {
       const data = event.detail;
       setProgress(data.progress);
       setCurrentTask(`${data.robot} - ${data.pair} (${data.current}/${data.total})`);
     };
 
-    if (window.electron) {
-      // Configurar listener para actualización de progreso
-      window.addEventListener('progress-update', handleProgressUpdate);
-    }
+    // Add type casting to addEventListener to handle CustomEvent
+    window.addEventListener('progress-update', handleProgressUpdate as EventListener);
     
-    // Limpieza
+    // Cleanup
     return () => {
-      if (window.electron) {
-        window.removeEventListener('progress-update', handleProgressUpdate);
-      }
+      window.removeEventListener('progress-update', handleProgressUpdate as EventListener);
     };
   }, [setProgress, setCurrentTask]);
 };
