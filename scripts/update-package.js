@@ -1,15 +1,15 @@
 
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-// Get the directory name properly in ESM
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const fs = require('fs');
+const path = require('path');
 
 // Read the current package.json
 const packageJsonPath = path.join(__dirname, '../package.json');
 const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+
+// Remove "type": "module" if it exists
+if (packageJson.type === 'module') {
+  delete packageJson.type;
+}
 
 // Add scripts needed for Electron
 packageJson.scripts = {
@@ -25,4 +25,4 @@ packageJson.scripts = {
 // Save the updated package.json
 fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
 
-console.log('✅ package.json updated with scripts for Electron');
+console.log('✅ package.json updated: removed "type": "module" and added scripts for Electron');
