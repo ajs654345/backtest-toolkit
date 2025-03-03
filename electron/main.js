@@ -14,7 +14,7 @@ function createWindow() {
     width: 1200,
     height: 800,
     webPreferences: {
-      nodeIntegration: true,
+      nodeIntegration: false,
       contextIsolation: true,
       preload: path.join(__dirname, 'preload.js'),
     },
@@ -24,10 +24,16 @@ function createWindow() {
   });
 
   if (isDev) {
+    // En desarrollo, carga desde el servidor de desarrollo de Vite
     mainWindow.loadURL('http://localhost:8080');
+    // Abre DevTools
     mainWindow.webContents.openDevTools();
+    console.log('Ejecutando en modo desarrollo, cargando desde http://localhost:8080');
   } else {
-    mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));
+    // En producción, carga desde los archivos compilados
+    const indexPath = path.join(__dirname, '../dist/index.html');
+    mainWindow.loadFile(indexPath);
+    console.log('Ejecutando en modo producción, cargando desde:', indexPath);
   }
 
   mainWindow.on('closed', () => {

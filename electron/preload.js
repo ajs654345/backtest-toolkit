@@ -46,3 +46,6 @@ contextBridge.exposeInMainWorld('electron', {
     }
   }
 });
+
+// Notificar que el preload se ha cargado correctamente
+console.log('Preload script cargado correctamente');

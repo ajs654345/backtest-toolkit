@@ -1,36 +1,39 @@
 
+// Cambio a sintaxis ESM
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-// Get the directory name properly in ESM
+// Obtener la ruta actual del archivo
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Read the current package.json
+// Ruta al package.json
 const packageJsonPath = path.join(__dirname, '../package.json');
-const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
 
-// Remove "type": "module" if it exists
+// Leer el package.json actual
+const packageJsonData = fs.readFileSync(packageJsonPath, 'utf8');
+const packageJson = JSON.parse(packageJsonData);
+
+// Eliminar "type": "module" si existe
 if (packageJson.type === 'module') {
   delete packageJson.type;
   console.log('✅ Removed "type": "module" from package.json');
 }
 
-// Add or update electron:dev script to set NODE_ENV
+// Actualizar los scripts para Electron
 packageJson.scripts = {
   ...packageJson.scripts,
   "dev": "vite",
   "build": "tsc && vite build",
-  "electron:dev": "cross-env NODE_ENV=development concurrently \"npm run dev\" \"electron electron/main.js\"",
+  "electron:dev": "cross-env NODE_ENV=development concurrently \"vite --host 0.0.0.0 --port 8080\" \"electron electron/main.js\"",
   "electron:build": "npm run build && electron-builder",
   "electron:package": "npm run build && electron-builder -mwl",
   "electron:win": "npm run build && electron-builder --win"
 };
 
-// Save the updated package.json
+// Guardar el package.json actualizado
 fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
 
 console.log('✅ Added/updated Electron scripts in package.json');
-console.log('✅ Run "node scripts/update-package.js" to apply these changes');
-console.log('✅ Then run "npm run electron:dev" to start development mode');
+console.log('✅ Run "npm run electron:dev" to start development mode');
