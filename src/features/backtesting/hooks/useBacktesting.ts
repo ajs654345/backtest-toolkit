@@ -14,6 +14,10 @@ export const useBacktesting = () => {
   const [testingMode, setTestingMode] = useState('control');
   const [saveConfig, setSaveConfig] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [currentTask, setCurrentTask] = useState('');
+  const [mt4Terminals, setMT4Terminals] = useState<string[]>([]);
+  const [selectedTerminal, setSelectedTerminal] = useState<string>('');
   
   // Establecer fechas por defecto
   const today = new Date();
@@ -55,7 +59,33 @@ export const useBacktesting = () => {
     if (savedDateTo) {
       setDateTo(new Date(savedDateTo));
     }
+    
+    // Cargar terminales MT4
+    loadMT4Terminals();
+    
+    // Configurar listener para actualización de progreso
+    if (window.electron) {
+      window.electron.on('progress-update', (data: any) => {
+        setProgress(data.progress);
+        setCurrentTask(`${data.robot} - ${data.pair} (${data.current}/${data.total})`);
+      });
+    }
   }, []);
+
+  // Cargar terminales MT4 instalados
+  const loadMT4Terminals = async () => {
+    try {
+      if (window.electron) {
+        const terminals = await mt4Service.getMT4Terminals();
+        setMT4Terminals(terminals);
+        if (terminals.length > 0) {
+          setSelectedTerminal(terminals[0]);
+        }
+      }
+    } catch (error) {
+      console.error('Error al cargar terminales MT4:', error);
+    }
+  };
 
   const executeBacktest = async () => {
     if (selectedRobots.length === 0) {
@@ -75,8 +105,19 @@ export const useBacktesting = () => {
       });
       return;
     }
+    
+    if (!selectedTerminal && mt4Terminals.length > 0) {
+      toast({
+        title: "Error",
+        description: "Por favor, seleccione un terminal MT4",
+        variant: "destructive",
+      });
+      return;
+    }
 
     setIsLoading(true);
+    setProgress(0);
+    setCurrentTask('Iniciando...');
 
     try {
       const command = {
@@ -92,8 +133,22 @@ export const useBacktesting = () => {
           useExisting: useExistingExcel,
           fileName: useDefaultNaming ? '' : excelName,
           existingFile: existingExcelFile?.name
-        }
+        },
+        mt4Terminal: selectedTerminal
       };
+
+      // Guardar configuración si está habilitado
+      if (saveConfig) {
+        localStorage.setItem('backtestConfig', JSON.stringify({
+          testingMode,
+          outputPath,
+          excelConfig: {
+            useExisting: useExistingExcel,
+            fileName: useDefaultNaming ? '' : excelName
+          },
+          mt4Terminal: selectedTerminal
+        }));
+      }
 
       await mt4Service.executeBacktest(command);
       
@@ -105,13 +160,34 @@ export const useBacktesting = () => {
     } catch (error) {
       toast({
         title: "Error",
-        description: "Ocurrió un error durante el backtesting",
+        description: "Ocurrió un error durante el backtesting: " + (error instanceof Error ? error.message : String(error)),
         variant: "destructive",
       });
     } finally {
       setIsLoading(false);
+      setCurrentTask('');
     }
   };
+
+  // Cargar configuración guardada
+  useEffect(() => {
+    const savedConfig = localStorage.getItem('backtestConfig');
+    if (savedConfig) {
+      try {
+        const config = JSON.parse(savedConfig);
+        if (config.testingMode) setTestingMode(config.testingMode);
+        if (config.outputPath) setOutputPath(config.outputPath);
+        if (config.excelConfig) {
+          setUseExistingExcel(config.excelConfig.useExisting);
+          setUseDefaultNaming(!config.excelConfig.fileName);
+          setExcelName(config.excelConfig.fileName || '');
+        }
+        if (config.mt4Terminal) setSelectedTerminal(config.mt4Terminal);
+      } catch (error) {
+        console.error('Error al cargar configuración:', error);
+      }
+    }
+  }, []);
 
   return {
     selectedRobots,
@@ -138,5 +214,10 @@ export const useBacktesting = () => {
     currencyPairs,
     setCurrencyPairs,
     executeBacktest,
+    progress,
+    currentTask,
+    mt4Terminals,
+    selectedTerminal,
+    setSelectedTerminal,
   };
 };

@@ -11,13 +11,21 @@ contextBridge.exposeInMainWorld('electron', {
   // Funciones para comunicación con MT4
   send: (channel, data) => {
     // Lista blanca de canales permitidos
-    const validChannels = ['mt4-command'];
+    const validChannels = ['mt4-command', 'progress-update'];
     if (validChannels.includes(channel)) {
       ipcRenderer.send(channel, data);
     }
   },
   invoke: (channel, data) => {
-    const validChannels = ['mt4-command', 'mt4-result', 'generate-excel', 'update-excel'];
+    const validChannels = [
+      'mt4-command', 
+      'mt4-result', 
+      'generate-excel', 
+      'update-excel',
+      'get-mt4-terminals',
+      'ensure-directory',
+      'get-documents-path'
+    ];
     if (validChannels.includes(channel)) {
       return ipcRenderer.invoke(channel, data);
     }
@@ -26,7 +34,7 @@ contextBridge.exposeInMainWorld('electron', {
   
   // Recibir mensajes
   on: (channel, func) => {
-    const validChannels = ['progress-update'];
+    const validChannels = ['progress-update', 'mt4-status'];
     if (validChannels.includes(channel)) {
       const subscription = (event, ...args) => func(...args);
       ipcRenderer.on(channel, subscription);
