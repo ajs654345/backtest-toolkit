@@ -14,6 +14,7 @@ const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
 // Remove "type": "module" if it exists
 if (packageJson.type === 'module') {
   delete packageJson.type;
+  console.log('✅ Removed "type": "module" from package.json');
 }
 
 // Add scripts needed for Electron
@@ -30,4 +31,4 @@ packageJson.scripts = {
 // Save the updated package.json
 fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
 
-console.log('✅ package.json updated: removed "type": "module" and added scripts for Electron');
+console.log('✅ Added Electron scripts to package.json');

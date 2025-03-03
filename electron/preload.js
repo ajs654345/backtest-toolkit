@@ -1,56 +1,48 @@
 
 const { contextBridge, ipcRenderer } = require('electron');
 
-// Exponer APIs seguras al mundo del renderizado
+// Exponer APIs de Electron a la app web de forma segura
 contextBridge.exposeInMainWorld('electron', {
-  // Enviar mensajes desde Renderer a Main
-  send: (channel, ...args) => {
-    // Canales permitidos para send
-    const validSendChannels = [
-      'mt4-command',
-      'progress-update',
-      'run-mt4',
-      'cancel-backtest'
+  invoke: (channel, data) => {
+    const validChannels = [
+      'select-directory', 
+      'select-files', 
+      'select-excel',
+      'mt4-command', 
+      'mt4-result',
+      'generate-excel', 
+      'update-excel',
+      'get-mt4-terminals',
+      'ensure-directory',
+      'get-documents-path'
     ];
-    if (validSendChannels.includes(channel)) {
-      ipcRenderer.send(channel, ...args);
+    
+    if (validChannels.includes(channel)) {
+      return ipcRenderer.invoke(channel, data);
+    }
+    
+    return Promise.reject(new Error(`Canal no permitido: ${channel}`));
+  },
+  send: (channel, data) => {
+    const validChannels = ['progress-update'];
+    if (validChannels.includes(channel)) {
+      ipcRenderer.send(channel, data);
     }
   },
-  
-  // Invocar métodos desde Renderer a Main y recibir respuesta
-  invoke: (channel, ...args) => {
-    // Canales permitidos para invoke
-    const validInvokeChannels = [
-      'select-directory',
-      'select-files',
-      'select-excel',
-      'mt4-command',
-      'mt4-result',
-      'generate-excel',
-      'update-excel',
-      'ensure-directory',
-      'get-documents-path',
-      'get-mt4-terminals',
-      'open-file-explorer',
-      'detect-installed-mt4'
-    ];
-    if (validInvokeChannels.includes(channel)) {
-      return ipcRenderer.invoke(channel, ...args);
+  on: (channel, func) => {
+    const validChannels = ['progress-update'];
+    if (validChannels.includes(channel)) {
+      // Eliminar cualquier listener anterior para evitar duplicados
+      ipcRenderer.removeAllListeners(channel);
+      
+      // Convertir el IpcRendererEvent a un evento normal para el navegador
+      const subscription = (event, ...args) => func(...args);
+      ipcRenderer.on(channel, subscription);
+      
+      // Devolver una función para limpiar listener
+      return () => {
+        ipcRenderer.removeListener(channel, subscription);
+      };
     }
-    return Promise.reject(new Error(`Canal no permitido: ${channel}`));
   }
-});
-
-// También podemos escuchar eventos del proceso principal
-ipcRenderer.on('progress-update', (event, data) => {
-  // Dispatch a custom event that the renderer can listen to
-  window.dispatchEvent(new CustomEvent('progress-update', { detail: data }));
-});
-
-ipcRenderer.on('mt4-result', (event, data) => {
-  window.dispatchEvent(new CustomEvent('mt4-result', { detail: data }));
-});
-
-ipcRenderer.on('mt4-error', (event, data) => {
-  window.dispatchEvent(new CustomEvent('mt4-error', { detail: data }));
 });

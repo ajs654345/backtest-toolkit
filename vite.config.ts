@@ -31,8 +31,7 @@ export default defineConfig(({ mode }) => ({
       },
     },
   },
-  // Add specific configuration for electron
   optimizeDeps: {
-    exclude: ['electron']
+    exclude: ['electron', 'lovable-tagger']
   },
 }));
