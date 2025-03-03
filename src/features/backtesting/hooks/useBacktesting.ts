@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { mt4Service } from '../services/mt4Service';
 
@@ -14,8 +14,14 @@ export const useBacktesting = () => {
   const [testingMode, setTestingMode] = useState('control');
   const [saveConfig, setSaveConfig] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [dateFrom, setDateFrom] = useState<Date>();
-  const [dateTo, setDateTo] = useState<Date>();
+  
+  // Establecer fechas por defecto
+  const today = new Date();
+  const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+  const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+  
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(firstDayOfMonth);
+  const [dateTo, setDateTo] = useState<Date | undefined>(lastDayOfMonth);
   
   // Eliminar duplicados y ordenar alfabéticamente
   const [currencyPairs, setCurrencyPairs] = useState([
@@ -27,6 +33,29 @@ export const useBacktesting = () => {
     "NZDCAD", "NZDCHF", "NZDJPY", "NZDUSD",
     "USDCAD", "USDCHF", "USDJPY"
   ]);
+  
+  // Guardar las fechas en localStorage para persistirlas
+  useEffect(() => {
+    if (dateFrom) {
+      localStorage.setItem('backtestDateFrom', dateFrom.toISOString());
+    }
+    if (dateTo) {
+      localStorage.setItem('backtestDateTo', dateTo.toISOString());
+    }
+  }, [dateFrom, dateTo]);
+  
+  // Cargar fechas guardadas al iniciar
+  useEffect(() => {
+    const savedDateFrom = localStorage.getItem('backtestDateFrom');
+    const savedDateTo = localStorage.getItem('backtestDateTo');
+    
+    if (savedDateFrom) {
+      setDateFrom(new Date(savedDateFrom));
+    }
+    if (savedDateTo) {
+      setDateTo(new Date(savedDateTo));
+    }
+  }, []);
 
   const executeBacktest = async () => {
     if (selectedRobots.length === 0) {

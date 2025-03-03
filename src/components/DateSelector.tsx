@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Calendar } from "@/components/ui/calendar";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 
 interface DateSelectorProps {
   label: string;
@@ -28,6 +29,23 @@ const MONTHS = [
 const DateSelector = ({ label, date, setDate }: DateSelectorProps) => {
   const fromDate = new Date(1900, 0, 1);
   const toDate = new Date(new Date().getFullYear() + 100, 11, 31);
+
+  // Establecer fecha por defecto si no hay ninguna
+  useEffect(() => {
+    if (!date) {
+      const today = new Date();
+      
+      // Si es "Desde", establecer a primer día del mes actual
+      // Si es "Hasta", establecer a último día del mes actual
+      if (label.includes("Desde")) {
+        const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        setDate(firstDayOfMonth);
+      } else if (label.includes("Hasta")) {
+        const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+        setDate(lastDayOfMonth);
+      }
+    }
+  }, [label, date, setDate]);
 
   const currentYear = date ? date.getFullYear() : new Date().getFullYear();
   const currentMonth = date ? date.getMonth() : new Date().getMonth();
@@ -51,11 +69,34 @@ const DateSelector = ({ label, date, setDate }: DateSelectorProps) => {
     setDate(new Date(newDate)); // Forzar actualización
   };
 
+  const handleManualDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputValue = e.target.value;
+    
+    // Validar formato dd/mm/yyyy
+    if (/^\d{2}\/\d{2}\/\d{4}$/.test(inputValue)) {
+      const [day, month, year] = inputValue.split('/').map(Number);
+      
+      // Verificar si es una fecha válida
+      if (day > 0 && day <= 31 && month > 0 && month <= 12 && year >= 1900) {
+        const newDate = new Date(year, month - 1, day);
+        setDate(newDate);
+      }
+    }
+  };
+
   return (
     <div className="w-full max-w-md p-4 border rounded-lg shadow-lg flex flex-col items-center space-y-4 bg-card">
       <Label className="text-lg font-semibold text-center">
         {label}: {date ? format(date, "dd/MM/yyyy", { locale: es }) : "Sin seleccionar"}
       </Label>
+
+      <Input 
+        type="text" 
+        placeholder="DD/MM/YYYY"
+        value={date ? format(date, "dd/MM/yyyy", { locale: es }) : ""}
+        onChange={handleManualDateChange}
+        className="text-center"
+      />
 
       <div className="flex gap-2 w-full mb-4 items-center justify-between">
         <Select value={MONTHS[currentMonth]} onValueChange={handleMonthChange}>
