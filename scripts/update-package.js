@@ -1,10 +1,6 @@
 
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const fs = require('fs');
+const path = require('path');
 
 // Leer el package.json actual
 const packageJsonPath = path.join(__dirname, '../package.json');
@@ -15,7 +11,7 @@ packageJson.scripts = {
   ...packageJson.scripts,
   "dev": "vite",
   "build": "tsc && vite build",
-  "electron:dev": "concurrently \"npm run dev\" \"electron electron/main.ts\"",
+  "electron:dev": "concurrently \"npm run dev\" \"electron electron/main.js\"",
   "electron:build": "npm run build && electron-builder",
   "electron:package": "npm run build && electron-builder -mwl",
   "electron:win": "npm run build && electron-builder --win"
