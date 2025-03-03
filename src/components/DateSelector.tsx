@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Calendar } from "@/components/ui/calendar";
 import { Label } from "@/components/ui/label";
@@ -38,15 +37,17 @@ const DateSelector = ({ label, date, setDate }: DateSelectorProps) => {
   );
 
   const handleYearChange = (year: string) => {
-    const newDate = date ? new Date(date) : new Date();
-    newDate.setFullYear(parseInt(year));
-    setDate(newDate);
+    const newYear = parseInt(year, 10);
+    const newDate = new Date(date ?? new Date());
+    newDate.setFullYear(newYear);
+    setDate(new Date(newDate)); // Forzar actualización
   };
 
   const handleMonthChange = (month: string) => {
-    const newDate = date ? new Date(date) : new Date();
-    newDate.setMonth(MONTHS.indexOf(month));
-    setDate(newDate);
+    const newMonth = MONTHS.indexOf(month);
+    const newDate = new Date(date ?? new Date());
+    newDate.setMonth(newMonth);
+    setDate(new Date(newDate)); // Forzar actualización
   };
 
   return (
