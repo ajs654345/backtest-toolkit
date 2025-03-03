@@ -1,56 +1,53 @@
 
-import React, { useState } from "react"
-import { Calendar } from "@/components/ui/calendar"
-import { Label } from "@/components/ui/label"
-import { Button } from "@/components/ui/button"
-import { format } from "date-fns"
-import { es } from "date-fns/locale"
+import React from "react";
+import { Calendar } from "@/components/ui/calendar";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { format } from "date-fns";
+import { es } from 'date-fns/locale';
+import { Slider } from "@/components/ui/slider";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
 
 interface DateSelectorProps {
-  label: string
-  date: Date | undefined
-  setDate: (date: Date | undefined) => void
+  label: string;
+  date: Date | undefined;
+  setDate: (date: Date | undefined) => void;
 }
 
 const MONTHS = [
   "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
   "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
-]
+];
 
 const DateSelector = ({ label, date, setDate }: DateSelectorProps) => {
-  const fromDate = new Date(1900, 0, 1)
-  const toDate = new Date(new Date().getFullYear() + 100, 11, 31)
+  const fromDate = new Date(1900, 0, 1);
+  const toDate = new Date(new Date().getFullYear() + 100, 11, 31);
 
-  const [selectedMonth, setSelectedMonth] = useState(
-    date ? date.getMonth() : new Date().getMonth()
-  )
-  const [selectedYear, setSelectedYear] = useState(
-    date ? date.getFullYear() : new Date().getFullYear()
-  )
+  const currentYear = date ? date.getFullYear() : new Date().getFullYear();
+  const currentMonth = date ? date.getMonth() : new Date().getMonth();
 
   const years = Array.from(
     { length: toDate.getFullYear() - fromDate.getFullYear() + 1 },
     (_, i) => fromDate.getFullYear() + i
-  )
+  );
 
   const handleYearChange = (year: string) => {
-    setSelectedYear(parseInt(year))
-    const newDate = new Date(parseInt(year), selectedMonth, 1)
-    setDate(newDate) // 📌 Fuerza el cambio de mes/año en el calendario
-  }
+    const newDate = date ? new Date(date) : new Date();
+    newDate.setFullYear(parseInt(year));
+    setDate(newDate);
+  };
 
   const handleMonthChange = (month: string) => {
-    setSelectedMonth(MONTHS.indexOf(month))
-    const newDate = new Date(selectedYear, MONTHS.indexOf(month), 1)
-    setDate(newDate) // 📌 Actualiza el calendario al mes correcto
-  }
+    const newDate = date ? new Date(date) : new Date();
+    newDate.setMonth(MONTHS.indexOf(month));
+    setDate(newDate);
+  };
 
   return (
     <div className="w-full max-w-md p-4 border rounded-lg shadow-lg flex flex-col items-center space-y-4 bg-card">
@@ -59,7 +56,7 @@ const DateSelector = ({ label, date, setDate }: DateSelectorProps) => {
       </Label>
 
       <div className="flex gap-2 w-full mb-4 items-center justify-between">
-        <Select value={MONTHS[selectedMonth]} onValueChange={handleMonthChange}>
+        <Select value={MONTHS[currentMonth]} onValueChange={handleMonthChange}>
           <SelectTrigger className="w-1/2">
             <SelectValue placeholder="Mes" />
           </SelectTrigger>
@@ -72,11 +69,22 @@ const DateSelector = ({ label, date, setDate }: DateSelectorProps) => {
           </SelectContent>
         </Select>
 
-        <Select value={selectedYear.toString()} onValueChange={handleYearChange}>
+        <Select value={currentYear.toString()} onValueChange={handleYearChange}>
           <SelectTrigger className="w-1/2">
             <SelectValue placeholder="Año" />
           </SelectTrigger>
           <SelectContent>
+            <div className="px-4 py-2 space-y-2">
+              <Label className="text-sm">Año: {currentYear}</Label>
+              <Slider
+                value={[currentYear]}
+                min={fromDate.getFullYear()}
+                max={toDate.getFullYear()}
+                step={1}
+                onValueChange={(value) => handleYearChange(value[0].toString())}
+                className="w-full"
+              />
+            </div>
             {years.map((year) => (
               <SelectItem key={year} value={year.toString()}>
                 {year}
@@ -93,8 +101,27 @@ const DateSelector = ({ label, date, setDate }: DateSelectorProps) => {
           onSelect={setDate}
           disabled={(date) => date < fromDate || date > toDate}
           className="w-[300px] rounded-md border"
-          month={new Date(selectedYear, selectedMonth)} // 📌 Fija el mes actual en el calendario
+          locale={es}
           showOutsideDays={true}
+          fixedWeeks
+          classNames={{
+            months: "flex flex-col space-y-4",
+            month: "space-y-4",
+            caption: "flex justify-between items-center px-4 py-2 text-lg font-semibold",
+            caption_label: "text-lg font-semibold text-center w-full",
+            nav: "flex items-center justify-between px-4",
+            nav_button: "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100",
+            table: "w-full border-collapse",
+            head_row: "grid grid-cols-7",
+            head_cell: "text-muted-foreground font-bold text-sm flex items-center justify-center h-10",
+            row: "grid grid-cols-7",
+            cell: "relative text-center text-sm flex items-center justify-center w-[40px] h-[40px] border border-gray-600",
+            day: "w-[40px] h-[40px] p-0 font-semibold rounded-md aria-selected:bg-blue-500 aria-selected:text-white",
+            day_selected: "bg-blue-600 text-white hover:bg-blue-700 focus:bg-blue-700",
+            day_today: "bg-gray-700 text-white border border-blue-500",
+            day_outside: "text-gray-400 opacity-50",
+            day_disabled: "text-gray-500 opacity-50",
+          }}
         />
       </div>
 
@@ -107,7 +134,7 @@ const DateSelector = ({ label, date, setDate }: DateSelectorProps) => {
         </Button>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default DateSelector
+export default DateSelector;
