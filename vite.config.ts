@@ -32,6 +32,6 @@ export default defineConfig(({ mode }) => ({
     },
   },
   optimizeDeps: {
-    exclude: ['electron', 'lovable-tagger']
+    exclude: ['electron', 'lovable-tagger', 'electron-is-dev']
   },
 }));

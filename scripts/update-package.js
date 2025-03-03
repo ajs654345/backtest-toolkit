@@ -17,12 +17,12 @@ if (packageJson.type === 'module') {
   console.log('✅ Removed "type": "module" from package.json');
 }
 
-// Add scripts needed for Electron
+// Add or update electron:dev script to set NODE_ENV
 packageJson.scripts = {
   ...packageJson.scripts,
   "dev": "vite",
   "build": "tsc && vite build",
-  "electron:dev": "concurrently \"npm run dev\" \"electron electron/main.js\"",
+  "electron:dev": "cross-env NODE_ENV=development concurrently \"npm run dev\" \"electron electron/main.js\"",
   "electron:build": "npm run build && electron-builder",
   "electron:package": "npm run build && electron-builder -mwl",
   "electron:win": "npm run build && electron-builder --win"
@@ -31,4 +31,6 @@ packageJson.scripts = {
 // Save the updated package.json
 fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
 
-console.log('✅ Added Electron scripts to package.json');
+console.log('✅ Added/updated Electron scripts in package.json');
+console.log('✅ Run "node scripts/update-package.js" to apply these changes');
+console.log('✅ Then run "npm run electron:dev" to start development mode');

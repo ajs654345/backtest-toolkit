@@ -2,7 +2,9 @@
 const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
 const fs = require('fs');
-const isDev = require('electron-is-dev');
+
+// Detectar modo desarrollo sin usar electron-is-dev
+const isDev = process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
 
 // Mantener una referencia global al objeto window
 let mainWindow = null;
