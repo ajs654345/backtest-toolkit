@@ -39,14 +39,8 @@ export const BacktestForm = () => {
     mt4Terminals,
     selectedTerminal,
     setSelectedTerminal,
+    handleRefreshTerminals
   } = useBacktesting();
-
-  const handleRefreshTerminals = async () => {
-    // Implementar función para refrescar lista de terminales
-    const { mt4Service } = await import('../services/mt4Service');
-    const terminals = await mt4Service.getMT4Terminals();
-    // La actualización del estado ya ocurre dentro del hook useBacktesting
-  };
 
   return (
     <Card className="max-w-5xl mx-auto p-6 glass-card">

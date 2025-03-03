@@ -1,97 +1,10 @@
 
-import { toast } from "@/hooks/use-toast";
-
-interface BacktestCommand {
-  dateFrom?: Date;
-  dateTo?: Date;
-  robots: Array<{
-    name: string;
-    pairs: string[];
-  }>;
-  testingMode: string;
-  outputPath: string;
-  excelConfig: {
-    useExisting: boolean;
-    fileName: string;
-    existingFile?: string;
-  };
-  mt4Terminal?: string;
-}
-
-interface MT4Result {
-  error?: string;
-  data?: any;
-  success?: boolean;
-  message?: string;
-}
+import { BacktestCommand, MT4Result } from './mt4Types';
+import { mt4ExecutionService } from './mt4ExecutionService';
+import { mt4ExcelService } from './mt4ExcelService';
+import { mt4TerminalService } from './mt4TerminalService';
 
 class MT4Service {
-  private async executeForPair(robot: string, pair: string, command: BacktestCommand): Promise<void> {
-    try {
-      // Obtener la ruta del archivo del robot
-      const robotFile = command.robots.find(r => r.name === robot);
-      if (!robotFile) {
-        throw new Error(`Robot ${robot} no encontrado`);
-      }
-
-      // Construir el comando para MT4
-      const mt4Command = {
-        action: 'backtest',
-        robot,
-        symbol: pair,
-        from: command.dateFrom?.toISOString(),
-        to: command.dateTo?.toISOString(),
-        mode: command.testingMode,
-        outputPath: command.outputPath || this.getDefaultOutputPath(),
-        terminal: command.mt4Terminal
-      };
-
-      console.log(`Enviando comando para ${robot} en par ${pair}:`, mt4Command);
-
-      // Enviar el comando a la aplicación de escritorio
-      if (!window.electron) {
-        throw new Error('Electron no está disponible');
-      }
-      
-      window.electron.send('mt4-command', mt4Command);
-
-      // Esperar la respuesta de MT4
-      const result = await window.electron.invoke('mt4-result') as MT4Result;
-
-      if (result?.error) {
-        throw new Error(result.error);
-      }
-
-      console.log(`Backtesting completado para ${robot} en ${pair}:`, result);
-      
-    } catch (error) {
-      console.error(`Error en backtesting para ${robot} en ${pair}:`, error);
-      throw error;
-    }
-  }
-
-  private getDefaultOutputPath(): string {
-    if (!window.electron) {
-      return 'C:/MT4_Backtest_Results';
-    }
-    
-    // Como esto devuelve una promesa, necesitamos manejarla correctamente
-    // pero como esta función debe devolver string, usaremos un valor por defecto
-    // y actualizaremos la ruta más tarde cuando sea necesario
-    window.electron.invoke('get-documents-path')
-      .then(path => {
-        // Podemos usar el resultado más tarde si es necesario
-        console.log('Ruta de documentos obtenida:', path);
-        return path;
-      })
-      .catch(err => {
-        console.error('Error al obtener ruta de documentos:', err);
-      });
-    
-    // Devolvemos un valor predeterminado
-    return 'C:/MT4_Backtest_Results';
-  }
-
   async executeBacktest(command: BacktestCommand): Promise<void> {
     let hasError = false;
     const totalTasks = command.robots.reduce(
@@ -108,7 +21,7 @@ class MT4Service {
 
       // Verificar la ruta de salida
       if (!command.outputPath) {
-        command.outputPath = this.getDefaultOutputPath();
+        command.outputPath = mt4ExecutionService.getDefaultOutputPath();
         console.log('Usando ruta de salida predeterminada:', command.outputPath);
       }
 
@@ -119,7 +32,7 @@ class MT4Service {
       for (const robot of command.robots) {
         for (const pair of robot.pairs) {
           try {
-            await this.executeForPair(robot.name, pair, command);
+            await mt4ExecutionService.executeForPair(robot.name, pair, command);
             completedTasks++;
             
             // Actualizar progreso
@@ -145,9 +58,24 @@ class MT4Service {
       // Generar Excel con resultados
       if (!hasError) {
         if (command.excelConfig.useExisting) {
-          await this.updateExistingExcel(command);
+          await mt4ExcelService.updateExistingExcel({
+            filePath: command.excelConfig.existingFile,
+            resultsPath: command.outputPath,
+            robotData: command.robots.map(r => ({
+              name: r.name,
+              pairs: r.pairs
+            }))
+          });
         } else {
-          await this.generateNewExcel(command);
+          await mt4ExcelService.generateNewExcel({
+            fileName: command.excelConfig.fileName || `Backtest_Results_${new Date().toISOString().split('T')[0]}`,
+            outputPath: command.outputPath,
+            resultsPath: command.outputPath,
+            robotData: command.robots.map(r => ({
+              name: r.name,
+              pairs: r.pairs
+            }))
+          });
         }
       }
 
@@ -156,82 +84,10 @@ class MT4Service {
       throw error;
     }
   }
-
-  private async updateExistingExcel(command: BacktestCommand): Promise<void> {
-    try {
-      const result = await window.electron?.invoke('update-excel', {
-        filePath: command.excelConfig.existingFile,
-        resultsPath: command.outputPath,
-        robotData: command.robots.map(r => ({
-          name: r.name,
-          pairs: r.pairs
-        }))
-      }) as MT4Result;
-
-      if (result?.error) {
-        throw new Error(result.error);
-      }
-      
-      console.log('Excel actualizado correctamente:', result);
-    } catch (error) {
-      console.error('Error actualizando Excel:', error);
-      throw error;
-    }
-  }
-
-  private async generateNewExcel(command: BacktestCommand): Promise<void> {
-    try {
-      const fileName = command.excelConfig.fileName || `Backtest_Results_${new Date().toISOString().split('T')[0]}`;
-      
-      const result = await window.electron?.invoke('generate-excel', {
-        fileName,
-        outputPath: command.outputPath,
-        resultsPath: command.outputPath,
-        robotData: command.robots.map(r => ({
-          name: r.name,
-          pairs: r.pairs
-        }))
-      }) as MT4Result;
-
-      if (result?.error) {
-        throw new Error(result.error);
-      }
-      
-      console.log('Excel generado correctamente:', result);
-    } catch (error) {
-      console.error('Error generando Excel:', error);
-      throw error;
-    }
-  }
   
   // Método para obtener la lista de terminales MT4 instalados
   async getMT4Terminals(): Promise<string[]> {
-    try {
-      if (!window.electron) {
-        console.error('Electron no está disponible');
-        return [];
-      }
-      
-      const result = await window.electron.invoke('get-mt4-terminals') as MT4Result;
-      if (result?.error) {
-        throw new Error(result.error);
-      }
-      
-      // Para desarrollo, simulamos terminales si no hay datos
-      if (!result.data || result.data.length === 0) {
-        console.log('Usando terminales MT4 simulados para desarrollo');
-        return [
-          'C:\\Program Files\\Darwinex MT4\\terminal.exe',
-          'C:\\Program Files\\MetaTrader 4\\terminal.exe',
-          'C:\\Users\\Usuario\\AppData\\Roaming\\MetaQuotes\\Terminal\\1B80A8D8FC5F405C891BF1E1E5185D92\\terminal.exe'
-        ];
-      }
-      
-      return result.data || [];
-    } catch (error) {
-      console.error('Error al obtener terminales MT4:', error);
-      return [];
-    }
+    return mt4TerminalService.getMT4Terminals();
   }
 }
 
