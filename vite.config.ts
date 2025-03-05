@@ -4,7 +4,7 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 
 // Importar lovable-tagger solo en desarrollo y de manera condicional
-let componentTagger;
+let componentTagger: (() => any) | undefined;
 if (process.env.NODE_ENV === 'development') {
   try {
     // Importación dinámica para evitar problemas de ESM/CJS
