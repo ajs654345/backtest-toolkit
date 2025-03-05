@@ -2,12 +2,18 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
+import { createRequire } from "module";
+import { fileURLToPath } from "url";
+
+// Crear require y definir __dirname para módulos ESM
+const require = createRequire(import.meta.url);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Importar lovable-tagger solo en desarrollo y de manera condicional
 let componentTagger: (() => any) | undefined;
-if (process.env.NODE_ENV === 'development') {
+if (process.env.NODE_ENV === "development") {
   try {
-    // Importación dinámica para evitar problemas de ESM/CJS
     const lovableTagger = require("lovable-tagger");
     componentTagger = lovableTagger.componentTagger;
   } catch (error) {
@@ -18,31 +24,31 @@ if (process.env.NODE_ENV === 'development') {
 
 export default defineConfig(({ mode }) => ({
   server: {
-    host: "0.0.0.0",  // Cambiado de :: a 0.0.0.0 para mejor compatibilidad
+    host: "0.0.0.0", // Mejor compatibilidad
     port: 8080,
   },
   plugins: [
     react(),
-    mode === 'development' && componentTagger && componentTagger(),
+    mode === "development" && componentTagger && componentTagger(),
   ].filter(Boolean),
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  base: './',
+  base: "./",
   build: {
-    outDir: 'dist',
-    assetsDir: 'assets',
+    outDir: "dist",
+    assetsDir: "assets",
     emptyOutDir: true,
-    target: 'chrome95',
+    target: "chrome95",
     rollupOptions: {
       input: {
-        main: path.resolve(__dirname, 'index.html'),
+        main: path.resolve(__dirname, "index.html"),
       },
     },
   },
   optimizeDeps: {
-    exclude: ['electron', 'lovable-tagger', 'electron-is-dev']
+    exclude: ["electron", "lovable-tagger", "electron-is-dev"],
   },
 }));
