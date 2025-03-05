@@ -21,12 +21,12 @@ if (packageJson.type === 'module') {
   console.log('✅ Removed "type": "module" from package.json');
 }
 
-// Actualizar los scripts para Electron
+// Actualizar los scripts para Electron - cambio en electron:dev para evitar problemas de permisos
 packageJson.scripts = {
   ...packageJson.scripts,
   "dev": "vite",
   "build": "tsc && vite build",
-  "electron:dev": "cross-env NODE_ENV=development concurrently \"vite --host 0.0.0.0 --port 8080\" \"electron electron/main.js\"",
+  "electron:dev": "cross-env NODE_ENV=development npm run dev -- --host 0.0.0.0 --port 8080 & electron electron/main.js",
   "electron:build": "npm run build && electron-builder",
   "electron:package": "npm run build && electron-builder -mwl",
   "electron:win": "npm run build && electron-builder --win"
