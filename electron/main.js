@@ -1,9 +1,9 @@
-
 const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
 const fs = require('fs');
+const url = require('url');
 
-// Detectar modo desarrollo sin usar electron-is-dev
+// Detectar modo desarrollo
 const isDev = process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
 
 // Mantener una referencia global al objeto window
@@ -23,17 +23,35 @@ function createWindow() {
     title: 'Backtesting Toolkit'
   });
 
+  // Configurar la URL basada en el entorno
+  const startUrl = isDev 
+    ? 'http://localhost:8080' 
+    : url.format({
+        pathname: path.join(__dirname, '../dist/index.html'),
+        protocol: 'file:',
+        slashes: true
+      });
+  
+  console.log('Cargando aplicación desde:', startUrl);
+  
+  // Cargar la aplicación
+  mainWindow.loadURL(startUrl);
+  
+  // Manejar errores de carga
+  mainWindow.webContents.on('did-fail-load', () => {
+    console.log('Falló la carga, intentando nuevamente...');
+    // Esperar un momento y volver a intentar
+    setTimeout(() => {
+      if (!mainWindow.isDestroyed()) {
+        mainWindow.loadURL(startUrl);
+      }
+    }, 1000);
+  });
+
+  // Abrir DevTools en desarrollo
   if (isDev) {
-    // En desarrollo, carga desde el servidor de desarrollo de Vite
-    mainWindow.loadURL('http://localhost:8080');
-    // Abre DevTools
     mainWindow.webContents.openDevTools();
-    console.log('Ejecutando en modo desarrollo, cargando desde http://localhost:8080');
-  } else {
-    // En producción, carga desde los archivos compilados
-    const indexPath = path.join(__dirname, '../dist/index.html');
-    mainWindow.loadFile(indexPath);
-    console.log('Ejecutando en modo producción, cargando desde:', indexPath);
+    console.log('DevTools abierto en modo desarrollo');
   }
 
   mainWindow.on('closed', () => {
@@ -41,9 +59,10 @@ function createWindow() {
   });
 }
 
+// Crear ventana cuando la aplicación esté lista
 app.whenReady().then(() => {
   createWindow();
-
+  
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
       createWindow();
@@ -94,6 +113,7 @@ app.whenReady().then(() => {
     return { success: true, message: 'Comando ejecutado correctamente' };
   });
 
+  // Manejador para resultados MT4
   ipcMain.handle('mt4-result', async () => {
     return { data: 'Backtesting completado' };
   });
@@ -140,8 +160,21 @@ app.whenReady().then(() => {
   });
 });
 
+// Salir de la aplicación cuando todas las ventanas estén cerradas (excepto en macOS)
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
   }
+});
+
+// Manejar activación de la aplicación en macOS
+app.on('activate', () => {
+  if (mainWindow === null) {
+    createWindow();
+  }
+});
+
+// Configurar manejo de errores no capturados
+process.on('uncaughtException', (error) => {
+  console.error('Error no capturado:', error);
 });

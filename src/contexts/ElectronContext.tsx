@@ -24,6 +24,15 @@ export const ElectronProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [isElectron] = useState<boolean>(isElectronApp());
   const [platform] = useState<string>(getPlatform());
 
+  useEffect(() => {
+    // Log para depuración
+    console.log('ElectronProvider inicializado', { 
+      isElectron, 
+      platform, 
+      electronAPI: window.electron ? 'disponible' : 'no disponible' 
+    });
+  }, [isElectron, platform]);
+
   // Provide Electron API methods or fallbacks
   const contextValue: ElectronContextType = {
     isElectron,

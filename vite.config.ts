@@ -25,6 +25,10 @@ export default defineConfig(async ({ mode }) => {
     server: {
       host: "0.0.0.0",
       port: 8080,
+      strictPort: true, // Forzar uso del puerto especificado
+      hmr: {
+        overlay: true, // Mostrar errores en overlay
+      },
     },
     plugins: [
       react(),
@@ -35,12 +39,13 @@ export default defineConfig(async ({ mode }) => {
         "@": path.resolve(__dirname, "./src"),
       },
     },
-    base: "./",
+    base: "./", // Configuración para rutas relativas
     build: {
       outDir: "dist",
       assetsDir: "assets",
       emptyOutDir: true,
       target: "chrome95",
+      sourcemap: true, // Habilitar sourcemaps para debugging
       rollupOptions: {
         input: {
           main: path.resolve(__dirname, "index.html"),
@@ -50,5 +55,7 @@ export default defineConfig(async ({ mode }) => {
     optimizeDeps: {
       exclude: ["electron", "lovable-tagger", "electron-is-dev"],
     },
+    // Mejorar la detección de errores
+    logLevel: 'info',
   };
 });
