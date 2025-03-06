@@ -1,5 +1,6 @@
 
 import { BacktestCommand, MT4Command, MT4Result } from './mt4Types';
+import { sendToElectron, invokeElectron } from '@/lib/electron-utils';
 
 export class MT4ExecutionService {
   async executeForPair(robot: string, pair: string, command: BacktestCommand): Promise<void> {
@@ -29,10 +30,10 @@ export class MT4ExecutionService {
         throw new Error('Electron no está disponible');
       }
       
-      window.electron.send('mt4-command', mt4Command);
+      sendToElectron('mt4-command', mt4Command);
 
       // Esperar la respuesta de MT4
-      const result = await window.electron.invoke('mt4-result') as MT4Result;
+      const result = await invokeElectron('mt4-result') as MT4Result;
 
       if (result?.error) {
         throw new Error(result.error);
@@ -46,25 +47,19 @@ export class MT4ExecutionService {
     }
   }
 
-  getDefaultOutputPath(): string {
+  async getDefaultOutputPath(): Promise<string> {
     if (!window.electron) {
       return 'C:/MT4_Backtest_Results';
     }
     
-    // Como esto devuelve una promesa, necesitamos manejarla correctamente
-    // pero como esta función debe devolver string, usaremos un valor por defecto
-    // y actualizaremos la ruta más tarde cuando sea necesario
-    window.electron.invoke('get-documents-path')
-      .then(path => {
-        console.log('Ruta de documentos obtenida:', path);
-        return path;
-      })
-      .catch(err => {
-        console.error('Error al obtener ruta de documentos:', err);
-      });
-    
-    // Devolvemos un valor predeterminado
-    return 'C:/MT4_Backtest_Results';
+    try {
+      const path = await invokeElectron('get-documents-path');
+      console.log('Ruta de documentos obtenida:', path);
+      return path || 'C:/MT4_Backtest_Results';
+    } catch (err) {
+      console.error('Error al obtener ruta de documentos:', err);
+      return 'C:/MT4_Backtest_Results';
+    }
   }
 }
 

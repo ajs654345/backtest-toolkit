@@ -1,12 +1,13 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { isElectronApp, getPlatform, sendToElectron, listenToElectron } from '@/lib/electron-utils';
+import { isElectronApp, getPlatform, sendToElectron, listenToElectron, invokeElectron } from '@/lib/electron-utils';
 
 interface ElectronContextType {
   isElectron: boolean;
   platform: string;
   sendToMain: (channel: string, data?: any) => void;
   listenToMain: (channel: string, callback: (...args: any[]) => void) => () => void;
+  invokeMain: (channel: string, data?: any) => Promise<any>;
 }
 
 const ElectronContext = createContext<ElectronContextType>({
@@ -14,6 +15,7 @@ const ElectronContext = createContext<ElectronContextType>({
   platform: 'web',
   sendToMain: () => {},
   listenToMain: () => () => {},
+  invokeMain: async () => null,
 });
 
 export const useElectron = () => useContext(ElectronContext);
@@ -28,6 +30,7 @@ export const ElectronProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     platform,
     sendToMain: sendToElectron,
     listenToMain: listenToElectron,
+    invokeMain: invokeElectron,
   };
 
   return (

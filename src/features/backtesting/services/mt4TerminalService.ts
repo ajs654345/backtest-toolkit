@@ -1,5 +1,6 @@
 
 import { MT4Result } from './mt4Types';
+import { invokeElectron } from '@/lib/electron-utils';
 
 export class MT4TerminalService {
   async getMT4Terminals(): Promise<string[]> {
@@ -9,7 +10,7 @@ export class MT4TerminalService {
         return [];
       }
       
-      const result = await window.electron.invoke('get-mt4-terminals') as MT4Result;
+      const result = await invokeElectron('get-mt4-terminals') as MT4Result;
       if (result?.error) {
         throw new Error(result.error);
       }

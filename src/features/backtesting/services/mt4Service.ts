@@ -1,8 +1,8 @@
-
 import { BacktestCommand, MT4Result } from './mt4Types';
 import { mt4ExecutionService } from './mt4ExecutionService';
 import { mt4ExcelService } from './mt4ExcelService';
 import { mt4TerminalService } from './mt4TerminalService';
+import { invokeElectron, sendToElectron } from '@/lib/electron-utils';
 
 class MT4Service {
   async executeBacktest(command: BacktestCommand): Promise<void> {
@@ -26,7 +26,7 @@ class MT4Service {
       }
 
       // Crear la carpeta de salida si no existe
-      await window.electron.invoke('ensure-directory', { path: command.outputPath });
+      await invokeElectron('ensure-directory', { path: command.outputPath });
 
       // Ejecutar los backtests para cada robot y par
       for (const robot of command.robots) {
@@ -40,7 +40,7 @@ class MT4Service {
             console.log(`Progreso: ${progress}%`);
             
             // Notificar progreso a la interfaz
-            window.electron.send('progress-update', { 
+            sendToElectron('progress-update', { 
               progress, 
               current: completedTasks, 
               total: totalTasks,

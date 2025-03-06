@@ -43,3 +43,14 @@ export const listenToElectron = (channel: string, callback: (...args: any[]) => 
   console.warn(`Cannot listen to channel "${channel}" - not running in Electron`);
   return () => {}; // Return empty cleanup function
 };
+
+/**
+ * Invoke a method in the Electron main process and return a promise with the result
+ */
+export const invokeElectron = async (channel: string, data?: any): Promise<any> => {
+  if (isElectronApp()) {
+    return window.electron.invoke(channel, data);
+  }
+  console.warn(`Cannot invoke channel "${channel}" - not running in Electron`);
+  return null;
+};
