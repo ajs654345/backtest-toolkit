@@ -1,3 +1,4 @@
+
 import { BacktestCommand, MT4Result } from './mt4Types';
 import { mt4ExecutionService } from './mt4ExecutionService';
 import { mt4ExcelService } from './mt4ExcelService';
@@ -21,7 +22,7 @@ class MT4Service {
 
       // Verificar la ruta de salida
       if (!command.outputPath) {
-        command.outputPath = mt4ExecutionService.getDefaultOutputPath();
+        command.outputPath = await mt4ExecutionService.getDefaultOutputPath();
         console.log('Usando ruta de salida predeterminada:', command.outputPath);
       }
 
