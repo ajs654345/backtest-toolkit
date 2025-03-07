@@ -6,8 +6,12 @@ export class MT4TerminalService {
   async getMT4Terminals(): Promise<string[]> {
     try {
       if (!window.electron) {
-        console.error('Electron no está disponible');
-        return [];
+        console.log('Web mode: simulating MT4 terminals');
+        return [
+          'Terminal 1 (Simulado)',
+          'Terminal 2 (Simulado)',
+          'Terminal 3 (Simulado)'
+        ];
       }
       
       const result = await invokeElectron('get-mt4-terminals') as MT4Result;
@@ -28,7 +32,11 @@ export class MT4TerminalService {
       return result.data || [];
     } catch (error) {
       console.error('Error al obtener terminales MT4:', error);
-      return [];
+      return [
+        'Terminal 1 (Error - Simulado)',
+        'Terminal 2 (Error - Simulado)',
+        'Terminal 3 (Error - Simulado)'
+      ];
     }
   }
 }

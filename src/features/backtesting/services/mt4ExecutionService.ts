@@ -1,6 +1,6 @@
 
 import { BacktestCommand, MT4Command, MT4Result } from './mt4Types';
-import { sendToElectron, invokeElectron } from '@/lib/electron-utils';
+import { sendToElectron, invokeElectron, isElectronApp } from '@/lib/electron-utils';
 
 export class MT4ExecutionService {
   async executeForPair(robot: string, pair: string, command: BacktestCommand): Promise<void> {
@@ -25,11 +25,18 @@ export class MT4ExecutionService {
 
       console.log(`Enviando comando para ${robot} en par ${pair}:`, mt4Command);
 
-      // Enviar el comando a la aplicación de escritorio
-      if (!window.electron) {
-        throw new Error('Electron no está disponible');
+      // Si estamos en modo web, simulamos el backtesting
+      if (!isElectronApp()) {
+        console.log('Web mode: simulando backtesting para', robot, 'en', pair);
+        
+        // Simulamos un pequeño retraso para dar la sensación de procesamiento
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        // Simular progreso (esto será manejado por la interfaz)
+        return;
       }
       
+      // Enviar el comando a la aplicación de escritorio
       sendToElectron('mt4-command', mt4Command);
 
       // Esperar la respuesta de MT4
@@ -48,7 +55,7 @@ export class MT4ExecutionService {
   }
 
   async getDefaultOutputPath(): Promise<string> {
-    if (!window.electron) {
+    if (!isElectronApp()) {
       return 'C:/MT4_Backtest_Results';
     }
     

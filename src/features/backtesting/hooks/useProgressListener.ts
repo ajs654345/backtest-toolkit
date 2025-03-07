@@ -1,25 +1,44 @@
 
 import { useEffect } from 'react';
+import { listenToElectron, isElectronApp } from '@/lib/electron-utils';
 
 interface UseProgressListenerProps {
   setProgress: (progress: number) => void;
   setCurrentTask: (task: string) => void;
 }
 
-export const useProgressListener = ({ setProgress, setCurrentTask }: UseProgressListenerProps) => {
+export const useProgressListener = ({
+  setProgress,
+  setCurrentTask
+}: UseProgressListenerProps) => {
   useEffect(() => {
-    const handleProgressUpdate = (event: CustomEvent) => {
-      const data = event.detail;
-      setProgress(data.progress);
-      setCurrentTask(`${data.robot} - ${data.pair} (${data.current}/${data.total})`);
+    // Función para procesar actualizaciones de progreso
+    const handleProgressUpdate = (data: any) => {
+      const { progress, current, total, robot, pair } = data;
+      setProgress(progress);
+      setCurrentTask(`Procesando ${robot} en ${pair} (${current}/${total})`);
     };
 
-    // Add type casting to addEventListener to handle CustomEvent
-    window.addEventListener('progress-update', handleProgressUpdate as EventListener);
+    let removeListener: (() => void) | null = null;
     
-    // Cleanup
+    // Diferentes métodos para Electron y Web
+    if (isElectronApp()) {
+      // En Electron, utilizamos el IPC
+      removeListener = listenToElectron('progress-update', handleProgressUpdate);
+    } else {
+      // En Web, utilizamos eventos personalizados
+      const webHandler = (event: CustomEvent) => handleProgressUpdate(event.detail);
+      window.addEventListener('backtest-progress', webHandler as EventListener);
+      
+      // Retornar función para limpiar el listener
+      removeListener = () => {
+        window.removeEventListener('backtest-progress', webHandler as EventListener);
+      };
+    }
+    
+    // Limpiar al desmontar
     return () => {
-      window.removeEventListener('progress-update', handleProgressUpdate as EventListener);
+      if (removeListener) removeListener();
     };
   }, [setProgress, setCurrentTask]);
 };

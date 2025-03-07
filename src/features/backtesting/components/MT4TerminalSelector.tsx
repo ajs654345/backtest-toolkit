@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { RefreshCcw } from "lucide-react";
+import { isElectronApp } from '@/lib/electron-utils';
 
 interface MT4TerminalSelectorProps {
   mt4Terminals: string[];
@@ -18,6 +19,8 @@ const MT4TerminalSelector = ({
   setSelectedTerminal,
   onRefresh
 }: MT4TerminalSelectorProps) => {
+  const isElectron = isElectronApp();
+  
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
@@ -32,6 +35,12 @@ const MT4TerminalSelector = ({
         </Button>
       </div>
       
+      {!isElectron && (
+        <div className="text-sm text-blue-600 bg-blue-100 p-2 rounded mb-2">
+          Modo web: utilizando terminales simulados. Para funcionalidad completa, ejecute la aplicación de escritorio.
+        </div>
+      )}
+      
       {mt4Terminals.length === 0 ? (
         <div className="text-sm text-amber-600">
           No se encontraron terminales MT4 instalados. Por favor, instale MT4 y reinicie la aplicación.
@@ -44,7 +53,10 @@ const MT4TerminalSelector = ({
           <SelectContent>
             {mt4Terminals.map((terminal, index) => (
               <SelectItem key={index} value={terminal}>
-                {terminal.split('\\').pop()?.replace('terminal.exe', '') || terminal}
+                {isElectron 
+                  ? terminal.split('\\').pop()?.replace('terminal.exe', '') || terminal
+                  : terminal
+                }
               </SelectItem>
             ))}
           </SelectContent>
