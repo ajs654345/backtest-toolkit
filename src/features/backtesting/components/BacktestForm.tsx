@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -127,7 +128,7 @@ export function BacktestForm() {
           <TabsContent value="execution">
             <div className="space-y-6">
               <MT4TerminalSelector
-                terminals={mt4Terminals}
+                mt4Terminals={mt4Terminals}
                 selectedTerminal={selectedTerminal}
                 setSelectedTerminal={setSelectedTerminal}
                 onRefresh={handleRefreshTerminals}
