@@ -4,6 +4,7 @@ interface ElectronAPI {
   receive: (channel: string, func: (...args: any[]) => void) => () => void;
   platform: () => string;
   isElectron: () => boolean;
+  invoke: (channel: string, data?: any) => Promise<any>;
 }
 
 // Add Electron API to Window interface

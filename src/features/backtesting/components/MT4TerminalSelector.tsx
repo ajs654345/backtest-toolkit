@@ -3,8 +3,7 @@ import React from 'react';
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { RefreshCcw, Info } from "lucide-react";
-import { isElectronApp } from '@/lib/electron-utils';
+import { RefreshCcw } from "lucide-react";
 
 interface MT4TerminalSelectorProps {
   mt4Terminals: string[];
@@ -19,8 +18,6 @@ const MT4TerminalSelector = ({
   setSelectedTerminal,
   onRefresh
 }: MT4TerminalSelectorProps) => {
-  const isElectron = isElectronApp();
-  
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
@@ -34,13 +31,6 @@ const MT4TerminalSelector = ({
           <RefreshCcw className="h-4 w-4" />
         </Button>
       </div>
-      
-      {!isElectron && (
-        <div className="text-sm text-amber-600 flex items-center gap-2 mb-2 p-2 bg-amber-100 rounded">
-          <Info size={16} />
-          <span>Modo Web: Usando terminales MT4 simulados. Para funcionalidad completa, utilice la aplicación de escritorio.</span>
-        </div>
-      )}
       
       {mt4Terminals.length === 0 ? (
         <div className="text-sm text-amber-600">
