@@ -19,7 +19,7 @@ export class MT4ExecutionService {
         from: command.dateFrom?.toISOString(),
         to: command.dateTo?.toISOString(),
         mode: command.testingMode,
-        outputPath: command.outputPath || this.getDefaultOutputPath(),
+        outputPath: command.outputPath || await this.getDefaultOutputPath(),
         terminal: command.mt4Terminal
       };
 
