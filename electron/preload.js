@@ -3,8 +3,6 @@ const { contextBridge, ipcRenderer } = require('electron');
 
 // Exponer APIs de Electron a la app web de forma segura
 contextBridge.exposeInMainWorld('electron', {
-  isElectron: () => true,
-  platform: () => process.platform,
   invoke: (channel, data) => {
     const validChannels = [
       'select-directory', 
@@ -26,12 +24,12 @@ contextBridge.exposeInMainWorld('electron', {
     return Promise.reject(new Error(`Canal no permitido: ${channel}`));
   },
   send: (channel, data) => {
-    const validChannels = ['mt4-command', 'progress-update'];
+    const validChannels = ['progress-update'];
     if (validChannels.includes(channel)) {
       ipcRenderer.send(channel, data);
     }
   },
-  receive: (channel, func) => {
+  on: (channel, func) => {
     const validChannels = ['progress-update'];
     if (validChannels.includes(channel)) {
       // Eliminar cualquier listener anterior para evitar duplicados
@@ -46,18 +44,6 @@ contextBridge.exposeInMainWorld('electron', {
         ipcRenderer.removeListener(channel, subscription);
       };
     }
-    
-    return () => {}; // Devolver una función vacía si el canal no es válido
-  }
-});
-
-// Script para disparar eventos de progreso desde la web a la ventana principal
-window.addEventListener('progress-update', (event) => {
-  if (event.detail) {
-    const customEvent = new CustomEvent('progress-update', { 
-      detail: event.detail 
-    });
-    window.dispatchEvent(customEvent);
   }
 });
 

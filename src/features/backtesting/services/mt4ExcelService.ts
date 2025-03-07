@@ -1,6 +1,5 @@
 
 import { ExcelUpdateParams, ExcelGenerateParams, MT4Result } from './mt4Types';
-import { invokeElectron } from '@/lib/electron-utils';
 
 export class MT4ExcelService {
   async updateExistingExcel(params: ExcelUpdateParams): Promise<void> {
@@ -9,7 +8,7 @@ export class MT4ExcelService {
         throw new Error('Electron no está disponible');
       }
       
-      const result = await invokeElectron('update-excel', {
+      const result = await window.electron.invoke('update-excel', {
         filePath: params.filePath,
         resultsPath: params.resultsPath,
         robotData: params.robotData
@@ -34,7 +33,7 @@ export class MT4ExcelService {
       
       const fileName = params.fileName || `Backtest_Results_${new Date().toISOString().split('T')[0]}`;
       
-      const result = await invokeElectron('generate-excel', {
+      const result = await window.electron.invoke('generate-excel', {
         fileName,
         outputPath: params.outputPath,
         resultsPath: params.resultsPath,
