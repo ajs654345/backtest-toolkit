@@ -8,10 +8,10 @@ import { useToast } from "@/hooks/use-toast";
 
 interface CurrencyPairsListProps {
   currencyPairs: string[];
-  onReorder: (pairs: string[]) => void;
+  setCurrencyPairs: (pairs: string[]) => void;
 }
 
-const CurrencyPairsList = ({ currencyPairs, onReorder }: CurrencyPairsListProps) => {
+const CurrencyPairsList = ({ currencyPairs, setCurrencyPairs }: CurrencyPairsListProps) => {
   const { toast } = useToast();
   const [selectedPairs, setSelectedPairs] = useState<Set<string>>(new Set());
 
@@ -19,7 +19,7 @@ const CurrencyPairsList = ({ currencyPairs, onReorder }: CurrencyPairsListProps)
     const reorderedPairs = [...currencyPairs];
     const [removed] = reorderedPairs.splice(dragIndex, 1);
     reorderedPairs.splice(dropIndex, 0, removed);
-    onReorder(reorderedPairs);
+    setCurrencyPairs(reorderedPairs);
   };
 
   const toggleSelection = (pair: string) => {

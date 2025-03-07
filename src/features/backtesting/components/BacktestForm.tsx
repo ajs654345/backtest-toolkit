@@ -1,17 +1,16 @@
-
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { RobotSelector } from './RobotSelector';
-import { CurrencyPairsList } from './CurrencyPairsList';
-import { TestingModeSelector } from './TestingModeSelector';
-import { ConfigurationOptions } from './ConfigurationOptions';
-import { ExcelConfig } from './ExcelConfig';
-import { MT4TerminalSelector } from './MT4TerminalSelector';
+import RobotSelector from './RobotSelector';
+import CurrencyPairsList from './CurrencyPairsList';
+import TestingModeSelector from './TestingModeSelector';
+import ConfigurationOptions from './ConfigurationOptions';
+import ExcelConfig from './ExcelConfig';
+import MT4TerminalSelector from './MT4TerminalSelector';
 import { useBacktesting } from '../hooks/useBacktesting';
-import { DatePicker } from "@/components/ui/date-picker"; // Asegúrate de que este componente exista
+import { DatePicker } from "@/components/ui/date-picker";
 
 export function BacktestForm() {
   const {
@@ -118,6 +117,9 @@ export function BacktestForm() {
                 setUseDefaultNaming={setUseDefaultNaming}
                 existingExcelFile={existingExcelFile}
                 setExistingExcelFile={setExistingExcelFile}
+                outputPath={outputPath}
+                setOutputPath={setOutputPath}
+                handleExistingExcelChange={(e) => setExistingExcelFile(e.target.files?.[0] || null)}
               />
             </div>
           </TabsContent>

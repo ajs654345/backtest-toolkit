@@ -8,6 +8,7 @@ interface ExcelConfigProps {
   useExistingExcel: boolean;
   setUseExistingExcel: (value: boolean) => void;
   existingExcelFile: File | null;
+  setExistingExcelFile: (file: File | null) => void;
   handleExistingExcelChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   useDefaultNaming: boolean;
   setUseDefaultNaming: (value: boolean) => void;
