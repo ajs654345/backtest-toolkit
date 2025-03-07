@@ -1,6 +1,6 @@
 
 import { useEffect } from 'react';
-import { listenToElectron, isElectronApp } from '@/lib/electron-utils';
+import { isElectronApp, listenToElectron } from '@/lib/electron-utils';
 
 interface UseProgressListenerProps {
   setProgress: (progress: number) => void;
@@ -12,33 +12,46 @@ export const useProgressListener = ({
   setCurrentTask
 }: UseProgressListenerProps) => {
   useEffect(() => {
-    // Función para procesar actualizaciones de progreso
-    const handleProgressUpdate = (data: any) => {
-      const { progress, current, total, robot, pair } = data;
-      setProgress(progress);
-      setCurrentTask(`Procesando ${robot} en ${pair} (${current}/${total})`);
-    };
-
-    let removeListener: (() => void) | null = null;
+    // Listener para progreso en Electron
+    let removeElectronListener = () => {};
     
-    // Diferentes métodos para Electron y Web
     if (isElectronApp()) {
-      // En Electron, utilizamos el IPC
-      removeListener = listenToElectron('progress-update', handleProgressUpdate);
+      removeElectronListener = listenToElectron('progress-update', (data) => {
+        if (data?.progress !== undefined) {
+          // Asegurar que el progreso es un número entre 0 y 100
+          const progressValue = Math.max(0, Math.min(100, Number(data.progress)));
+          setProgress(progressValue);
+        }
+        
+        if (data?.robot && data?.pair) {
+          setCurrentTask(`Procesando ${data.robot} en ${data.pair}`);
+        }
+      });
     } else {
-      // En Web, utilizamos eventos personalizados
-      const webHandler = (event: CustomEvent) => handleProgressUpdate(event.detail);
-      window.addEventListener('backtest-progress', webHandler as EventListener);
+      // En modo web, escuchamos el evento personalizado
+      const handleWebProgress = (event: CustomEvent) => {
+        const data = event.detail;
+        
+        if (data?.progress !== undefined) {
+          // Asegurar que el progreso es un número entre 0 y 100
+          const progressValue = Math.max(0, Math.min(100, Number(data.progress)));
+          setProgress(progressValue);
+        }
+        
+        if (data?.robot && data?.pair) {
+          setCurrentTask(`Procesando ${data.robot} en ${data.pair}`);
+        }
+      };
       
-      // Retornar función para limpiar el listener
-      removeListener = () => {
-        window.removeEventListener('backtest-progress', webHandler as EventListener);
+      window.addEventListener('backtest-progress', handleWebProgress as EventListener);
+      
+      return () => {
+        window.removeEventListener('backtest-progress', handleWebProgress as EventListener);
       };
     }
     
-    // Limpiar al desmontar
     return () => {
-      if (removeListener) removeListener();
+      removeElectronListener();
     };
   }, [setProgress, setCurrentTask]);
 };

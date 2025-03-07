@@ -3,74 +3,39 @@ import { useState, useEffect } from 'react';
 
 export const useBacktestState = () => {
   const [selectedRobots, setSelectedRobots] = useState<File[]>([]);
-  const [outputPath, setOutputPath] = useState('');
-  const [excelName, setExcelName] = useState('');
-  const [useExistingExcel, setUseExistingExcel] = useState(false);
+  const [currencyPairs, setCurrencyPairs] = useState<string[]>(['EURUSD', 'GBPUSD', 'USDJPY']);
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
+  const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
+  const [testingMode, setTestingMode] = useState<string>('Every tick');
+  const [outputPath, setOutputPath] = useState<string>('');
+  const [useExistingExcel, setUseExistingExcel] = useState<boolean>(false);
+  const [excelName, setExcelName] = useState<string>('');
+  const [useDefaultNaming, setUseDefaultNaming] = useState<boolean>(true);
   const [existingExcelFile, setExistingExcelFile] = useState<File | null>(null);
-  const [useDefaultNaming, setUseDefaultNaming] = useState(true);
-  const [testingMode, setTestingMode] = useState('control');
-  const [saveConfig, setSaveConfig] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [currentTask, setCurrentTask] = useState('');
-  
-  // Establecer fechas por defecto
-  const today = new Date();
-  const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-  const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-  
-  const [dateFrom, setDateFrom] = useState<Date | undefined>(firstDayOfMonth);
-  const [dateTo, setDateTo] = useState<Date | undefined>(lastDayOfMonth);
-  
-  // Eliminar duplicados y ordenar alfabéticamente
-  const [currencyPairs, setCurrencyPairs] = useState([
-    "AUDCAD", "AUDCHF", "AUDJPY", "AUDNZD", "AUDUSD", 
-    "CADCHF", "CADJPY", 
-    "CHFJPY", 
-    "EURAUD", "EURCAD", "EURCHF", "EURGBP", "EURJPY", "EURNZD", "EURUSD",
-    "GBPAUD", "GBPCAD", "GBPCHF", "GBPJPY", "GBPNZD", "GBPUSD",
-    "NZDCAD", "NZDCHF", "NZDJPY", "NZDUSD",
-    "USDCAD", "USDCHF", "USDJPY"
-  ]);
-  
-  // Guardar las fechas en localStorage para persistirlas
-  useEffect(() => {
-    if (dateFrom) {
-      localStorage.setItem('backtestDateFrom', dateFrom.toISOString());
-    }
-    if (dateTo) {
-      localStorage.setItem('backtestDateTo', dateTo.toISOString());
-    }
-  }, [dateFrom, dateTo]);
-  
-  // Cargar fechas guardadas al iniciar
-  useEffect(() => {
-    const savedDateFrom = localStorage.getItem('backtestDateFrom');
-    const savedDateTo = localStorage.getItem('backtestDateTo');
-    
-    if (savedDateFrom) {
-      setDateFrom(new Date(savedDateFrom));
-    }
-    if (savedDateTo) {
-      setDateTo(new Date(savedDateTo));
-    }
-  }, []);
+  const [saveConfig, setSaveConfig] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [progress, setProgress] = useState<number>(0);
+  const [currentTask, setCurrentTask] = useState<string>('');
 
-  // Cargar configuración guardada
+  // Cargar configuración guardada al iniciar
   useEffect(() => {
     const savedConfig = localStorage.getItem('backtestConfig');
     if (savedConfig) {
       try {
         const config = JSON.parse(savedConfig);
+        
         if (config.testingMode) setTestingMode(config.testingMode);
         if (config.outputPath) setOutputPath(config.outputPath);
+        
         if (config.excelConfig) {
-          setUseExistingExcel(config.excelConfig.useExisting);
-          setUseDefaultNaming(!config.excelConfig.fileName);
-          setExcelName(config.excelConfig.fileName || '');
+          setUseExistingExcel(config.excelConfig.useExisting || false);
+          if (config.excelConfig.fileName) {
+            setExcelName(config.excelConfig.fileName);
+            setUseDefaultNaming(false);
+          }
         }
-      } catch (error) {
-        console.error('Error al cargar configuración:', error);
+      } catch (err) {
+        console.error('Error al cargar configuración guardada:', err);
       }
     }
   }, []);
@@ -78,31 +43,31 @@ export const useBacktestState = () => {
   return {
     selectedRobots,
     setSelectedRobots,
-    outputPath,
-    setOutputPath,
-    excelName,
-    setExcelName,
-    useExistingExcel,
-    setUseExistingExcel,
-    existingExcelFile,
-    setExistingExcelFile,
-    useDefaultNaming,
-    setUseDefaultNaming,
-    testingMode,
-    setTestingMode,
-    saveConfig,
-    setSaveConfig,
-    isLoading,
-    setIsLoading,
+    currencyPairs,
+    setCurrencyPairs,
     dateFrom,
     setDateFrom,
     dateTo,
     setDateTo,
-    currencyPairs,
-    setCurrencyPairs,
+    testingMode,
+    setTestingMode,
+    outputPath,
+    setOutputPath,
+    useExistingExcel,
+    setUseExistingExcel,
+    excelName,
+    setExcelName,
+    useDefaultNaming,
+    setUseDefaultNaming,
+    existingExcelFile,
+    setExistingExcelFile,
+    saveConfig,
+    setSaveConfig,
+    isLoading,
+    setIsLoading,
     progress,
     setProgress,
-    currentTask, 
+    currentTask,
     setCurrentTask
   };
 };
