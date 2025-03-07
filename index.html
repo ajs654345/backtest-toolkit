@@ -8,11 +8,12 @@
     <meta name="description" content="Herramienta de backtesting para trading" />
     <meta name="author" content="Lovable" />
     <meta property="og:image" content="/og-image.png" />
-    <meta http-equiv="Content-Security-Policy" content="script-src 'self' https://cdn.gpteng.co 'unsafe-inline' 'unsafe-eval';" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.gpteng.co 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' *;" />
   </head>
 
   <body>
     <div id="root"></div>
+    <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
