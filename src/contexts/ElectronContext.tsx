@@ -29,8 +29,21 @@ export const ElectronProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     console.log('ElectronProvider inicializado', { 
       isElectron, 
       platform, 
-      electronAPI: window.electron ? 'disponible' : 'no disponible' 
+      electronAPI: window.electron ? 'disponible' : 'no disponible',
+      electronAPIMethods: window.electron ? Object.keys(window.electron) : []
     });
+
+    // Añadir un manejador de eventos para progress-update
+    if (isElectron) {
+      const cleanup = listenToElectron('progress-update', (data) => {
+        console.log('Evento progress-update recibido:', data);
+        // Disparar un evento DOM para que los componentes puedan escucharlo
+        const event = new CustomEvent('progress-update', { detail: data });
+        window.dispatchEvent(event);
+      });
+
+      return cleanup;
+    }
   }, [isElectron, platform]);
 
   // Provide Electron API methods or fallbacks

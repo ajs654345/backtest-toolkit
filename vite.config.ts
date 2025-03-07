@@ -3,13 +3,16 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { fileURLToPath } from "url";
+import type { ConfigEnv, UserConfig } from "vite";
 
 // Definir __dirname en ESM
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-export default defineConfig(async ({ mode }) => {
+export default defineConfig(async (config: ConfigEnv): Promise<UserConfig> => {
+  const { mode } = config;
   let componentTagger;
+  
   if (mode === "development") {
     try {
       // Importación dinámica compatible con ESM

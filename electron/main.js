@@ -1,3 +1,4 @@
+
 const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
 const fs = require('fs');
@@ -37,6 +38,12 @@ function createWindow() {
   // Cargar la aplicación
   mainWindow.loadURL(startUrl);
   
+  // Abrir DevTools en desarrollo y manejar errores
+  if (isDev) {
+    mainWindow.webContents.openDevTools();
+    console.log('DevTools abierto en modo desarrollo');
+  }
+
   // Manejar errores de carga
   mainWindow.webContents.on('did-fail-load', () => {
     console.log('Falló la carga, intentando nuevamente...');
@@ -47,12 +54,6 @@ function createWindow() {
       }
     }, 1000);
   });
-
-  // Abrir DevTools en desarrollo
-  if (isDev) {
-    mainWindow.webContents.openDevTools();
-    console.log('DevTools abierto en modo desarrollo');
-  }
 
   mainWindow.on('closed', () => {
     mainWindow = null;
@@ -69,6 +70,11 @@ app.whenReady().then(() => {
     }
   });
 
+  // Configurar los manejadores de IPC
+  setupIPCHandlers();
+});
+
+function setupIPCHandlers() {
   // Manejador para seleccionar carpeta de salida
   ipcMain.handle('select-directory', async () => {
     if (!mainWindow) return { canceled: true };
@@ -107,17 +113,20 @@ app.whenReady().then(() => {
     return result;
   });
 
-  // Implementación real para handlers
+  // Manejador para comandos MT4
   ipcMain.handle('mt4-command', async (event, command) => {
     console.log('Comando MT4 recibido:', command);
+    // Aquí implementarías la lógica real para ejecutar el comando
     return { success: true, message: 'Comando ejecutado correctamente' };
   });
 
   // Manejador para resultados MT4
   ipcMain.handle('mt4-result', async () => {
-    return { data: 'Backtesting completado' };
+    // Simular resultado exitoso para desarrollo
+    return { success: true, data: 'Backtesting completado' };
   });
 
+  // Manejadores para Excel
   ipcMain.handle('generate-excel', async (event, params) => {
     console.log('Generando Excel:', params);
     return { success: true };
@@ -128,15 +137,17 @@ app.whenReady().then(() => {
     return { success: true };
   });
 
+  // Manejador para obtener terminales MT4
   ipcMain.handle('get-mt4-terminals', async () => {
     // Simulación de terminales para desarrollo
-    return { data: [
+    return { success: true, data: [
       'C:\\Program Files\\Darwinex MT4\\terminal.exe',
       'C:\\Program Files\\MetaTrader 4\\terminal.exe',
       'C:\\Users\\Usuario\\AppData\\Roaming\\MetaQuotes\\Terminal\\1B80A8D8FC5F405C891BF1E1E5185D92\\terminal.exe'
     ]};
   });
 
+  // Manejador para crear directorios
   ipcMain.handle('ensure-directory', async (event, { path }) => {
     try {
       if (!fs.existsSync(path)) {
@@ -148,8 +159,15 @@ app.whenReady().then(() => {
     }
   });
 
+  // Manejador para obtener la ruta de documentos
   ipcMain.handle('get-documents-path', async () => {
-    return app.getPath('documents');
+    try {
+      const documentsPath = app.getPath('documents');
+      return documentsPath;
+    } catch (error) {
+      console.error('Error al obtener ruta de documentos:', error);
+      return 'C:/MT4_Backtest_Results';
+    }
   });
 
   // Manejador para eventos de progreso
@@ -158,19 +176,12 @@ app.whenReady().then(() => {
       mainWindow.webContents.send('progress-update', data);
     }
   });
-});
+}
 
 // Salir de la aplicación cuando todas las ventanas estén cerradas (excepto en macOS)
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
-  }
-});
-
-// Manejar activación de la aplicación en macOS
-app.on('activate', () => {
-  if (mainWindow === null) {
-    createWindow();
   }
 });
 

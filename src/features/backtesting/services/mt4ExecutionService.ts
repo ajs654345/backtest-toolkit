@@ -53,9 +53,11 @@ export class MT4ExecutionService {
     }
     
     try {
-      const path = await invokeElectron('get-documents-path');
-      console.log('Ruta de documentos obtenida:', path);
-      return path ? path.toString() : 'C:/MT4_Backtest_Results';
+      const result = await invokeElectron('get-documents-path');
+      console.log('Ruta de documentos obtenida:', result);
+      // Asegurarse de que el resultado sea una cadena
+      const path = result ? String(result) : 'C:/MT4_Backtest_Results';
+      return path;
     } catch (err) {
       console.error('Error al obtener ruta de documentos:', err);
       return 'C:/MT4_Backtest_Results';

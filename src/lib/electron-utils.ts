@@ -21,7 +21,7 @@ export const isElectronApp = (): boolean => {
  */
 export const getPlatform = (): string => {
   try {
-    if (isElectronApp()) {
+    if (isElectronApp() && window.electron?.platform) {
       return window.electron.platform() || 'web';
     }
   } catch (error) {
@@ -35,11 +35,11 @@ export const getPlatform = (): string => {
  */
 export const sendToElectron = (channel: string, data?: any): void => {
   try {
-    if (isElectronApp()) {
+    if (isElectronApp() && window.electron?.send) {
       window.electron.send(channel, data);
       console.log(`Mensaje enviado al canal "${channel}"`, data);
     } else {
-      console.warn(`No se pudo enviar al canal "${channel}" - no se está ejecutando en Electron`);
+      console.warn(`No se pudo enviar al canal "${channel}" - no se está ejecutando en Electron o el método 'send' no está disponible`);
     }
   } catch (error) {
     console.error(`Error al enviar mensaje a "${channel}":`, error);
@@ -52,14 +52,14 @@ export const sendToElectron = (channel: string, data?: any): void => {
  */
 export const listenToElectron = (channel: string, callback: (...args: any[]) => void): (() => void) => {
   try {
-    if (isElectronApp()) {
+    if (isElectronApp() && window.electron?.receive) {
       console.log(`Escuchando canal "${channel}"`);
       return window.electron.receive(channel, callback);
     }
   } catch (error) {
     console.error(`Error al escuchar canal "${channel}":`, error);
   }
-  console.warn(`No se puede escuchar el canal "${channel}" - no se está ejecutando en Electron`);
+  console.warn(`No se puede escuchar el canal "${channel}" - no se está ejecutando en Electron o el método 'receive' no está disponible`);
   return () => {}; // Return empty cleanup function
 };
 
@@ -68,7 +68,7 @@ export const listenToElectron = (channel: string, callback: (...args: any[]) => 
  */
 export const invokeElectron = async (channel: string, data?: any): Promise<any> => {
   try {
-    if (isElectronApp() && window.electron.invoke) {
+    if (isElectronApp() && window.electron?.invoke) {
       console.log(`Invocando canal "${channel}"`, data);
       return await window.electron.invoke(channel, data);
     }
